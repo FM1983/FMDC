@@ -1,69 +1,38 @@
-"""Run Claude Code CLI as a subprocess and return the output."""
+"""Send prompts to Claude via the Anthropic API and return the response."""
 
-import asyncio
-import os
-from pathlib import Path
+import anthropic
 
 import config
 
 
 async def run_claude(prompt: str, working_dir: str | None = None) -> str:
-    """Execute `claude -p "prompt"` and return stdout.
+    """Send a prompt to Claude via the Anthropic API.
 
     Args:
-        prompt: The prompt string to send to Claude CLI.
-        working_dir: Directory to run the command in.  Defaults to
-            ``config.CLAUDE_WORKING_DIR``.
+        prompt: The user's message.
+        working_dir: Unused (kept for interface compatibility).
 
     Returns:
-        The CLI stdout as a string, or an error message.
+        Claude's response text, or an error message.
     """
-    cwd = working_dir or config.CLAUDE_WORKING_DIR
-
-    # Security: ensure the working directory is within allowed paths
-    resolved = str(Path(cwd).resolve())
-    if not any(
-        resolved == allowed or resolved.startswith(allowed + os.sep)
-        for allowed in (str(Path(d).resolve()) for d in config.ALLOWED_DIRECTORIES)
-    ):
-        return f"Error: directory '{cwd}' is not in the allowed directories list."
-
-    if not Path(resolved).is_dir():
-        return f"Error: directory '{cwd}' does not exist."
-
     try:
-        process = await asyncio.create_subprocess_exec(
-            "claude",
-            "-p",
-            prompt,
-            "--output-format", "text",
-            cwd=resolved,
-            stdin=asyncio.subprocess.DEVNULL,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+        client = anthropic.AsyncAnthropic(api_key=config.ANTHROPIC_API_KEY)
+
+        message = await client.messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=4096,
+            messages=[{"role": "user", "content": prompt}],
         )
 
-        try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=config.CLAUDE_TIMEOUT,
-            )
-        except asyncio.TimeoutError:
-            process.kill()
-            await process.communicate()
-            return (
-                f"Error: Claude CLI timed out after {config.CLAUDE_TIMEOUT} seconds."
-            )
+        # Extract text from the response
+        text_parts = [
+            block.text for block in message.content if block.type == "text"
+        ]
+        return "\n".join(text_parts) or "(no response)"
 
-        if process.returncode != 0:
-            err = stderr.decode().strip()
-            return f"Error (exit {process.returncode}): {err}" if err else (
-                f"Error: Claude CLI exited with code {process.returncode}."
-            )
-
-        return stdout.decode().strip() or "(no output)"
-
-    except FileNotFoundError:
-        return "Error: 'claude' CLI not found. Make sure it is installed and on PATH."
+    except anthropic.AuthenticationError:
+        return "Error: Invalid ANTHROPIC_API_KEY. Check your .env file."
+    except anthropic.RateLimitError:
+        return "Error: Rate limited by the API. Try again in a moment."
     except Exception as exc:
-        return f"Error running Claude CLI: {exc}"
+        return f"Error calling Claude API: {exc}"

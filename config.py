@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# Claude CLI settings
+# Claude API settings
+ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+CLAUDE_MODEL: str = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-20250514")
 CLAUDE_WORKING_DIR: str = os.getenv("CLAUDE_WORKING_DIR", os.getcwd())
 CLAUDE_TIMEOUT: int = int(os.getenv("CLAUDE_TIMEOUT", "300"))
 
