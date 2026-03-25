@@ -1,5 +1,5 @@
-"""Telegram adapter — receives messages and forwards them to Claude with
-conversation memory and tool use."""
+"""Telegram adapter — Claude Code via Telegram with conversation memory,
+tool use, and shortcut commands."""
 
 import logging
 
@@ -21,14 +21,12 @@ TELEGRAM_MAX_MESSAGE_LENGTH = 4096
 
 
 def _is_authorized(user_id: int) -> bool:
-    """Return True when the user is in the allow-list (or the list is empty)."""
     if not config.ALLOWED_TELEGRAM_USERS:
         return True
     return user_id in config.ALLOWED_TELEGRAM_USERS
 
 
 def _split_message(text: str, limit: int = TELEGRAM_MAX_MESSAGE_LENGTH) -> list[str]:
-    """Split text into chunks that fit within the Telegram character limit."""
     if len(text) <= limit:
         return [text]
     chunks: list[str] = []
@@ -45,20 +43,22 @@ def _split_message(text: str, limit: int = TELEGRAM_MAX_MESSAGE_LENGTH) -> list[
 
 
 async def _start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle the /start command."""
     await update.message.reply_text(
-        "Hey! I'm your Claude Code assistant.\n\n"
-        "Send me any message — I can:\n"
-        "- Answer questions\n"
-        "- Read & edit files in the project\n"
-        "- Run shell commands (git, tests, etc.)\n"
-        "- Search through code\n\n"
-        "I remember our conversation. Send /clear to reset."
+        "Claude Code is connected.\n\n"
+        "I can read/edit files, run commands, manage git, search code — "
+        "anything you'd do in a terminal.\n\n"
+        "Commands:\n"
+        "/clear — reset conversation\n"
+        "/status — git status\n"
+        "/log — recent git log\n"
+        "/diff — git diff\n"
+        "/files — list project files\n"
+        "/run <cmd> — run a shell command\n\n"
+        "Or just tell me what to do in plain English."
     )
 
 
 async def _clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle the /clear command — reset conversation history."""
     user = update.effective_user
     if not _is_authorized(user.id):
         return
@@ -66,11 +66,39 @@ async def _clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text("Conversation cleared.")
 
 
-async def _handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Forward a user message to Claude and reply with the result."""
+async def _shortcut_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle shortcut commands that map to prompts."""
     user = update.effective_user
     if not _is_authorized(user.id):
-        await update.message.reply_text("Sorry, you are not authorized to use this bot.")
+        return
+
+    cmd = update.message.text.split()[0].lstrip("/")
+    args = update.message.text[len(cmd) + 1:].strip()
+
+    prompt_map = {
+        "status": "Run git status and give me a brief summary.",
+        "log": "Run git log --oneline -10 and show me the results.",
+        "diff": "Run git diff and summarize the changes.",
+        "files": "List the files in the project directory.",
+        "run": f"Run this command and show the output: {args}" if args else "What command do you want me to run?",
+        "commit": f"Stage the relevant changes and commit with message: {args}" if args else "Run git status, then suggest a commit message for the current changes.",
+        "push": "Push the current branch to origin.",
+        "test": f"Run the tests: {args}" if args else "Find and run the project's tests.",
+        "search": f"Search the codebase for: {args}" if args else "What should I search for?",
+    }
+
+    prompt = prompt_map.get(cmd, update.message.text)
+
+    await update.message.chat.send_action("typing")
+    response = await run_claude(prompt, user_id=f"telegram_{user.id}")
+    for chunk in _split_message(response):
+        await update.message.reply_text(chunk)
+
+
+async def _handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    if not _is_authorized(user.id):
+        await update.message.reply_text("Not authorized.")
         return
 
     prompt = update.message.text
@@ -87,19 +115,19 @@ async def _handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 
 def create_application() -> Application:
-    """Build and return the Telegram Application."""
     if not config.TELEGRAM_BOT_TOKEN:
         raise ValueError("TELEGRAM_BOT_TOKEN is not set.")
 
     app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", _start_command))
     app.add_handler(CommandHandler("clear", _clear_command))
+    for cmd in ("status", "log", "diff", "files", "run", "commit", "push", "test", "search"):
+        app.add_handler(CommandHandler(cmd, _shortcut_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, _handle_message))
     return app
 
 
 async def start() -> None:
-    """Initialize and start the Telegram bot (polling mode)."""
     app = create_application()
     logger.info("Starting Telegram bot (polling)…")
     await app.initialize()
@@ -108,5 +136,4 @@ async def start() -> None:
 
 
 async def stop() -> None:
-    """Gracefully stop the Telegram bot if it was started."""
     pass
