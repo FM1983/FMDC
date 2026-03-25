@@ -36,7 +36,9 @@ async def run_claude(prompt: str, working_dir: str | None = None) -> str:
             "claude",
             "-p",
             prompt,
+            "--output-format", "text",
             cwd=resolved,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
