@@ -1,6 +1,7 @@
-"""Claude API runner with conversation memory and tool use."""
+"""Claude API runner with conversation memory, tool use, and vision support."""
 
 import asyncio
+import base64
 import os
 import subprocess
 from collections import defaultdict
@@ -173,7 +174,6 @@ def _resolve_path(path: str) -> str:
     if not os.path.isabs(path):
         path = os.path.join(config.CLAUDE_WORKING_DIR, path)
     resolved = str(Path(path).resolve())
-    # Security: check allowed directories
     allowed = any(
         resolved == a or resolved.startswith(a + os.sep)
         for a in (str(Path(d).resolve()) for d in config.ALLOWED_DIRECTORIES)
@@ -266,12 +266,36 @@ def clear_history(user_id: str) -> None:
     _conversations.pop(user_id, None)
 
 
-async def run_claude(prompt: str, user_id: str = "default") -> str:
+def _build_user_content(prompt: str, image_data: list[dict] | None = None) -> list[dict]:
+    """Build a user message content array, optionally with images."""
+    content = []
+    if image_data:
+        for img in image_data:
+            content.append({
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": img["media_type"],
+                    "data": img["data"],
+                },
+            })
+    content.append({"type": "text", "text": prompt})
+    return content
+
+
+async def run_claude(
+    prompt: str,
+    user_id: str = "default",
+    image_data: list[dict] | None = None,
+    progress_callback=None,
+) -> str:
     """Send a prompt to Claude with conversation history and tool use.
 
     Args:
         prompt: The user's message.
         user_id: Unique user identifier for conversation memory.
+        image_data: Optional list of {"media_type": "image/jpeg", "data": "base64..."}.
+        progress_callback: Optional async callable(str) for progress updates.
 
     Returns:
         Claude's final text response.
@@ -280,8 +304,9 @@ async def run_claude(prompt: str, user_id: str = "default") -> str:
         client = anthropic.AsyncAnthropic(api_key=config.ANTHROPIC_API_KEY)
         history = _conversations[user_id]
 
-        # Add user message
-        history.append({"role": "user", "content": prompt})
+        # Build user message with optional images
+        user_content = _build_user_content(prompt, image_data)
+        history.append({"role": "user", "content": user_content})
 
         # Trim history if too long
         if len(history) > MAX_HISTORY:
@@ -290,7 +315,7 @@ async def run_claude(prompt: str, user_id: str = "default") -> str:
         system = SYSTEM_PROMPT.format(work_dir=config.CLAUDE_WORKING_DIR)
 
         # Tool use loop — Claude may call tools multiple times
-        for _ in range(10):  # max 10 tool calls per message
+        for iteration in range(10):
             response = await client.messages.create(
                 model=config.CLAUDE_MODEL,
                 max_tokens=4096,
@@ -314,6 +339,24 @@ async def run_claude(prompt: str, user_id: str = "default") -> str:
             tool_results = []
             for block in response.content:
                 if block.type == "tool_use":
+                    # Send progress update
+                    if progress_callback:
+                        tool_desc = f"Using {block.name}..."
+                        if block.name == "run_command":
+                            cmd = block.input.get("command", "")
+                            tool_desc = f"Running: {cmd[:60]}"
+                        elif block.name == "read_file":
+                            tool_desc = f"Reading: {block.input.get('path', '')}"
+                        elif block.name == "edit_file":
+                            tool_desc = f"Editing: {block.input.get('path', '')}"
+                        elif block.name == "write_file":
+                            tool_desc = f"Writing: {block.input.get('path', '')}"
+                        elif block.name == "search_files":
+                            tool_desc = f"Searching: {block.input.get('pattern', '')}"
+                        elif block.name == "list_directory":
+                            tool_desc = f"Listing: {block.input.get('path', '.')}"
+                        await progress_callback(tool_desc)
+
                     result = _execute_tool(block.name, block.input)
                     tool_results.append({
                         "type": "tool_result",
