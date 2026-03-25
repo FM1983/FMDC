@@ -53,7 +53,13 @@ async def _start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         "/log — recent git log\n"
         "/diff — git diff\n"
         "/files — list project files\n"
-        "/run <cmd> — run a shell command\n\n"
+        "/run <cmd> — run a shell command\n"
+        "/commit <msg> — commit changes\n"
+        "/push — push to remote\n"
+        "/test — run tests\n"
+        "/search <term> — search codebase\n"
+        "/sessions — list Claude Code sessions\n"
+        "/workstreams — overview of all active work\n\n"
         "Or just tell me what to do in plain English."
     )
 
@@ -85,6 +91,21 @@ async def _shortcut_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         "push": "Push the current branch to origin.",
         "test": f"Run the tests: {args}" if args else "Find and run the project's tests.",
         "search": f"Search the codebase for: {args}" if args else "What should I search for?",
+        "sessions": (
+            "List all Claude Code sessions by scanning ~/.claude/projects/. "
+            "For each project directory, read the .jsonl files, get the first user message "
+            "and the file modification time. Show me: project name, session start time, "
+            "and what the session was about (first user message). Sort by most recent first. "
+            "Format as a clean list."
+        ),
+        "workstreams": (
+            "Give me an overview of all active workstreams. Do this:\n"
+            "1. Run `find ~/.claude/projects -name '*.jsonl' -mmin -1440` to find sessions active in the last 24h\n"
+            "2. For each, read the first few lines to get the topic\n"
+            "3. Check all git repos under /home/user for recent branch activity: "
+            "run `find /home/user -maxdepth 3 -name .git -type d` then `git -C <dir> branch -v --sort=-committerdate | head -5` for each\n"
+            "4. Summarize everything as a brief status report of what's being worked on"
+        ),
     }
 
     prompt = prompt_map.get(cmd, update.message.text)
@@ -121,7 +142,7 @@ def create_application() -> Application:
     app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", _start_command))
     app.add_handler(CommandHandler("clear", _clear_command))
-    for cmd in ("status", "log", "diff", "files", "run", "commit", "push", "test", "search"):
+    for cmd in ("status", "log", "diff", "files", "run", "commit", "push", "test", "search", "sessions", "workstreams"):
         app.add_handler(CommandHandler(cmd, _shortcut_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, _handle_message))
     return app
