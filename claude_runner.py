@@ -367,6 +367,29 @@ async def run_claude(
 
         return "Error: too many tool calls in a row."
 
+    except anthropic.BadRequestError as exc:
+        # Auto-recover from corrupted conversation history
+        if "tool_result" in str(exc) or "tool_use" in str(exc):
+            _conversations[user_id] = []
+            # Retry with clean history
+            _conversations[user_id].append({"role": "user", "content": user_content})
+            try:
+                response = await client.messages.create(
+                    model=config.CLAUDE_MODEL,
+                    max_tokens=4096,
+                    system=system,
+                    tools=TOOLS,
+                    messages=_conversations[user_id],
+                )
+                text_parts = [
+                    block.text for block in response.content
+                    if block.type == "text"
+                ]
+                _conversations[user_id].append({"role": "assistant", "content": response.content})
+                return "(History auto-cleared due to corruption)\n\n" + ("\n".join(text_parts) or "(no response)")
+            except Exception as retry_exc:
+                return f"Error after history reset: {retry_exc}"
+        return f"Error: {exc}"
     except anthropic.AuthenticationError:
         return "Error: Invalid ANTHROPIC_API_KEY. Check your .env file."
     except anthropic.RateLimitError:
