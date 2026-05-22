@@ -1,0 +1,4 @@
+node_modules/
+deck/node_modules/
+deck/preview/
+.DS_Store
