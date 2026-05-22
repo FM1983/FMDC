@@ -15,6 +15,40 @@
 .pfx{ font-size:.5em; font-weight:500; color:var(--steel); letter-spacing:.01em; }
 .page--light .pfx{ color:var(--olive); }
 
+/* ---- optional photography slots --------------------------- */
+/* each slot falls back to the vector illustration when no file is present */
+.cover__photo,.cover__scrim{ position:absolute; inset:0; z-index:0; display:none; }
+.cover__photo{ background:var(--photo-cover) center/cover no-repeat; }
+.cover__scrim{ background:rgba(14,15,11,.58); }
+body.has-photo-cover .cover__photo,
+body.has-photo-cover .cover__scrim{ display:block; }
+body.has-photo-cover .cover__plane,
+body.has-photo-cover .cover__waterline,
+body.has-photo-cover .cover>.gridfill{ display:none; }
+
+.plate__photo{ position:absolute; inset:0; z-index:0; display:none;
+  background:var(--photo-profile) center/cover no-repeat; }
+body.has-photo-profile .plate__photo{ display:block; }
+body.has-photo-profile .plate .acft-svg,
+body.has-photo-profile .plate__base,
+body.has-photo-profile .plate__dim{ display:none; }
+
+.livery__photo{ position:absolute; left:66px; right:66px; top:272px; height:296px;
+  z-index:1; display:none; border:1px solid var(--d-line-2);
+  background:var(--photo-livery) center/cover no-repeat; }
+.livery__strip{ position:absolute; left:66px; right:66px; top:586px;
+  display:none; z-index:3; border-top:1px solid var(--d-line-2); }
+body.has-photo-livery .livery__photo{ display:block; }
+body.has-photo-livery .livery__strip{ display:flex; }
+body.has-photo-livery .livery__plane,
+body.has-photo-livery .leaders,
+body.has-photo-livery .callout,
+body.has-photo-livery .livery__lead{ display:none; }
+.livery__strip .item{ flex:1; padding:15px 24px 0 0; }
+.livery__strip .item .k{ font-size:8.5px; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--olive-light); margin-bottom:7px; }
+.livery__strip .item .v{ font-size:10px; line-height:1.5; color:var(--d-body); }
+
 /* ---- 01 COVER --------------------------------------------- */
 .cover__bar{
   position:absolute; top:52px; left:66px; right:66px;
@@ -531,6 +565,8 @@
      ============================================================ -->
 <section class="page page--dark cover">
   <svg class="gridfill"><rect width="100%" height="100%" fill="url(#gridptn)"/></svg>
+  <div class="cover__photo"></div>
+  <div class="cover__scrim"></div>
 
   <div class="cover__bar">
     <div class="wordmark">
@@ -793,6 +829,7 @@
 
       <div class="profile__split">
         <div class="plate">
+          <div class="plate__photo"></div>
           <div class="plate__tag">Side Elevation</div>
           <div class="plate__tag2">PA-46-500TP</div>
           <svg class="acft-svg" viewBox="0 0 1320 460"><use href="#aircraft"/></svg>
@@ -856,6 +893,8 @@
     institutional mark. Quiet capability, not decoration.
   </div>
 
+  <div class="livery__photo"></div>
+
   <svg class="acft-svg livery__plane" viewBox="0 0 1320 460">
     <use href="#aircraft"/>
     <!-- shark-mouth nose art -->
@@ -876,6 +915,11 @@
     </g>
     <!-- citadel mark on fin -->
     <use href="#mark" x="1150" y="96" width="46" height="46" color="#cdcfb0"/>
+    <!-- registration & naming -->
+    <text x="372" y="202" font-family="Inter" font-size="12" font-weight="600"
+          letter-spacing="0.6" fill="#ECE9DF">EMILY PHILLIPS</text>
+    <text x="906" y="252" font-family="Inter Display" font-size="40" font-weight="600"
+          letter-spacing="1" fill="#ECE9DF">ZK-FTP</text>
   </svg>
 
   <!-- leader lines + markers -->
@@ -913,6 +957,25 @@
     <div class="callout__no">04</div>
     <div class="callout__ttl">Citadel Tail Mark</div>
     <div class="callout__txt">The institutional icon — sole branding on the empennage.</div>
+  </div>
+
+  <div class="livery__strip">
+    <div class="item">
+      <div class="k">01 — Finish</div>
+      <div class="v">Satin drab olive wrap — non-reflective matte airframe.</div>
+    </div>
+    <div class="item">
+      <div class="k">02 — Nose Art</div>
+      <div class="v">P-40 inspired shark-mouth, applied with restraint.</div>
+    </div>
+    <div class="item">
+      <div class="k">03 — Naming</div>
+      <div class="v">&ldquo;Emily Phillips&rdquo; &amp; ZK-FTP in single-weight uppercase.</div>
+    </div>
+    <div class="item">
+      <div class="k">04 — Identity</div>
+      <div class="v">Citadel mark, empennage — sole branding element.</div>
+    </div>
   </div>
 
   <div class="foot" style="position:absolute;left:66px;right:66px;bottom:46px;z-index:3;">
