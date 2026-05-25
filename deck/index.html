@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Citadel Capital — Executive Aviation Platform</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ============================================================
+   PAGE-SPECIFIC LAYOUT
+   ============================================================ */
+.acft-svg{ display:block; }
+.gridfill{ position:absolute; inset:0; width:100%; height:100%; }
+
+/* currency / approx prefix */
+.pfx{ font-size:.5em; font-weight:500; color:var(--steel); letter-spacing:.01em; }
+.page--light .pfx{ color:var(--olive); }
+
+/* ---- optional photography slots --------------------------- */
+/* each slot falls back to the vector illustration when no file is present */
+.cover__photo,.cover__scrim{ position:absolute; inset:0; z-index:0; display:none; }
+.cover__photo{ background:var(--photo-cover) center/cover no-repeat; }
+.cover__scrim{ background:rgba(14,15,11,.58); }
+body.has-photo-cover .cover__photo,
+body.has-photo-cover .cover__scrim{ display:block; }
+body.has-photo-cover .cover__plane,
+body.has-photo-cover .cover__waterline,
+body.has-photo-cover .cover>.gridfill{ display:none; }
+
+.plate__photo{ position:absolute; inset:0; z-index:0; display:none;
+  background:var(--photo-profile) center/cover no-repeat; }
+body.has-photo-profile .plate__photo{ display:block; }
+body.has-photo-profile .plate .acft-svg,
+body.has-photo-profile .plate__base,
+body.has-photo-profile .plate__dim{ display:none; }
+
+.livery__photo{ position:absolute; left:66px; right:66px; top:272px; height:296px;
+  z-index:1; display:none; border:1px solid var(--d-line-2);
+  background:var(--photo-livery) center/cover no-repeat; }
+.livery__strip{ position:absolute; left:66px; right:66px; top:586px;
+  display:none; z-index:3; border-top:1px solid var(--d-line-2); }
+body.has-photo-livery .livery__photo{ display:block; }
+body.has-photo-livery .livery__strip{ display:flex; }
+body.has-photo-livery .livery__plane,
+body.has-photo-livery .leaders,
+body.has-photo-livery .callout,
+body.has-photo-livery .livery__lead{ display:none; }
+.livery__strip .item{ flex:1; padding:15px 24px 0 0; }
+.livery__strip .item .k{ font-size:8.5px; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--olive-light); margin-bottom:7px; }
+.livery__strip .item .v{ font-size:10px; line-height:1.5; color:var(--d-body); }
+
+/* ---- 01 COVER --------------------------------------------- */
+.cover__bar{
+  position:absolute; top:52px; left:66px; right:66px;
+  display:flex; justify-content:space-between; align-items:center; z-index:3;
+}
+.wordmark{ display:flex; align-items:center; gap:13px; }
+.wordmark .mark{ width:25px; height:25px; color:var(--steel); }
+.wordmark__t b{
+  display:block; font-size:12.5px; font-weight:600; letter-spacing:.24em;
+  color:var(--d-head); text-transform:uppercase;
+}
+.wordmark__t span{
+  display:block; font-size:8px; font-weight:500; letter-spacing:.26em;
+  color:var(--d-faint); text-transform:uppercase; margin-top:3px;
+}
+.cover__class{
+  font-size:9px; font-weight:600; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--d-faint); display:flex; align-items:center; gap:9px;
+}
+.cover__class::before{ content:""; width:5px; height:5px; background:var(--signal); }
+
+.cover__plane{
+  position:absolute; left:150px; top:330px; width:980px;
+  color:var(--olive); --glass:#0e0f0a; z-index:1;
+}
+.cover__waterline{
+  position:absolute; left:66px; right:66px; bottom:109px; height:1px;
+  background:var(--d-line); z-index:2;
+}
+.cover__reg{
+  position:absolute; right:66px; bottom:117px; z-index:2;
+  font-size:9px; font-weight:600; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--steel); display:flex; align-items:center; gap:9px;
+}
+.cover__reg::before{ content:""; width:24px; height:1px; background:var(--steel); }
+
+.cover__body{ position:absolute; left:66px; top:150px; z-index:3; }
+.cover__ey{
+  display:flex; align-items:center; gap:13px;
+  font-size:10px; font-weight:600; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--steel); margin-bottom:30px;
+}
+.cover__ey::before{ content:""; width:36px; height:2px; background:var(--olive-light); }
+.cover__title{
+  font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:73px; line-height:1.03; letter-spacing:-.035em; color:var(--d-head);
+}
+.cover__title b{ font-weight:500; }
+.cover__sub{
+  margin-top:28px; display:flex; align-items:center; gap:16px;
+  font-size:12.5px; font-weight:500; color:var(--d-head);
+  font-family:'Inter Display',sans-serif; letter-spacing:-.003em;
+}
+.cover__sub .sep{ width:5px; height:5px; background:var(--olive-light); }
+.cover__sub .dim{ color:var(--steel); }
+.cover__foot{
+  position:absolute; left:66px; right:66px; bottom:50px; z-index:3;
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding-top:15px; border-top:1px solid var(--d-line);
+  font-size:9px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--d-faint);
+}
+
+/* ---- 02 CONTENTS ------------------------------------------ */
+.contents__grid{
+  display:grid; grid-template-columns:1fr 348px; gap:62px; flex:1; min-height:0;
+  align-content:start;
+}
+.idx__head{
+  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px;
+}
+.idx__head span{
+  font-size:8.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--l-faint-s);
+}
+.meta__title{
+  font-size:10px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--olive); margin-bottom:14px;
+}
+.meta__mark{ margin-top:26px; display:flex; align-items:center; gap:13px; }
+.meta__mark .mark{ width:30px; height:30px; color:var(--olive); }
+.meta__mark div{ font-size:9px; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--l-faint-s); line-height:1.7; }
+
+/* ---- 03 THESIS ------------------------------------------- */
+.thesis__statement{
+  font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:38px; line-height:1.16; letter-spacing:-.024em;
+  color:var(--d-head); max-width:20ch;
+}
+.thesis__statement b{ font-weight:500; color:#fff; }
+.thesis__top{
+  display:grid; grid-template-columns:1.35fr 1fr; gap:64px;
+  padding:28px 0 32px;
+}
+.thesis__intro{ font-size:12.5px; line-height:1.68; color:var(--d-body); }
+.thesis__intro .kicker{ display:block; margin-bottom:13px; }
+.thesis__cols{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:34px;
+  border-top:1px solid var(--d-line-2); padding-top:24px;
+}
+.minihead{
+  font-size:9.5px; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--olive-light); margin-bottom:15px;
+  display:flex; align-items:center; gap:9px;
+}
+.minihead .n{ color:var(--d-faint); }
+.flist{ list-style:none; }
+.flist li{
+  font-size:11px; line-height:1.4; color:var(--d-body);
+  padding:7.5px 0; border-bottom:1px solid var(--d-line); display:flex; gap:9px;
+}
+.flist li::before{ content:""; width:3px; height:3px; background:var(--olive-light);
+  flex:none; margin-top:6px; }
+.flist li:last-child{ border-bottom:none; }
+.flist--plain li::before{ background:var(--d-faint); width:13px; height:1px; margin-top:8px; }
+
+/* ---- 04 AIRCRAFT PROFILE --------------------------------- */
+.profile__split{
+  display:grid; grid-template-columns:1fr 384px; gap:54px;
+  flex:1; min-height:0; padding-top:22px;
+}
+.plate{
+  position:relative; display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  border:1px solid var(--l-line); background:var(--paper-2);
+}
+.plate .acft-svg{ width:540px; color:#26271E; --glass:var(--paper); margin-top:-14px; }
+.plate__base{
+  position:absolute; left:46px; right:46px; bottom:92px; height:1px;
+  background:var(--l-line-2);
+}
+.plate__dim{
+  position:absolute; left:46px; right:46px; bottom:58px;
+  display:flex; align-items:center; gap:11px;
+}
+.plate__dim .ln{ flex:1; height:1px; background:var(--l-line-2); position:relative; }
+.plate__dim .ln::before,.plate__dim .ln::after{
+  content:""; position:absolute; top:-3px; width:1px; height:7px; background:var(--l-line-2);
+}
+.plate__dim .ln::before{ left:0; } .plate__dim .ln::after{ right:0; }
+.plate__dim span{
+  font-size:8.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--l-faint-s);
+}
+.plate__tag{
+  position:absolute; top:28px; left:32px;
+  font-size:8.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--olive);
+}
+.plate__tag2{
+  position:absolute; top:28px; right:32px;
+  font-size:8.5px; font-weight:500; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--l-faint-s);
+}
+.spec__lead{ font-size:11.5px; line-height:1.62; color:var(--l-body); margin-bottom:22px; }
+
+/* ---- 05 LIVERY ------------------------------------------- */
+.livery__plane{
+  position:absolute; left:210px; top:300px; width:880px;
+  color:var(--olive); --glass:#101109; z-index:1;
+}
+.livery__title{ position:absolute; left:66px; top:140px; width:330px; z-index:3; }
+.livery__title .h-title{ font-size:37px; margin-top:15px; }
+.livery__lead{
+  position:absolute; left:66px; top:272px; width:286px; z-index:3;
+  font-size:11px; line-height:1.62; color:var(--d-body);
+}
+.leaders{ position:absolute; inset:0; width:1280px; height:720px; z-index:2; }
+.callout{ position:absolute; z-index:3; }
+.callout__no{
+  width:20px; height:20px; border:1px solid var(--d-line-2); background:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  font-size:8.5px; font-weight:600; color:var(--d-head);
+}
+.callout__ttl{
+  font-size:10px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--d-head); margin:9px 0 5px;
+}
+.callout__txt{ font-size:9.5px; line-height:1.5; color:var(--d-body); }
+.callout--r{ text-align:right; }
+.callout--r .callout__no{ margin-left:auto; }
+
+/* ---- 06 FINANCING ---------------------------------------- */
+.fin__split{
+  display:grid; grid-template-columns:392px 1fr; gap:62px;
+  flex:1; min-height:0; padding-top:24px;
+}
+.capstack{ display:flex; gap:22px; height:100%; }
+.capstack__bar{ width:116px; display:flex; flex-direction:column; gap:5px; }
+.capstack__eq{
+  height:26px; border:1px dashed var(--l-line-2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:8px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--l-faint-s);
+}
+.capstack__seg{
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:15px; position:relative;
+}
+.capstack__seg .pc{
+  font-family:'Inter Display',sans-serif; font-size:23px; font-weight:500;
+  letter-spacing:-.01em;
+}
+.capstack__seg .nm{
+  font-size:8.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  margin-top:5px;
+}
+.seg--senior{ background:var(--olive-deep); }
+.seg--senior .pc{ color:#fff; } .seg--senior .nm{ color:#c9cba8; }
+.seg--vendor{ background:var(--olive-light); }
+.seg--vendor .pc{ color:var(--ink); } .seg--vendor .nm{ color:#322f1a; }
+.capstack__legend{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+.legend__row{ padding:12.5px 0; border-top:1px solid var(--l-line); }
+.legend__row:last-child{ border-bottom:1px solid var(--l-line); }
+.legend__row .top{ display:flex; justify-content:space-between; align-items:baseline; }
+.legend__row .nm{ font-size:12px; font-weight:600; color:var(--l-head); }
+.legend__row .amt{ font-family:'Inter Display',sans-serif; font-size:16px;
+  font-weight:500; color:var(--l-head); font-variant-numeric:tabular-nums; }
+.legend__row .ds{ font-size:9.5px; color:var(--l-faint-s); margin-top:5px; }
+.terms__grid{ display:grid; grid-template-columns:1fr 1fr; gap:36px; }
+.termcard__h{
+  display:flex; align-items:baseline; gap:10px; margin-bottom:13px;
+  padding-bottom:11px; border-bottom:1px solid var(--l-line-2);
+}
+.termcard__h b{ font-family:'Inter Display',sans-serif; font-size:15px;
+  font-weight:600; color:var(--l-head); }
+.termcard__h span{ font-size:8.5px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--olive); }
+.costband{
+  margin-top:auto; display:flex; justify-content:space-between; align-items:center;
+  padding:24px 28px; background:var(--ink);
+}
+.costband .lab{ font-size:10px; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--steel); max-width:180px; line-height:1.55; }
+.costband .fig{ font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:46px; color:var(--d-head); letter-spacing:-.025em; }
+
+/* ---- 07 OPERATING ECON ----------------------------------- */
+.ops__grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:64px;
+  flex:1; min-height:0; padding-top:26px;
+}
+.ops__col{ display:flex; flex-direction:column; }
+.ops__total{
+  margin-top:auto; display:flex; justify-content:space-between; align-items:center;
+  background:var(--ink); padding:26px 66px; margin:0 -66px;
+}
+.ops__total .lab{ font-size:11px; font-weight:600; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--steel); }
+.ops__total .fig{ font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:48px; letter-spacing:-.025em; color:var(--d-head); }
+
+/* ---- 08 TRUE TRANSPORT ----------------------------------- */
+.tt__stats{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+}
+.tt__stat{ padding:0 32px; border-left:1px solid var(--d-line); }
+.tt__stat:first-child{ border-left:none; padding-left:0; }
+.tt__derive{
+  display:flex; align-items:center; justify-content:space-between;
+  border-top:1px solid var(--d-line); border-bottom:1px solid var(--d-line);
+  padding:23px 2px;
+}
+.dnode{ display:flex; flex-direction:column; gap:9px; }
+.dnode .dl{ font-size:8.5px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--d-faint); }
+.dnode .dv{ font-family:'Inter Display',sans-serif; font-size:23px; font-weight:400;
+  color:var(--d-head); letter-spacing:-.02em; }
+.dnode .dv .pfx{ font-size:.5em; }
+.dop{ font-size:15px; color:var(--olive-light); }
+.tt__lower{
+  display:grid; grid-template-columns:1fr 1fr; gap:64px;
+  padding-top:0; border-top:none;
+}
+.pax__title{
+  font-size:9.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--olive-light); margin-bottom:18px;
+}
+.pax__row{ display:flex; gap:46px; }
+.pax__one .n{ font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:40px; color:var(--d-head); letter-spacing:-.025em; }
+.pax__one .l{ font-size:9px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--d-faint); margin-top:9px; }
+.benchmark .kicker{ display:block; margin-bottom:12px; }
+.benchmark p{ font-size:11.5px; line-height:1.62; color:var(--d-body); }
+.benchmark .bm-list{ list-style:none; margin-top:12px; }
+.benchmark .bm-list li{ font-size:11px; color:var(--d-head); padding:5px 0;
+  display:flex; gap:10px; }
+.benchmark .bm-list li::before{ content:""; width:12px; height:1px;
+  background:var(--olive-light); margin-top:7px; flex:none; }
+
+/* ---- 09 PARTNER OFFSET ----------------------------------- */
+.po__top{ display:grid; grid-template-columns:1fr 326px; gap:62px; padding-top:24px; }
+.po__intro{ font-size:12px; line-height:1.66; color:var(--l-body); }
+.po__struct{ list-style:none; counter-reset:s; }
+.po__struct li{
+  font-size:10.5px; color:var(--l-head); padding:9px 0;
+  border-bottom:1px solid var(--l-line); display:flex; gap:11px;
+}
+.po__struct li:first-child{ border-top:1px solid var(--l-line); }
+.po__struct li::before{ counter-increment:s; content:counter(s,decimal-leading-zero);
+  font-weight:600; color:var(--olive); font-size:9px; }
+.alloc{ margin-top:26px; }
+.alloc__lab{ display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:10px; }
+.alloc__lab .t{ font-size:9.5px; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--olive); }
+.alloc__lab .v{ font-size:9.5px; font-weight:600; color:var(--l-faint-s);
+  letter-spacing:.08em; text-transform:uppercase; }
+.alloc__bar{ display:flex; height:62px; }
+.alloc__seg{ display:flex; flex-direction:column; justify-content:center; padding:0 20px; }
+.alloc__seg .big{ font-family:'Inter Display',sans-serif; font-size:21px;
+  font-weight:500; letter-spacing:-.01em; }
+.alloc__seg .sm{ font-size:8.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; margin-top:4px; }
+.aseg--a{ background:var(--olive-deep); color:#fff; }
+.aseg--a .sm{ color:#c5c7a2; }
+.aseg--b{ background:var(--olive-light); color:var(--ink); }
+.aseg--b .sm{ color:#322f1a; }
+.po__bottom{ display:grid; grid-template-columns:1fr 1fr; margin-top:auto;
+  padding-top:30px; }
+.po__calc{ padding-right:46px; }
+.po__calc .eq{ display:flex; align-items:baseline; gap:13px; }
+.po__calc .eq .term{ font-family:'Inter Display',sans-serif; font-size:17px;
+  font-weight:500; color:var(--l-head); }
+.po__calc .eq .op{ color:var(--olive); font-size:13px; }
+.po__calc .res{ font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:36px; color:var(--l-head); letter-spacing:-.025em; margin-top:10px; }
+.po__calc .res .cap{ font-size:.32em; font-weight:500; color:var(--l-faint-s);
+  letter-spacing:.06em; }
+.po__net{ padding-left:46px; border-left:1px solid var(--l-line-2);
+  display:flex; flex-direction:column; justify-content:center; }
+.po__net .lab{ font-size:9.5px; font-weight:600; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--olive); margin-bottom:9px; }
+.po__net .fig{ font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:48px; color:var(--l-head); letter-spacing:-.028em; }
+.po__net .ds{ font-size:10px; color:var(--l-faint-s); margin-top:9px; max-width:280px;
+  line-height:1.5; }
+
+/* ---- 10 RANGE MAP ---------------------------------------- */
+.map__svg{ position:absolute; left:392px; top:84px; height:600px;
+  overflow:visible; z-index:1; }
+.map__title{ position:absolute; left:66px; top:150px; width:280px; z-index:3; }
+.map__title .h-title{ margin-top:15px; }
+.map__panel{ position:absolute; right:66px; top:150px; width:300px; z-index:3; }
+.route__row{
+  display:flex; align-items:baseline; gap:14px; padding:11.5px 0;
+  border-bottom:1px solid var(--d-line);
+}
+.route__row:first-child{ border-top:1px solid var(--d-line-2); }
+.route__code{ font-family:'Inter Display',sans-serif; font-size:13px;
+  font-weight:600; color:var(--d-head); width:52px; flex:none; letter-spacing:.03em; }
+.route__nm{ flex:1; font-size:10px; color:var(--d-body); }
+.route__val{ font-size:10px; font-weight:600; color:var(--steel);
+  font-variant-numeric:tabular-nums; }
+.map__legend{ margin-top:26px; display:flex; flex-direction:column; gap:12px; }
+.map__legend div{ display:flex; align-items:center; gap:11px;
+  font-size:8.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--d-faint); }
+.lgnd-dot{ width:9px; height:9px; flex:none; }
+.map__note{ margin-top:26px; font-size:10.5px; line-height:1.6; color:var(--d-body); }
+
+/* ---- 11 PILOT / TRAINING --------------------------------- */
+.pilot__top{ display:grid; grid-template-columns:1.08fr 1fr; gap:60px; padding-top:24px; }
+.pilot__lead .kicker{ display:block; margin-bottom:12px; }
+.pilot__lead p{ font-size:12px; line-height:1.66; color:var(--l-body); }
+.support{ list-style:none; margin-top:18px; display:grid;
+  grid-template-columns:1fr 1fr; gap:0 28px; }
+.support li{ font-size:10.5px; color:var(--l-head); padding:7.5px 0;
+  border-bottom:1px solid var(--l-line); display:flex; gap:9px; }
+.support li::before{ content:""; width:3px; height:3px; background:var(--olive);
+  margin-top:6px; flex:none; }
+.stepper{ margin-top:30px; border-top:1px solid var(--l-line-2); padding-top:30px; }
+.stepper__track{ display:grid; grid-template-columns:repeat(4,1fr);
+  position:relative; }
+.stepper__line{ position:absolute; left:7px; right:60px; top:7px; height:1px;
+  background:var(--l-line-2); }
+.step{ position:relative; padding-right:28px; }
+.step__dot{ width:15px; height:15px; border-radius:50%; background:var(--paper);
+  border:1px solid var(--olive); display:flex; align-items:center;
+  justify-content:center; position:relative; }
+.step__dot i{ width:5px; height:5px; border-radius:50%; background:var(--olive); }
+.step__no{ font-size:8.5px; font-weight:600; letter-spacing:.16em;
+  color:var(--olive); margin:16px 0 7px; }
+.step__t{ font-family:'Inter Display',sans-serif; font-size:13px; font-weight:500;
+  color:var(--l-head); line-height:1.22; letter-spacing:-.01em; }
+.step__d{ font-size:9.5px; line-height:1.52; color:var(--l-faint-s); margin-top:8px; }
+.roles{ margin-top:28px; display:grid; grid-template-columns:repeat(5,1fr);
+  border-top:1px solid var(--l-line); }
+.role{ padding:16px 18px 0 0; }
+.role .n{ font-size:8.5px; font-weight:600; letter-spacing:.1em; color:var(--olive); }
+.role .t{ font-size:10px; font-weight:600; color:var(--l-head); margin-top:9px;
+  line-height:1.35; }
+
+/* ---- 12 CONCLUSION --------------------------------------- */
+.concl{ display:flex; flex-direction:column; height:100%; }
+.concl__big{
+  font-family:'Inter Display',sans-serif; font-weight:300;
+  font-size:64px; line-height:1.12; letter-spacing:-.033em; color:var(--d-head);
+  padding-top:78px;
+}
+.concl__big b{ font-weight:500; }
+.concl__big .dim{ color:var(--d-faint); }
+.concl__mid{
+  display:grid; grid-template-columns:1.15fr 1fr; gap:64px;
+  margin-top:auto; padding-top:34px; align-items:end;
+  border-top:1px solid var(--d-line);
+}
+.concl__list{ list-style:none; }
+.concl__list li{ font-size:12px; color:var(--d-head); padding:9.5px 0;
+  border-bottom:1px solid var(--d-line); display:flex; gap:12px; }
+.concl__list li:first-child{ border-top:1px solid var(--d-line); }
+.concl__list li::before{ content:""; width:13px; height:1px;
+  background:var(--olive-light); margin-top:8px; flex:none; }
+.concl__fm p{ font-size:12px; line-height:1.68; color:var(--d-body); }
+.concl__fm .kicker{ display:block; margin-bottom:12px; }
+
+/* ---- 13 BACK --------------------------------------------- */
+.back{ display:flex; flex-direction:column; align-items:center;
+  justify-content:center; height:100%; text-align:center; }
+.back .mark{ width:52px; height:52px; color:var(--steel); }
+.back__wm{ font-family:'Inter Display',sans-serif; font-size:21px; font-weight:600;
+  letter-spacing:.24em; color:var(--d-head); margin-top:26px; }
+.back__sub{ font-size:10px; font-weight:600; letter-spacing:.3em;
+  text-transform:uppercase; color:var(--d-faint); margin-top:15px; }
+.back__rule{ width:46px; height:1px; background:var(--olive-light); margin:30px 0; }
+.back__meta{ font-size:9px; font-weight:500; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--d-faint); line-height:2.2; }
+.back__class{
+  position:absolute; left:0; right:0; bottom:52px; text-align:center;
+  font-size:9px; font-weight:600; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--d-faint);
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SHARED SVG DEFS ===================================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 64 64">
+      <g fill="currentColor">
+        <rect x="6.5" y="22" width="21" height="35"/>
+        <rect x="6.5" y="11" width="5.5" height="11"/>
+        <rect x="14.25" y="11" width="5.5" height="11"/>
+        <rect x="22" y="11" width="5.5" height="11"/>
+        <rect x="36.5" y="22" width="21" height="35"/>
+        <rect x="36.5" y="11" width="5.5" height="11"/>
+        <rect x="44.25" y="11" width="5.5" height="11"/>
+        <rect x="52" y="11" width="5.5" height="11"/>
+      </g>
+    </symbol>
+
+    <pattern id="gridptn" width="46" height="46" patternUnits="userSpaceOnUse">
+      <path d="M46 0H0V46" fill="none" stroke="rgba(236,233,223,0.05)" stroke-width="1"/>
+    </pattern>
+
+    <!-- aircraft : Piper Meridian PA-46-500TP side profile -->
+    <symbol id="aircraft" viewBox="0 0 1320 460">
+      <!-- propeller -->
+      <g stroke="currentColor" stroke-width="10" stroke-linecap="round">
+        <path d="M150 210 L249 111"/>
+        <path d="M150 210 L51 111"/>
+        <path d="M150 210 L249 309"/>
+        <path d="M150 210 L51 309"/>
+      </g>
+      <path fill="currentColor" d="M76 210 C90 200 150 192 198 192 L198 228 C150 228 90 220 76 210 Z"/>
+      <!-- vertical fin -->
+      <path fill="currentColor" d="M1006 176 C1078 135 1162 90 1248 56 L1278 68
+        C1264 110 1246 158 1234 200 Z"/>
+      <!-- horizontal stabiliser -->
+      <path fill="currentColor" d="M1180 198 C1232 194 1284 191 1318 189
+        C1320 191 1320 195 1318 197 C1284 202 1236 209 1186 214
+        C1182 210 1180 203 1180 198 Z"/>
+      <!-- fuselage -->
+      <path fill="currentColor" d="M198 192
+        C248 183 296 175 344 166
+        C360 162 376 158 392 154
+        C424 138 458 126 492 122
+        C588 114 684 114 766 124
+        C946 150 1112 180 1258 205
+        C1274 207 1290 209 1302 210
+        C1290 213 1276 214 1260 216
+        C1120 230 992 247 876 256
+        C690 266 484 268 360 264
+        C314 262 256 252 198 228 Z"/>
+      <!-- wing -->
+      <path fill="currentColor" d="M450 262 C540 256 650 255 792 263
+        C797 264 797 276 792 277 C650 285 540 287 450 278
+        C445 277 445 264 450 262 Z"/>
+      <!-- landing gear -->
+      <g stroke="currentColor" stroke-linecap="round">
+        <path d="M364 263 L358 330" stroke-width="7"/>
+        <path d="M600 282 L607 336" stroke-width="8"/>
+      </g>
+      <ellipse cx="357" cy="339" rx="18" ry="17" fill="currentColor"/>
+      <ellipse cx="608" cy="345" rx="23" ry="21" fill="currentColor"/>
+      <!-- glazing -->
+      <g fill="var(--glass,#0e0f0a)">
+        <path d="M402 148 L498 124 L514 130 L420 156 Z"/>
+        <rect x="506" y="132" width="44" height="44" rx="13"/>
+        <rect x="565" y="132" width="44" height="44" rx="13"/>
+        <rect x="624" y="132" width="44" height="44" rx="13"/>
+        <rect x="683" y="132" width="42" height="44" rx="13"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+
+<!-- ============================================================
+     PAGE 01 — COVER
+     ============================================================ -->
+<section class="page page--dark cover">
+  <svg class="gridfill"><rect width="100%" height="100%" fill="url(#gridptn)"/></svg>
+  <div class="cover__photo"></div>
+  <div class="cover__scrim"></div>
+
+  <div class="cover__bar">
+    <div class="wordmark">
+      <svg class="mark"><use href="#mark"/></svg>
+      <div class="wordmark__t">
+        <b>Citadel Capital</b>
+        <span>Special Situations &amp; Strategic Assets</span>
+      </div>
+    </div>
+    <div class="cover__class">Confidential</div>
+  </div>
+
+  <svg class="acft-svg cover__plane" viewBox="0 0 1320 460"><use href="#aircraft"/></svg>
+  <div class="cover__waterline"></div>
+  <div class="cover__reg">ZK-FTP &mdash; Dairy Flat</div>
+
+  <div class="cover__body">
+    <div class="cover__ey">Strategic Mobility Review</div>
+    <div class="cover__title">Executive<br><b>Aviation Platform</b></div>
+    <div class="cover__sub">
+      <span>Piper Meridian PA-46-500TP</span>
+      <span class="sep"></span>
+      <span>ZK-FTP <span class="dim">&mdash;</span> &ldquo;Emily Phillips&rdquo;</span>
+    </div>
+  </div>
+
+  <div class="cover__foot">
+    <span>Confidential Strategic Mobility Review</span>
+    <span>2026</span>
+  </div>
+
+  <div class="ticks">
+    <i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 02 — CONTENTS
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>Document Index</b></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head" style="margin-bottom:30px;">
+        <div class="eyebrow">Contents</div>
+        <div class="h-title">Document Index</div>
+      </div>
+
+      <div class="contents__grid">
+        <div>
+          <div class="idx__head"><span>Section</span><span>Page</span></div>
+          <div class="index__row">
+            <div class="index__no">01</div>
+            <div class="index__ttl">Strategic Thesis</div>
+            <div class="index__desc">Rationale &amp; mission definition</div>
+            <div class="index__lead"></div><div class="index__pg">03</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">02</div>
+            <div class="index__ttl">Aircraft Profile</div>
+            <div class="index__desc">Platform &amp; technical overview</div>
+            <div class="index__lead"></div><div class="index__pg">04</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">03</div>
+            <div class="index__ttl">Livery Concept</div>
+            <div class="index__desc">Milspec executive identity</div>
+            <div class="index__lead"></div><div class="index__pg">05</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">04</div>
+            <div class="index__ttl">Financing Structure</div>
+            <div class="index__desc">100% acquisition capital stack</div>
+            <div class="index__lead"></div><div class="index__pg">06</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">05</div>
+            <div class="index__ttl">Operating Economics</div>
+            <div class="index__desc">Fixed &amp; variable cost base</div>
+            <div class="index__lead"></div><div class="index__pg">07</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">06</div>
+            <div class="index__ttl">True Transport Economics</div>
+            <div class="index__desc">AKL&ndash;CHC unit cost analysis</div>
+            <div class="index__lead"></div><div class="index__pg">08</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">07</div>
+            <div class="index__ttl">Partner Offset Model</div>
+            <div class="index__desc">Christchurch syndication</div>
+            <div class="index__lead"></div><div class="index__pg">09</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">08</div>
+            <div class="index__ttl">Operational Range</div>
+            <div class="index__desc">National mission envelope</div>
+            <div class="index__lead"></div><div class="index__pg">10</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">09</div>
+            <div class="index__ttl">Pilot &amp; Training Model</div>
+            <div class="index__desc">Crew &amp; owner progression</div>
+            <div class="index__lead"></div><div class="index__pg">11</div>
+          </div>
+          <div class="index__row">
+            <div class="index__no">10</div>
+            <div class="index__ttl">Strategic Outcome</div>
+            <div class="index__desc">Conclusion &amp; positioning</div>
+            <div class="index__lead"></div><div class="index__pg">12</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta__title">Document Control</div>
+          <div class="meta__row">
+            <div class="meta__k">Prepared For</div>
+            <div class="meta__v">Citadel Capital — Investment Committee</div>
+          </div>
+          <div class="meta__row">
+            <div class="meta__k">Subject Asset</div>
+            <div class="meta__v">Piper Meridian PA-46-500TP / ZK-FTP</div>
+          </div>
+          <div class="meta__row">
+            <div class="meta__k">Classification</div>
+            <div class="meta__v">Confidential — Internal Distribution</div>
+          </div>
+          <div class="meta__row">
+            <div class="meta__k">Issue</div>
+            <div class="meta__v">Strategic Mobility Review — Rev. A</div>
+          </div>
+          <div class="meta__row">
+            <div class="meta__k">Date / Reference</div>
+            <div class="meta__v">May 2026 — CC·AV·2026·001</div>
+          </div>
+          <div class="meta__mark">
+            <svg class="mark"><use href="#mark"/></svg>
+            <div>Citadel Capital<br>Strategic Assets Group</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>02</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 03 — STRATEGIC THESIS
+     ============================================================ -->
+<section class="page page--dark">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>01</b> <span>/ Strategic Thesis</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Strategic Thesis</div>
+        <div class="h-title">Why This Makes Sense</div>
+      </div>
+
+      <div class="thesis__top">
+        <div class="thesis__statement">
+          This aircraft is not a luxury acquisition.<br>
+          It is <b>infrastructure.</b>
+        </div>
+        <div class="thesis__intro">
+          <span class="kicker">The Objective</span>
+          A high-flexibility executive mobility platform enabling rapid movement
+          between Auckland and Christchurch — compressing schedule friction,
+          executive downtime and commercial airline dependency into a single
+          controlled asset under direct operational command.
+        </div>
+      </div>
+
+      <div class="thesis__cols">
+        <div>
+          <div class="minihead"><span class="n">A</span> Materially Reduces</div>
+          <ul class="flist">
+            <li>Schedule friction</li>
+            <li>Executive downtime</li>
+            <li>Overnight travel drag</li>
+            <li>Commercial airline dependency</li>
+            <li>Project oversight latency</li>
+          </ul>
+        </div>
+        <div>
+          <div class="minihead"><span class="n">B</span> Materially Increases</div>
+          <ul class="flist">
+            <li>Same-day capability</li>
+            <li>Partner coordination</li>
+            <li>Project responsiveness</li>
+            <li>Executive efficiency</li>
+            <li>Operational reach</li>
+          </ul>
+        </div>
+        <div>
+          <div class="minihead"><span class="n">C</span> Mission Profile</div>
+          <ul class="flist flist--plain">
+            <li>Auckland &harr; Christchurch</li>
+            <li>Auckland &harr; Wellington</li>
+            <li>Queenstown access</li>
+            <li>Investor &amp; site movement</li>
+            <li>Family &amp; executive mobility</li>
+          </ul>
+        </div>
+        <div>
+          <div class="minihead"><span class="n">D</span> Platform Rationale</div>
+          <ul class="flist flist--plain">
+            <li>Turbine reliability</li>
+            <li>Manageable acquisition cost</li>
+            <li>Efficient operating economics</li>
+            <li>Owner-pilot pathway</li>
+            <li>Lower complexity than TBM / Epic</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>03</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 04 — AIRCRAFT PROFILE
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>02</b> <span>/ Aircraft Profile</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Aircraft Profile</div>
+        <div class="h-title">The Platform</div>
+      </div>
+
+      <div class="profile__split">
+        <div class="plate">
+          <div class="plate__photo"></div>
+          <div class="plate__tag">Side Elevation</div>
+          <div class="plate__tag2">PA-46-500TP</div>
+          <svg class="acft-svg" viewBox="0 0 1320 460"><use href="#aircraft"/></svg>
+          <div class="plate__base"></div>
+          <div class="plate__dim">
+            <span>Nose</span><div class="ln"></div>
+            <span>Overall Length 8.81 m</span><div class="ln"></div><span>Tail</span>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="spec__lead">
+            A pressurised single-engine turboprop configured for executive
+            transport — selected for turbine reliability and operating economics
+            matched precisely to the New Zealand mission profile.
+          </div>
+          <div class="tablehead">Technical Overview</div>
+          <div class="dl">
+            <div class="dl__row"><div class="dl__k">Aircraft</div><div class="dl__v">Piper Meridian PA-46-500TP</div></div>
+            <div class="dl__row"><div class="dl__k">Registration</div><div class="dl__v">ZK-FTP</div></div>
+            <div class="dl__row"><div class="dl__k">Base</div><div class="dl__v">Dairy Flat Aerodrome</div></div>
+            <div class="dl__row"><div class="dl__k">Configuration</div><div class="dl__v">Executive Turboprop</div></div>
+            <div class="dl__row"><div class="dl__k">Engine</div><div class="dl__v">Pratt &amp; Whitney PT6A</div></div>
+            <div class="dl__row"><div class="dl__k">Seating</div><div class="dl__v">5 &ndash; 6</div></div>
+            <div class="dl__row"><div class="dl__k">Cruise Speed</div><div class="dl__v">~260 KTAS</div></div>
+            <div class="dl__row"><div class="dl__k">Typical Range</div><div class="dl__v">~1,000 nm practical</div></div>
+            <div class="dl__row"><div class="dl__k">Primary Mission</div><div class="dl__v">AKL &ndash; CHC executive transport</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>04</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 05 — LIVERY CONCEPT
+     ============================================================ -->
+<section class="page page--dark">
+  <svg class="gridfill"><rect width="100%" height="100%" fill="url(#gridptn)"/></svg>
+
+  <div class="runner" style="position:absolute;top:52px;left:66px;right:66px;z-index:3;">
+    <div class="runner__id"><b>03</b> <span>/ Livery Concept</span></div>
+    <div class="runner__brand">
+      <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+    </div>
+  </div>
+
+  <div class="livery__title">
+    <div class="eyebrow">Milspec Executive Concept</div>
+    <div class="h-title">A Restrained<br>Military Identity</div>
+  </div>
+  <div class="livery__lead">
+    The exterior concept references mid-century military aviation without
+    pastiche — a satin drab finish, disciplined markings and a single
+    institutional mark. Quiet capability, not decoration.
+  </div>
+
+  <div class="livery__photo"></div>
+
+  <svg class="acft-svg livery__plane" viewBox="0 0 1320 460">
+    <use href="#aircraft"/>
+    <!-- shark-mouth nose art -->
+    <g>
+      <path fill="#e8e5db" d="M214 220 C262 228 316 238 362 250 L362 264
+        C316 252 262 242 214 233 Z"/>
+      <g fill="var(--ink)">
+        <path d="M217 234 L236 238 L226 249 Z"/>
+        <path d="M243 239 L262 243 L252 254 Z"/>
+        <path d="M269 244 L288 248 L278 259 Z"/>
+        <path d="M295 249 L314 253 L304 264 Z"/>
+        <path d="M320 254 L339 258 L329 269 Z"/>
+      </g>
+      <path d="M214 220 C262 228 316 238 362 250" fill="none"
+            stroke="#964b36" stroke-width="3"/>
+      <ellipse cx="338" cy="203" rx="11" ry="7" fill="#e8e5db" transform="rotate(-20 338 203)"/>
+      <circle cx="341" cy="203" r="3.8" fill="var(--ink)"/>
+    </g>
+    <!-- citadel mark on fin -->
+    <use href="#mark" x="1150" y="96" width="46" height="46" color="#cdcfb0"/>
+    <!-- registration & naming -->
+    <text x="372" y="202" font-family="Inter" font-size="12" font-weight="600"
+          letter-spacing="0.6" fill="#ECE9DF">EMILY PHILLIPS</text>
+    <text x="906" y="252" font-family="Inter Display" font-size="40" font-weight="600"
+          letter-spacing="1" fill="#ECE9DF">ZK-FTP</text>
+  </svg>
+
+  <!-- leader lines + markers -->
+  <svg class="leaders" viewBox="0 0 1280 720">
+    <g stroke="var(--d-line-2)" stroke-width="1" fill="none">
+      <path d="M399 561 L401 462"/>
+      <path d="M560 561 L505 442"/>
+      <path d="M690 258 L793 392"/>
+      <path d="M1000 258 L992 380"/>
+    </g>
+    <g fill="var(--olive-light)">
+      <circle cx="401" cy="462" r="3"/>
+      <circle cx="505" cy="442" r="3"/>
+      <circle cx="793" cy="392" r="3"/>
+      <circle cx="992" cy="380" r="3"/>
+    </g>
+  </svg>
+
+  <div class="callout" style="left:288px;top:566px;width:188px;">
+    <div class="callout__no">01</div>
+    <div class="callout__ttl">Shark-Mouth Nose Art</div>
+    <div class="callout__txt">P-40 inspired motif — graphic, geometric, applied with restraint.</div>
+  </div>
+  <div class="callout" style="left:520px;top:566px;width:196px;">
+    <div class="callout__no">02</div>
+    <div class="callout__ttl">&ldquo;Emily Phillips&rdquo; Naming</div>
+    <div class="callout__txt">Discreet nose-side nomenclature in a single uppercase weight.</div>
+  </div>
+  <div class="callout" style="left:600px;top:188px;width:196px;">
+    <div class="callout__no">03</div>
+    <div class="callout__ttl">Satin Drab Olive Wrap</div>
+    <div class="callout__txt">Premium matte execution — a non-reflective military surface.</div>
+  </div>
+  <div class="callout callout--r" style="left:868px;top:188px;width:196px;">
+    <div class="callout__no">04</div>
+    <div class="callout__ttl">Citadel Tail Mark</div>
+    <div class="callout__txt">The institutional icon — sole branding on the empennage.</div>
+  </div>
+
+  <div class="livery__strip">
+    <div class="item">
+      <div class="k">01 — Finish</div>
+      <div class="v">Satin drab olive wrap — non-reflective matte airframe.</div>
+    </div>
+    <div class="item">
+      <div class="k">02 — Nose Art</div>
+      <div class="v">P-40 inspired shark-mouth, applied with restraint.</div>
+    </div>
+    <div class="item">
+      <div class="k">03 — Naming</div>
+      <div class="v">&ldquo;Emily Phillips&rdquo; &amp; ZK-FTP in single-weight uppercase.</div>
+    </div>
+    <div class="item">
+      <div class="k">04 — Identity</div>
+      <div class="v">Citadel mark, empennage — sole branding element.</div>
+    </div>
+  </div>
+
+  <div class="foot" style="position:absolute;left:66px;right:66px;bottom:46px;z-index:3;">
+    <span>Confidential — Strategic Mobility Review</span>
+    <span class="foot__pg"><b>05</b> / 13</span>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 06 — FINANCING STRUCTURE
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>04</b> <span>/ Financing Structure</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Financing Structure</div>
+        <div class="h-title">100% Acquisition Structure</div>
+      </div>
+
+      <div class="fin__split">
+        <div class="capstack">
+          <div class="capstack__bar">
+            <div class="capstack__eq">Equity — Nil</div>
+            <div class="capstack__seg seg--vendor" style="flex:25;">
+              <div class="pc">25%</div><div class="nm">Vendor Finance</div>
+            </div>
+            <div class="capstack__seg seg--senior" style="flex:75;">
+              <div class="pc">75%</div><div class="nm">Senior Debt</div>
+            </div>
+          </div>
+          <div class="capstack__legend">
+            <div class="legend__row">
+              <div class="top"><div class="nm">Senior Debt</div><div class="amt">$1.275m</div></div>
+              <div class="ds">First-ranking facility — 7.25%, 20-year amortisation</div>
+            </div>
+            <div class="legend__row">
+              <div class="top"><div class="nm">Vendor Finance</div><div class="amt">$425k</div></div>
+              <div class="ds">Subordinated — 9.0%, interest only, 5-year balloon</div>
+            </div>
+            <div class="legend__row">
+              <div class="top"><div class="nm">Equity</div><div class="amt">Nil</div></div>
+              <div class="ds">Fully financed — no cash equity contribution</div>
+            </div>
+            <div class="legend__row">
+              <div class="top">
+                <div class="nm" style="color:var(--olive);">Purchase Price</div>
+                <div class="amt" style="color:var(--olive);">$1.70m</div>
+              </div>
+              <div class="ds">Total consideration, NZD</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="tablehead">Facility Terms</div>
+          <div class="terms__grid">
+            <div class="termcard">
+              <div class="termcard__h"><b>Senior</b><span>First Ranking</span></div>
+              <div class="dl">
+                <div class="dl__row"><div class="dl__k">Coupon</div><div class="dl__v">7.25%</div></div>
+                <div class="dl__row"><div class="dl__k">Amortisation</div><div class="dl__v">20 years</div></div>
+                <div class="dl__row"><div class="dl__k">Structure</div><div class="dl__v">P &amp; I</div></div>
+              </div>
+            </div>
+            <div class="termcard">
+              <div class="termcard__h"><b>Vendor</b><span>Subordinated</span></div>
+              <div class="dl">
+                <div class="dl__row"><div class="dl__k">Coupon</div><div class="dl__v">9.00%</div></div>
+                <div class="dl__row"><div class="dl__k">Term</div><div class="dl__v">5-yr balloon</div></div>
+                <div class="dl__row"><div class="dl__k">Structure</div><div class="dl__v">Interest only</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="costband">
+            <div class="lab">Indicative Annual<br>Financing Cost</div>
+            <div class="fig"><span class="pfx">~$</span>159k</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>06</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 07 — OPERATING ECONOMICS
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>05</b> <span>/ Operating Economics</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Operating Economics</div>
+        <div class="h-title">The Annual Cost Base</div>
+      </div>
+
+      <div class="ops__grid">
+        <div class="ops__col">
+          <div class="tablehead">Fixed Costs <span class="u">Annual</span></div>
+          <div class="dl">
+            <div class="dl__row"><div class="dl__k">Financing</div><div class="dl__v">$159k</div></div>
+            <div class="dl__row"><div class="dl__k">Pilot / Instructor</div><div class="dl__v">$125k</div></div>
+            <div class="dl__row"><div class="dl__k">Insurance</div><div class="dl__v">$20k</div></div>
+            <div class="dl__row"><div class="dl__k">Hangarage</div><div class="dl__v">$24k</div></div>
+            <div class="dl__row"><div class="dl__k">Compliance / Annual</div><div class="dl__v">$30k</div></div>
+            <div class="dl__row"><div class="dl__k">Miscellaneous Fixed</div><div class="dl__v">$15k</div></div>
+            <div class="dl__row dl__row--total"><div class="dl__k">Total Fixed</div><div class="dl__v">$373k</div></div>
+          </div>
+        </div>
+        <div class="ops__col">
+          <div class="tablehead">Variable Costs <span class="u">Per Hour</span></div>
+          <div class="dl">
+            <div class="dl__row"><div class="dl__k">Fuel</div><div class="dl__v">$420</div></div>
+            <div class="dl__row"><div class="dl__k">Engine Reserve</div><div class="dl__v">$220</div></div>
+            <div class="dl__row"><div class="dl__k">Maintenance</div><div class="dl__v">$140</div></div>
+            <div class="dl__row"><div class="dl__k">Propeller Reserve</div><div class="dl__v">$45</div></div>
+            <div class="dl__row"><div class="dl__k">Miscellaneous</div><div class="dl__v">$75</div></div>
+            <div class="dl__row dl__row--total"><div class="dl__k">Total Variable</div><div class="dl__v">~$900 / hr</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ops__total">
+        <div class="lab">Total Annual Operating Cost</div>
+        <div class="fig"><span class="pfx">~$</span>740k</div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>07</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 08 — TRUE TRANSPORT ECONOMICS
+     ============================================================ -->
+<section class="page page--dark">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>06</b> <span>/ True Transport Economics</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas" style="justify-content:space-between;">
+      <div class="sec-head">
+        <div class="eyebrow">True Transport Economics</div>
+        <div class="h-title">Auckland &harr; Christchurch</div>
+      </div>
+
+      <div class="tt__stats">
+        <div class="tt__stat">
+          <div class="stat__n">400</div>
+          <div class="stat__l">Annual Utilisation</div>
+          <div class="stat__d muted-d">Planned flight hours per year</div>
+        </div>
+        <div class="tt__stat">
+          <div class="stat__n"><span class="pfx">$</span>1,850</div>
+          <div class="stat__l">True Hourly Cost</div>
+          <div class="stat__d muted-d">Fully-loaded, all-in basis</div>
+        </div>
+        <div class="tt__stat">
+          <div class="stat__n"><span class="pfx">$</span>3,000</div>
+          <div class="stat__l">Cost Per Leg</div>
+          <div class="stat__d muted-d">~1.6 hr AKL&ndash;CHC sector</div>
+        </div>
+        <div class="tt__stat">
+          <div class="stat__n"><span class="pfx">$</span>5,900</div>
+          <div class="stat__l">Return Trip</div>
+          <div class="stat__d muted-d">Same-day rotation, both sectors</div>
+        </div>
+      </div>
+
+      <div class="tt__derive">
+        <div class="dnode">
+          <span class="dl">Annual Operating</span>
+          <span class="dv"><span class="pfx">$</span>740k</span>
+        </div>
+        <span class="dop">&divide;</span>
+        <div class="dnode">
+          <span class="dl">Utilisation</span>
+          <span class="dv">400 hrs</span>
+        </div>
+        <span class="dop">=</span>
+        <div class="dnode">
+          <span class="dl">True Hourly Cost</span>
+          <span class="dv"><span class="pfx">$</span>1,850</span>
+        </div>
+        <span class="dop">&times;</span>
+        <div class="dnode">
+          <span class="dl">Sector Time</span>
+          <span class="dv">1.6 hr</span>
+        </div>
+        <span class="dop">=</span>
+        <div class="dnode">
+          <span class="dl">Cost Per Leg</span>
+          <span class="dv"><span class="pfx">$</span>3,000</span>
+        </div>
+      </div>
+
+      <div class="tt__lower">
+        <div>
+          <div class="pax__title">Passenger Economics — 4 Pax Average</div>
+          <div class="pax__row">
+            <div class="pax__one">
+              <div class="n"><span class="pfx">$</span>740</div>
+              <div class="l">Per Passenger — One Way</div>
+            </div>
+            <div class="pax__one">
+              <div class="n"><span class="pfx">$</span>1,480</div>
+              <div class="l">Per Passenger — Return</div>
+            </div>
+          </div>
+        </div>
+        <div class="benchmark">
+          <span class="kicker">The Correct Benchmark</span>
+          <p>The aircraft should not be measured against economy airline fares.
+             It is benchmarked against the true cost of friction:</p>
+          <ul class="bm-list">
+            <li>Lost executive productivity</li>
+            <li>Hotel nights &amp; schedule rigidity</li>
+            <li>Delayed project response &amp; same-day site rotation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>08</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 09 — PARTNER OFFSET MODEL
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>07</b> <span>/ Partner Offset Model</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Partner Offset Model</div>
+        <div class="h-title">Christchurch Partner Syndication</div>
+      </div>
+
+      <div class="po__top">
+        <div class="po__intro">
+          <p>The platform creates the capacity to partially offset operating
+             cost through disciplined utilisation by Christchurch-based
+             development and investment partners requiring regular Auckland
+             access — without compromising primary executive availability.</p>
+        </div>
+        <div>
+          <div class="tablehead" style="margin-bottom:2px;">Potential Structures</div>
+          <ol class="po__struct">
+            <li>Annual membership allocation</li>
+            <li>Block-hour allocation</li>
+            <li>Strategic syndicate access</li>
+            <li>Anchor partner arrangement</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="alloc">
+        <div class="alloc__lab">
+          <div class="t">Utilisation Allocation</div>
+          <div class="v">400 Flight Hours / Year</div>
+        </div>
+        <div class="alloc__bar">
+          <div class="alloc__seg aseg--a" style="flex:250;">
+            <div class="big">250 hrs</div><div class="sm">Internal Retained</div>
+          </div>
+          <div class="alloc__seg aseg--b" style="flex:150;">
+            <div class="big">150 hrs</div><div class="sm">Third-Party Offset</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="po__bottom">
+        <div class="po__calc">
+          <div class="tablehead" style="margin-bottom:14px;">Recovery Potential</div>
+          <div class="eq">
+            <span class="term">150 hrs</span>
+            <span class="op">&times;</span>
+            <span class="term">$1,850 / hr</span>
+          </div>
+          <div class="res"><span class="pfx">~$</span>277k <span class="cap">Annual Recovery</span></div>
+        </div>
+        <div class="po__net">
+          <div class="lab">Effective Net Cost</div>
+          <div class="fig"><span class="pfx">~$</span>460k</div>
+          <div class="ds">Annual retained operating exposure after partner recovery.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>09</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 10 — RANGE MAP
+     ============================================================ -->
+<section class="page page--dark">
+  <svg class="gridfill"><rect width="100%" height="100%" fill="url(#gridptn)"/></svg>
+
+  <div class="runner" style="position:absolute;top:52px;left:66px;right:66px;z-index:3;">
+    <div class="runner__id"><b>08</b> <span>/ Operational Range</span></div>
+    <div class="runner__brand">
+      <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+    </div>
+  </div>
+
+  <div class="map__title">
+    <div class="eyebrow">Operational Range</div>
+    <div class="h-title">The Mission<br>Envelope</div>
+  </div>
+
+  <svg class="map__svg" viewBox="0 0 560 880">
+    <!-- range rings -->
+    <g fill="none" stroke="var(--d-line)" stroke-width="1">
+      <circle cx="356" cy="190" r="150"/>
+      <circle cx="356" cy="190" r="320"/>
+      <circle cx="356" cy="190" r="478"/>
+    </g>
+    <g fill="var(--d-faint)" font-family="Inter" font-size="10" font-weight="600"
+       letter-spacing="1.4" text-anchor="middle">
+      <text x="112" y="414">300 NM</text>
+      <text x="66" y="558">600 NM</text>
+    </g>
+
+    <!-- routes -->
+    <g stroke="var(--olive-light)" stroke-width="1.5" fill="none" stroke-dasharray="2 5">
+      <path d="M356 190 L388 464"/>
+      <path d="M356 190 L414 656"/>
+      <path d="M356 190 L256 690"/>
+      <path d="M356 190 L16 290"/>
+    </g>
+
+    <!-- north island -->
+    <path fill="#2d2e21" stroke="var(--olive-light)" stroke-width="1.7" stroke-linejoin="round"
+      d="M296 60 L322 108 L344 158 L362 196 L382 176 L400 150 L408 184
+         L442 212 L492 250 L472 292 L484 342 L470 384 L430 432 L392 470
+         L372 442 L382 410 L322 390 L286 374 L302 346 L322 308 L324 266
+         L314 224 L300 176 L290 124 L292 82 Z"/>
+    <!-- south island -->
+    <path fill="#2d2e21" stroke="var(--olive-light)" stroke-width="1.7" stroke-linejoin="round"
+      d="M372 500 L408 520 L420 556 L414 598 L408 634 L420 660 L398 672
+         L388 700 L360 742 L320 778 L276 800 L244 802 L216 786 L196 756
+         L180 718 L176 678 L190 640 L216 598 L252 556 L300 520 L338 506 Z"/>
+    <!-- stewart island -->
+    <path fill="#2d2e21" stroke="var(--olive-light)" stroke-width="1.4" stroke-linejoin="round"
+      d="M216 820 L240 824 L238 842 L214 838 Z"/>
+
+    <!-- destination nodes -->
+    <g fill="var(--steel)">
+      <circle cx="388" cy="464" r="5"/>
+      <circle cx="414" cy="656" r="5"/>
+      <circle cx="256" cy="690" r="5"/>
+    </g>
+    <!-- origin -->
+    <circle cx="356" cy="190" r="17" fill="none" stroke="var(--signal)" stroke-width="1.3"/>
+    <circle cx="356" cy="190" r="5.5" fill="var(--signal)"/>
+    <path d="M356 165 L356 215 M331 190 L381 190" stroke="var(--signal)" stroke-width="1"/>
+
+    <!-- labels -->
+    <g font-family="Inter" fill="#ECE9DF">
+      <text x="384" y="185" font-size="15" font-weight="600">Dairy Flat</text>
+      <text x="384" y="203" font-size="9" font-weight="600" letter-spacing="1.7"
+            fill="#8B8C82">ORIGIN · AUCKLAND</text>
+      <text x="410" y="460" font-size="13" font-weight="600">Wellington</text>
+      <text x="410" y="476" font-size="8.5" letter-spacing="1.6" fill="#8B8C82">NZWN</text>
+      <text x="436" y="652" font-size="13" font-weight="600">Christchurch</text>
+      <text x="436" y="668" font-size="8.5" letter-spacing="1.6" fill="#8B8C82">NZCH</text>
+      <text x="234" y="686" font-size="13" font-weight="600" text-anchor="end">Queenstown</text>
+      <text x="234" y="702" font-size="8.5" letter-spacing="1.6" fill="#8B8C82" text-anchor="end">NZQN</text>
+    </g>
+
+    <!-- sydney edge indicator -->
+    <g>
+      <path d="M50 300 L18 300 M32 290 L14 300 L32 310" fill="none"
+            stroke="var(--steel)" stroke-width="1.4"/>
+      <text x="54" y="286" font-family="Inter" font-size="10" font-weight="600"
+            fill="#8B8C82" letter-spacing="1.3">SYDNEY · EXTENDED RANGE</text>
+    </g>
+
+    <!-- north arrow -->
+    <g transform="translate(510,820)">
+      <path d="M0 -21 L6 14 L0 6 L-6 14 Z" fill="var(--steel)"/>
+      <text x="0" y="33" font-family="Inter" font-size="10" font-weight="600"
+            fill="#8B8C82" text-anchor="middle">N</text>
+    </g>
+  </svg>
+
+  <div class="map__panel">
+    <div class="tablehead" style="color:var(--steel);">Primary Sectors</div>
+    <div class="route__row">
+      <div class="route__code">CHC</div>
+      <div class="route__nm">Auckland &harr; Christchurch</div>
+      <div class="route__val">~1.6 hr</div>
+    </div>
+    <div class="route__row">
+      <div class="route__code">WLG</div>
+      <div class="route__nm">Auckland &harr; Wellington</div>
+      <div class="route__val">~1.0 hr</div>
+    </div>
+    <div class="route__row">
+      <div class="route__code">ZQN</div>
+      <div class="route__nm">Auckland &harr; Queenstown</div>
+      <div class="route__val">~2.0 hr</div>
+    </div>
+    <div class="route__row">
+      <div class="route__code">SYD</div>
+      <div class="route__nm">Trans-Tasman — extended</div>
+      <div class="route__val">Range edge</div>
+    </div>
+
+    <div class="map__legend">
+      <div><span class="lgnd-dot" style="background:var(--signal);border-radius:50%;"></span>Operating base — Dairy Flat</div>
+      <div><span class="lgnd-dot" style="background:var(--steel);border-radius:50%;"></span>Primary destination node</div>
+      <div><span class="lgnd-dot" style="border:1px solid var(--d-line-2);"></span>Range band — 300 / 600 nm</div>
+    </div>
+
+    <div class="map__note">
+      A practical ~1,000 nm envelope places the entire national network — and
+      the South Island development corridor — within a single same-day
+      operating radius.
+    </div>
+  </div>
+
+  <div class="foot" style="position:absolute;left:66px;right:66px;bottom:46px;z-index:3;">
+    <span>Confidential — Strategic Mobility Review</span>
+    <span class="foot__pg"><b>10</b> / 13</span>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 11 — PILOT / TRAINING MODEL
+     ============================================================ -->
+<section class="page page--light">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>09</b> <span>/ Pilot &amp; Training Model</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="sec-head">
+        <div class="eyebrow">Pilot &amp; Training Model</div>
+        <div class="h-title">Integrated Pilot &amp; Training Platform</div>
+      </div>
+
+      <div class="pilot__top">
+        <div class="pilot__lead">
+          <span class="kicker">A Dual-Purpose Asset</span>
+          <p>The aircraft is structured as both an executive transport asset and
+             a controlled training environment — a full-time pilot and instructor
+             anchors a disciplined SOP culture while supporting a deliberate
+             owner progression pathway toward eventual owner-operator capability.</p>
+        </div>
+        <div>
+          <div class="tablehead">The Platform Supports</div>
+          <ul class="support">
+            <li>Executive transport</li>
+            <li>Owner competency development</li>
+            <li>Structured IFR pathway</li>
+            <li>Turbine familiarisation</li>
+            <li>Operational readiness</li>
+            <li>Insurer-aligned discipline</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stepper">
+        <div class="tablehead" style="margin-bottom:24px;">Owner Progression Pathway</div>
+        <div class="stepper__track">
+          <div class="stepper__line"></div>
+          <div class="step">
+            <div class="step__dot"><i></i></div>
+            <div class="step__no">PHASE 01</div>
+            <div class="step__t">Owner Familiarisation</div>
+            <div class="step__d">Supervised operations &amp; type exposure under instructor command.</div>
+          </div>
+          <div class="step">
+            <div class="step__dot"><i></i></div>
+            <div class="step__no">PHASE 02</div>
+            <div class="step__t">Structured IFR Pathway</div>
+            <div class="step__d">Instrument rating progression within a disciplined SOP framework.</div>
+          </div>
+          <div class="step">
+            <div class="step__dot"><i></i></div>
+            <div class="step__no">PHASE 03</div>
+            <div class="step__t">Turbine Endorsement</div>
+            <div class="step__d">PT6A turbine familiarisation &amp; high-performance competency.</div>
+          </div>
+          <div class="step">
+            <div class="step__dot"><i></i></div>
+            <div class="step__no">PHASE 04</div>
+            <div class="step__t">Owner-Operator Capability</div>
+            <div class="step__d">Reduced insurer friction &amp; independent operational command.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="roles">
+        <div class="role"><div class="n">A</div><div class="t">Pilot &amp; Instructor Role</div></div>
+        <div class="role"><div class="n">B</div><div class="t">Aircraft Management</div></div>
+        <div class="role"><div class="n">C</div><div class="t">Dispatch Readiness</div></div>
+        <div class="role"><div class="n">D</div><div class="t">Maintenance Coordination</div></div>
+        <div class="role"><div class="n">E</div><div class="t">Recurrent Training</div></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Confidential — Strategic Mobility Review</span>
+      <span class="foot__pg"><b>11</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 12 — STRATEGIC CONCLUSION
+     ============================================================ -->
+<section class="page page--dark">
+  <div class="frame">
+    <div class="runner">
+      <div class="runner__id"><b>10</b> <span>/ Strategic Outcome</span></div>
+      <div class="runner__brand">
+        <svg class="mark"><use href="#mark"/></svg> Citadel Capital
+      </div>
+    </div>
+
+    <div class="canvas concl">
+      <div class="sec-head">
+        <div class="eyebrow">Strategic Outcome</div>
+      </div>
+
+      <div class="concl__big">
+        This is <span class="dim">not</span> a luxury purchase.<br>
+        It is <b>executive infrastructure.</b>
+      </div>
+
+      <div class="concl__mid">
+        <div>
+          <div class="tablehead" style="color:var(--steel);">The Platform Materially Enhances</div>
+          <ul class="concl__list">
+            <li>Operational responsiveness</li>
+            <li>Executive flexibility</li>
+            <li>Inter-city project oversight</li>
+            <li>Same-day capability</li>
+            <li>Strategic mobility</li>
+          </ul>
+        </div>
+        <div class="concl__fm">
+          <span class="kicker">For Citadel's Operating Profile</span>
+          <p>The aircraft functions as a force multiplier — converting travel
+             from a constraint into a controlled instrument of strategic
+             execution.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Citadel Capital — Strategic Mobility Platform</span>
+      <span class="foot__pg"><b>12</b> / 13</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PAGE 13 — BACK COVER
+     ============================================================ -->
+<section class="page page--dark">
+  <svg class="gridfill"><rect width="100%" height="100%" fill="url(#gridptn)"/></svg>
+  <div class="back">
+    <svg class="mark"><use href="#mark"/></svg>
+    <div class="back__wm">CITADEL CAPITAL</div>
+    <div class="back__sub">Strategic Mobility Platform</div>
+    <div class="back__rule"></div>
+    <div class="back__meta">
+      Piper Meridian PA-46-500TP — ZK-FTP<br>
+      Confidential Strategic Mobility Review · 2026<br>
+      Reference CC·AV·2026·001
+    </div>
+  </div>
+  <div class="back__class">Confidential — Not For Distribution</div>
+  <div class="ticks">
+    <i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i>
+  </div>
+</section>
+
+</body>
+</html>
