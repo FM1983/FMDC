@@ -1,21 +1,21 @@
 # PropertyFiles Document Register — 602/18 Carlton Mill Road
 
 Source: https://www.propertyfiles.co.nz/property/RX4883894 (registration required to download)
-Status key: ☐ to pull · ◑ reviewed (summary pending) · ☑ reviewed & captured in work-up
+**All 61 documents pulled 31 May 2026 after PropertyFiles registration.** Status key: ☐ to pull · ◑ reviewed (summary pending) · ☑ reviewed & captured in work-up
 
 ## Core property files
 | # | Document | Why it matters | Status |
 |---|---|---|---|
-| 01 | Title.pdf | Tenure (unit title), shares, easements, encumbrances | ☐ |
-| 02 | LIM.pdf | Consents (strengthening/refurb), overlays, notices | ☐ |
-| 03 | S&P Agreement – 602-18 Carlton Mill Rd.pdf | Chattels, settlement, conditions | ☐ |
+| 01 | Title.pdf | Tenure (unit title), shares, easements, encumbrances | ☑ |
+| 02 | LIM.pdf | Consents (strengthening/refurb), overlays, notices | ☑ |
+| 03 | S&P Agreement – 602-18 Carlton Mill Rd.pdf | Chattels, settlement, conditions | ☑ |
 | 05 | District Plan.pdf | Zoning (RMD), overlays | ☐ |
-| 06 | Property Report – 602/18 Carlton Mill Road.pdf | Consolidated property data | ☐ |
+| 06 | Property Report – 602/18 Carlton Mill Road.pdf | Consolidated property data | ☑ |
 | 07 | Information Request – 602/18 Carlton Mill.pdf | Supporting info | ☐ |
-| 08 | Rates Valuation.pdf | **RV/CV + rates p.a.** | ☐ |
-| 09 | LLUR Enquiry.pdf | Contaminated-land (Listed Land Use Register) | ☐ |
-| 3 | Pre-Contract Disclosure Statement.pdf | **Statutory BC finances/levies/insurance** | ☐ |
-| 4 | Rental Appraisal – 602/18 Carlton Mill Road.pdf | **Yield input** | ☐ |
+| 08 | Rates Valuation.pdf | **RV/CV + rates p.a.** | ☑ |
+| 09 | LLUR Enquiry.pdf | Contaminated-land (Listed Land Use Register) | ☑ |
+| 3 | Pre-Contract Disclosure Statement.pdf | **Statutory BC finances/levies/insurance** | ☑ |
+| 4 | Rental Appraisal – 602/18 Carlton Mill Road.pdf | **Yield input** | ☑ |
 
 ## Body Corporate pack (BodyCorporate_18CarltonMillRoad) — PRIORITY
 | Document group | Why it matters | Status |

@@ -3,8 +3,20 @@
 **Property:** 602 / 18 Carlton Mill Road, Merivale, Christchurch 8014 (penthouse, Kamahi Apartments)
 **PropertyFiles:** https://www.propertyfiles.co.nz/property/RX4883894 (listing ref RX4883894)
 **Agency:** Cowdy & Co Ltd (REAA 2008) — Tom Rennie 021 0838 3232 / trennie@cowdy.co.nz · Jake Wieblitz 027 239 7176 / jwieblitz@cowdy.co.nz
-**Prepared:** 31 May 2026 · Citadel Capital — initial desktop work-up
-**Status of this document:** Stage 1 (desktop). Figures marked **[VERIFY]** must be confirmed against the PropertyFiles PDFs and council records before any offer.
+**Prepared:** 31 May 2026 · Citadel Capital — acquisition work-up
+**Status:** **PropertyFiles-verified** (all 61 documents pulled 31 May 2026 after registration). The branded PDF `Citadel_602-18-Carlton-Mill-Road_Workup.pdf` is the current authoritative version; the desktop notes below are retained for reference.
+
+> ### Verified figures (PropertyFiles, 31 May 2026)
+> - **Title:** Identifier **840390** — Stratum in Freehold (unit title); **Unit 602 + Accessory Units 602A/602B/602C**, DP 525346; issued 10 Jan 2019. Encumbrances: CCC right-of-way + electricity easement, BC operational-rules notice. **No mortgage/caveat** on search copy.
+> - **Building:** Kamahi Apartments — **built 1974**, 2011 EQ damage, developer rebuilt to **100% of new Building Code**; 13 units.
+> - **Capital Value:** **$1,590,000** (2026/27: land $720k + impr $870k) · $1,600,000 (2025/26) → **ask ~9% below CV**.
+> - **Rates:** **$9,157.26 p.a.** (2025/26). **Body-corp levy (unit 602): $16,419.20 p.a.** (decreased this year on favourable insurance).
+> - **Rental appraisal:** **$900–$950/week** (Cowdy PM, 4 Feb 2026) → gross ~3.3%, **net ~1.2–1.5%** after rates+levy.
+> - **BC insurance:** NZI via Willis NZ; sum insured **$20,167,000**; premium $40,745 (05/03/25–05/03/26).
+> - **BC reserves (30/06/25):** Operating $39,160.83 + Long-Term Maintenance $91,571.86; net owners’ funds ~$130,733. LTMP: 30-yr plan adopted Aug 2023.
+> - **Disclosure:** **No** weathertightness claims/issues, **No** earthquake-prone, **No** other significant defects, **No** BC proceedings.
+> - **S&P:** standard ADLS form, price/chattels fields blank (offer-driven); “and/or nominee” available.
+> - **Outstanding:** confirm live status (Harcourts duplicate shows “Sold”); chattels schedule; insurance reinstatement basis; LTM-fund adequacy; independent builder’s report.
 
 ---
 
