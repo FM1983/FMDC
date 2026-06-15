@@ -1,0 +1,143 @@
+# Fastfile — builds the iOS app and uploads it to TestFlight.
+#
+# Authentication: App Store Connect API key (.p8) — no Apple ID / password / 2FA.
+# Code signing: "match-free". We import a distribution certificate (.p12) into a
+# temporary keychain and install an App Store provisioning profile, then point
+# the Xcode project at them with manual signing.
+#
+# Required environment variables (set as GitHub Actions secrets, or exported
+# locally):
+#   ASC_KEY_ID            App Store Connect API Key ID
+#   ASC_ISSUER_ID         App Store Connect Issuer ID
+#   ASC_API_KEY_BASE64    base64 of the .p8 key file  (or set ASC_API_KEY_PATH)
+#   ASC_API_KEY_PATH      path to the .p8 key file     (alternative to BASE64)
+#   APPLE_TEAM_ID         10-char Apple Developer Team ID
+#   APP_IDENTIFIER        app bundle id (defaults to com.fmdc.scorched)
+#   DIST_CERT_BASE64      base64 of the distribution certificate (.p12)
+#   DIST_CERT_PASSWORD    password for the .p12
+#   PROV_PROFILE_BASE64   base64 of the App Store provisioning profile (.mobileprovision)
+#
+# Optional:
+#   BUILD_NUMBER          explicit build number (e.g. CI run number)
+
+require "base64"
+require "securerandom"
+require "shellwords"
+
+default_platform(:ios)
+
+# The Capacitor-generated iOS project lives in ios/App. Its Xcode scheme is "App".
+XCODE_PROJECT = "ios/App/App.xcodeproj"
+SCHEME        = "App"
+APP_ID        = ENV["APP_IDENTIFIER"] || "com.fmdc.scorched"
+
+platform :ios do
+  desc "Build and upload a beta build to TestFlight"
+  lane :beta do
+    team_id = ENV["APPLE_TEAM_ID"]
+    UI.user_error!("APPLE_TEAM_ID is not set") if team_id.to_s.empty?
+
+    # --- 1. App Store Connect API key auth -----------------------------------
+    api_key = app_store_connect_api_key(
+      key_id:      ENV["ASC_KEY_ID"],
+      issuer_id:   ENV["ASC_ISSUER_ID"],
+      # Prefer an explicit path; otherwise decode the base64 env into a temp file.
+      key_filepath: ENV["ASC_API_KEY_PATH"],
+      key_content:  ENV["ASC_API_KEY_BASE64"],
+      is_key_content_base64: !ENV["ASC_API_KEY_BASE64"].to_s.empty?,
+      in_house: false,
+    )
+
+    # --- 2. Import the distribution certificate into a temp keychain ----------
+    keychain_name     = "fastlane_tmp.keychain"
+    keychain_password = SecureRandom.hex(16)
+
+    create_keychain(
+      name:                    keychain_name,
+      password:                keychain_password,
+      default_keychain:        true,
+      unlock:                  true,
+      timeout:                 3600,
+      lock_when_sleeps:        false,
+      add_to_search_list:      true,
+    )
+
+    cert_path = "/tmp/dist_cert.p12"
+    File.binwrite(cert_path, Base64.decode64(ENV["DIST_CERT_BASE64"].to_s))
+
+    import_certificate(
+      certificate_path:     cert_path,
+      certificate_password: ENV["DIST_CERT_PASSWORD"].to_s,
+      keychain_name:        keychain_name,
+      keychain_password:    keychain_password,
+    )
+
+    # --- 3. Install the App Store provisioning profile -----------------------
+    profile_path = "/tmp/profile.mobileprovision"
+    File.binwrite(profile_path, Base64.decode64(ENV["PROV_PROFILE_BASE64"].to_s))
+
+    # install_provisioning_profile copies it into ~/Library/MobileDevice and
+    # returns the installed path. Capture its UUID/name for manual signing.
+    install_provisioning_profile(path: profile_path)
+
+    # Read the profile name so we can reference it in code signing settings.
+    profile_name = sh(
+      "/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< " \
+      "\"$(security cms -D -i #{profile_path.shellescape})\"",
+      log: false
+    ).strip
+
+    # --- 4. Force manual signing in the Xcode project ------------------------
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path:                  XCODE_PROJECT,
+      team_id:               team_id,
+      bundle_identifier:     APP_ID,
+      code_sign_identity:    "Apple Distribution",
+      profile_name:          profile_name,
+    )
+
+    # --- 5. Determine the build number ---------------------------------------
+    # Prefer an explicit BUILD_NUMBER (CI run number); otherwise bump the latest
+    # build already on TestFlight.
+    build_number =
+      if !ENV["BUILD_NUMBER"].to_s.empty?
+        ENV["BUILD_NUMBER"]
+      else
+        latest = latest_testflight_build_number(
+          api_key:        api_key,
+          app_identifier: APP_ID,
+          initial_build_number: 0,
+        )
+        (latest + 1).to_s
+      end
+
+    increment_build_number(
+      xcodeproj:    XCODE_PROJECT,
+      build_number: build_number,
+    )
+
+    # --- 6. Build the app ----------------------------------------------------
+    build_app(
+      project:       XCODE_PROJECT,
+      scheme:        SCHEME,
+      export_method: "app-store",
+      output_directory: "build",
+      output_name:   "ScorchedMobile.ipa",
+      export_options: {
+        provisioningProfiles: {
+          APP_ID => profile_name,
+        },
+        teamID: team_id,
+        signingStyle: "manual",
+      },
+    )
+
+    # --- 7. Upload to TestFlight ---------------------------------------------
+    upload_to_testflight(
+      api_key:                          api_key,
+      app_identifier:                   APP_ID,
+      skip_waiting_for_build_processing: true,
+    )
+  end
+end

@@ -1,0 +1,18 @@
+# Appfile — identifiers for fastlane.
+#
+# These are read from environment variables so the same Fastfile works in CI
+# (GitHub Actions secrets) and locally (export them in your shell).
+#
+# NOTE: `com.fmdc.scorched` is a PLACEHOLDER bundle ID. Change it to one you own
+# and keep it consistent with capacitor.config.ts and the APP_IDENTIFIER secret.
+
+# The app bundle identifier (must match App Store Connect & capacitor.config.ts).
+app_identifier(ENV["APP_IDENTIFIER"] || "com.fmdc.scorched")
+
+# Your Apple Developer Team ID (10-character string, e.g. "ABCDE12345").
+# Used for code signing and the Appfile team context.
+team_id(ENV["APPLE_TEAM_ID"])
+
+# Apple ID is optional when using App Store Connect API key auth (which this
+# pipeline uses). Provide it only if you switch to username/password auth.
+apple_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]

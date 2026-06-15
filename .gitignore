@@ -1,0 +1,32 @@
+# Node
+node_modules/
+
+# Generated web bundle (recreated by `npm run build`)
+www/
+
+# Native iOS project is regenerated in CI (`npx cap add ios`); don't commit it.
+ios/App/Pods/
+ios/App/build/
+ios/App/Podfile.lock
+DerivedData/
+**/DerivedData/
+
+# macOS
+.DS_Store
+
+# Signing material — NEVER commit these
+*.mobileprovision
+*.p8
+*.p12
+*.cer
+*.certSigningRequest
+
+# fastlane generated reports / output
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+fastlane/README.md
+
+# Local env / secrets
+.env
+.env.*
