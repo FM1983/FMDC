@@ -1,0 +1,12 @@
+# Netlify config — serve the game as a static site straight from the repo root.
+# No build step: index.html + sw.js + manifest.webmanifest + icon.svg are already
+# plain static files, so we just publish the repo root.
+[build]
+  publish = "."
+  command = "echo 'No build needed — static site'"
+
+# Send the bare domain to the game.
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
