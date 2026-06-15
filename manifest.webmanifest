@@ -1,0 +1,14 @@
+{
+  "name": "Scorched Mobile",
+  "short_name": "Scorched",
+  "description": "A mobile rebuild of the classic DOS artillery game Scorched Earth.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
