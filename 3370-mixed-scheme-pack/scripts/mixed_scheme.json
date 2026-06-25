@@ -1,0 +1,131 @@
+{
+  "_comment": "LOCKED FIGURES for 3370 GNR Mixed Scheme (output 008). NZD. Do not alter. Sale prices incl GST; divide by 1.15 for ex-GST. Costs ex-GST.",
+  "project": {
+    "address": "3370 Great North Road, Glen Eden, Auckland",
+    "site_m2": 809,
+    "zone": "THAB",
+    "height_limit_m": 16,
+    "coverage_pct": 50,
+    "land_entry": 605000,
+    "land_ask_psm": 1400,
+    "existing_consent": "2020 RC for 10 apartments (would be superseded)",
+    "output_id": "2026-06-25_008",
+    "date": "2026-06-25",
+    "entity": "TBC (Alpenrhein Capital Ltd)",
+    "playbook": "acquisition-engine"
+  },
+  "massing": {
+    "footprint_m2": 404,
+    "levels": 4,
+    "floor_to_floor_m": 3.2,
+    "height_m": 13,
+    "GBA_m2": 1537,
+    "amenity_internal_m2": 120,
+    "nsa_efficiency": 0.83,
+    "GFA_m2": 1530,
+    "indicative_footprint_dims_m": [25.5, 16.0]
+  },
+  "mix": {
+    "total_titles": 26,
+    "lettable_tenancies": 36,
+    "products": [
+      {
+        "name": "1-bed (single)",
+        "qty": 16,
+        "size_m2": 45,
+        "price_incl": 499000,
+        "psm_incl": 11089,
+        "line_grv_incl": 7984000,
+        "build_psm": 3600,
+        "rent_wk": 480,
+        "rent_yr": 24960,
+        "gross_yield_pct": 5.0,
+        "tenancies_each": 1
+      },
+      {
+        "name": "Dual-key (2 x 20m2 studios)",
+        "qty": 10,
+        "size_m2": 45,
+        "studio_size_m2": 20,
+        "studios_per_title": 2,
+        "price_incl": 599000,
+        "psm_incl": 13311,
+        "line_grv_incl": 5990000,
+        "build_psm": 4000,
+        "rent_wk": 640,
+        "rent_yr": 33280,
+        "gross_yield_pct": 5.6,
+        "tenancies_each": 2
+      }
+    ]
+  },
+  "feasibility_ex_gst": {
+    "land_entry": 605000,
+    "demolition": 25000,
+    "build_blended_psm": 3726,
+    "build": 5699566,
+    "colliding_facilities_fitout": 350000,
+    "professional_fees_pct": 10,
+    "professional_fees": 569957,
+    "contingency_pct": 6.5,
+    "contingency": 370472,
+    "dev_contributions_per_title": 25000,
+    "dev_contributions": 650000,
+    "resource_consent_fresh": 110000,
+    "siteworks": 80000,
+    "finance_months": 14,
+    "finance_rate_pct": 7.0,
+    "finance_avg_drawn_pct": 50,
+    "finance": 259087,
+    "sales_marketing_pct": 3.5,
+    "sales_marketing": 425296,
+    "total_cost": 9144378,
+    "grv_incl": 13974000,
+    "grv_ex": 12151304,
+    "profit": 3006927,
+    "margin_pct": 24.7,
+    "equity_pct": 25,
+    "equity": 2114999,
+    "loan_pct": 75,
+    "loan": 6858378,
+    "roe_pct": 142,
+    "land_residual_total": 1424692,
+    "land_residual_psm": 1761,
+    "land_residual_vs_ask_psm": 361,
+    "programme_months": 14,
+    "target_margin_for_residual_pct": 18
+  },
+  "build_cost_sensitivity": {
+    "_note": "all rows computed via model_logic.py (vary dual-key build rate; adopted = 4000)",
+    "rows": [
+      {"dualkey_build_psm": 3800, "blended_psm": 3655, "margin_pct": 25.8, "land_psm": 1922},
+      {"dualkey_build_psm": 4000, "blended_psm": 3726, "margin_pct": 24.7, "land_psm": 1761, "adopted": true},
+      {"dualkey_build_psm": 4300, "blended_psm": 3832, "margin_pct": 23.1, "land_psm": 1520}
+    ]
+  },
+  "mix_sensitivity": {
+    "_note": "computed via model_logic.py (total 26 titles; adopted = 16/10)",
+    "rows": [
+      {"n_1bed": 18, "n_dk": 8, "split": "69/31", "margin_pct": 24.1, "land_psm": 1657},
+      {"n_1bed": 16, "n_dk": 10, "split": "62/38", "margin_pct": 24.7, "land_psm": 1761, "adopted": true},
+      {"n_1bed": 14, "n_dk": 12, "split": "54/46", "margin_pct": 25.3, "land_psm": 1865}
+    ]
+  },
+  "scheme_comparison": [
+    {"scheme": "Plain brutalist 28u @ $449k", "margin_pct": 34.1, "land_psm": 2920},
+    {"scheme": "Design co-living 28u @ $489k", "margin_pct": 27.1, "land_psm": 2091},
+    {"scheme": "MIXED 60/40 @ $499k/$599k (THIS)", "margin_pct": 24.7, "land_psm": 1761, "is_this": true},
+    {"scheme": "Dual-key all 26t @ $549k", "margin_pct": 22.2, "land_psm": 1392},
+    {"scheme": "Consented 10u townhouse (RC done)", "margin_pct": 29.2, "land_psm": 1537}
+  ],
+  "market": {
+    "suburb": "Glen Eden",
+    "median_sale_all_stock": 823833,
+    "median_days_to_sale": 33,
+    "dwellings_sold_12mo": 282,
+    "rent_1_2bed_wk_range": [560, 620],
+    "buyer_profile": "first-home buyers & investors",
+    "comparable_supply": "Creston Group, 39 Brandon Road, 12 units",
+    "source": "REINZ 12 months to June 2026"
+  }
+}
