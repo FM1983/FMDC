@@ -100,6 +100,23 @@ structure. A build-to-hold model should be run alongside build-to-sell.
 
 ---
 
+## Design Precedents
+*Existing developments — reference imagery only, not this scheme*
+
+The design language is grounded in built West Auckland precedent: a raw board-formed
+concrete shell warmed by timber and signalled by a brick-red entry, with shared
+"colliding" amenity at its heart. The pack's precedent page shows existing, third-party
+developments — **The Glen Eden Co-Living** (concrete shell, brick-red doors, timber
+warmth, shared courtyard and rooftop) and **Hyde** (a board-formed concrete walk-up on
+an arterial frontage) — to convey that intent.
+
+> **Important — these are not the proposed scheme.** The precedent photographs show
+> existing, third-party developments, included only to illustrate the intended design
+> language. They are NOT the proposed building, not to scale, and not architecture by
+> Citadel. The building design is to be prepared by the appointed registered architect.
+
+---
+
 ## Indicative Massing & Site — Schematic
 *Schematic — not to scale, not for consent*
 

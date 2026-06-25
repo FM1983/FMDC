@@ -27,6 +27,8 @@ LIGHTXT = "#808080"
 BRICK   = "#8B3A2F"
 CONCRETE= "#BFC1BA"   # flat schematic concrete grey
 CONCDK  = "#9A9C94"
+TIMBER  = "#B5824E"   # warm timber accent (echoes precedent joinery/soffits)
+TIMBER_PALE = "#E7D8C4"
 WHITE   = "#FFFFFF"
 
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures")
@@ -238,6 +240,12 @@ def plate_1bed():
     zone(5.45, 0.15, 2.0, 2.25, "Bathroom", fc=WHITE)
     zone(7.55, 0.15, 1.3, 2.25, "Entry", fc=WHITE)
 
+    # timber kitchen joinery run (warm accent)
+    ax.add_patch(Rectangle((0.4, 4.0), 4.7, 0.55, fc=TIMBER_PALE, ec=TIMBER, lw=0.8))
+    ax.text(2.75, 4.27, "timber kitchen", ha="center", va="center", fontsize=5.5, color=TIMBER)
+    # brick-red entry door (precedent signature)
+    ax.add_patch(Rectangle((8.4, 0.25), 0.18, 1.1, fc=BRICK, ec=BRICK))
+
     # simple furniture hints (schematic blocks only)
     ax.add_patch(Rectangle((6.0, 3.0), 2.3, 1.3, fc=MID, ec=GREEN, lw=0.6, alpha=0.6))  # bed
     ax.add_patch(Rectangle((0.5, 0.5), 2.4, 1.0, fc=MID, ec=GREEN, lw=0.6, alpha=0.5))  # sofa
@@ -265,12 +273,14 @@ def plate_dualkey():
     for x0, lbl in [(0.1, "Studio A  ~20 m²"), (5.1, "Studio B  ~20 m²")]:
         ax.add_patch(Rectangle((x0 + 0.2, 3.4), 1.4, 1.2, fc=WHITE, ec=GREEN, lw=0.8))
         ax.text(x0 + 0.9, 4.0, "Ensuite", ha="center", va="center", fontsize=6.5, color=INK)
-        ax.add_patch(Rectangle((x0 + 1.8, 3.4), 1.6, 1.2, fc=WHITE, ec=GREEN, lw=0.8))
+        # timber kitchenette (warm accent)
+        ax.add_patch(Rectangle((x0 + 1.8, 3.4), 1.6, 1.2, fc=TIMBER_PALE, ec=TIMBER, lw=0.8))
         ax.text(x0 + 2.6, 4.0, "Kitchenette", ha="center", va="center", fontsize=6.5, color=INK)
         ax.text(x0 + 1.9, 1.7, lbl, ha="center", fontsize=8.5, color=INK, fontweight="bold")
         ax.text(x0 + 1.9, 1.0, "living / sleep", ha="center", fontsize=6.5, color=MIDTXT)
-        # lock/key glyph on each studio door (independently lockable)
-        ky = 0.45
+        # brick-red lockable door + lock/key glyph (independently lockable)
+        ax.add_patch(Rectangle((x0 + 1.55, 0.1), 0.7, 0.16, fc=BRICK, ec=BRICK))  # door at shared entry
+        ky = 0.55
         kx = x0 + 1.9
         ax.add_patch(Circle((kx, ky + 0.18), 0.16, fc=BRICK, ec=BRICK))
         ax.add_patch(Rectangle((kx - 0.05, ky - 0.25), 0.10, 0.32, fc=BRICK, ec=BRICK))
@@ -298,15 +308,23 @@ def elevation():
     # overall concrete mass
     ax.add_patch(Rectangle((0, 0), W, Htot, fc=CONCRETE, ec=INK, lw=1.6))
 
+    # board-formed concrete: faint horizontal board lines (precedent expression)
+    yb = 0.0
+    while yb < Htot:
+        ax.add_patch(Rectangle((0, yb), W, 0.025, fc=CONCDK, ec="none", alpha=0.45))
+        yb += 0.55
+
     # ground floor distinct (amenity frontage / entry)
     ax.add_patch(Rectangle((0, 0), W, floor_h, fc=CONCDK, ec=INK, lw=1.0))
+    # warm timber soffit/fascia band at the amenity head (echoes precedent)
+    ax.add_patch(Rectangle((0, floor_h - 0.32), W, 0.20, fc=TIMBER, ec="none"))
 
     # expressed horizontal floor slabs (thin darker lines)
     for i in range(1, 4):
         y = i * floor_h
         ax.add_patch(Rectangle((0, y - 0.12), W, 0.24, fc=INK, ec=INK, lw=0))
 
-    # regular window module rhythm (upper 3 residential floors)
+    # regular window module rhythm (upper 3 residential floors), timber-framed
     cols = 8
     margin = 1.2
     mod_w = (W - 2 * margin) / cols
@@ -317,16 +335,20 @@ def elevation():
         wh = floor_h * 0.45
         for cidx in range(cols):
             wx = margin + cidx * mod_w + (mod_w - win_w) / 2
-            ax.add_patch(Rectangle((wx, wy), win_w, wh, fc="#5B6470", ec=INK, lw=0.6))
+            ax.add_patch(Rectangle((wx - 0.12, wy - 0.12), win_w + 0.24, wh + 0.24,
+                         fc=TIMBER, ec="none"))  # timber reveal
+            ax.add_patch(Rectangle((wx, wy), win_w, wh, fc="#5B6470", ec=INK, lw=0.5))
 
-    # ground floor: entry + amenity glazing
-    ax.add_patch(Rectangle((W / 2 - 1.4, 0.3), 2.8, floor_h * 0.78, fc="#3E454E",
-                 ec=INK, lw=0.8))  # entry
+    # ground floor: brick-red entry door (precedent signature) + amenity glazing
+    ax.add_patch(Rectangle((W / 2 - 1.2, 0.3), 2.4, floor_h * 0.78, fc=BRICK,
+                 ec=INK, lw=0.8))  # entry door
     ax.text(W / 2, 0.15, "entry", ha="center", va="top", fontsize=6.5, color=MIDTXT)
     for cidx in [1, 5]:
         gx = margin + cidx * mod_w
+        ax.add_patch(Rectangle((gx - 0.1, 0.2), mod_w * 1.4 + 0.2, floor_h * 0.62 + 0.18,
+                     fc=TIMBER, ec="none"))  # timber reveal
         ax.add_patch(Rectangle((gx, 0.3), mod_w * 1.4, floor_h * 0.62,
-                     fc="#5B6470", ec=INK, lw=0.6))
+                     fc="#5B6470", ec=INK, lw=0.5))
 
     # height dimension
     ax.annotate("", xy=(-1.2, 0), xytext=(-1.2, Htot),

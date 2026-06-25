@@ -39,7 +39,8 @@ elevation) is an indicative schematic diagram only — not to scale, not for con
 consent. Interiors credited to Studio 11:11; building architect "to be appointed".
 
 **Deliverables (output 008, 2026-06-25):** primary PDF `3370 Great North Road - Mixed
-Residential Scheme.pdf` (11 pages) + this markdown twin + summary.
+Residential Scheme.pdf` (12 pages, incl. a design-precedents page) + this markdown twin
++ summary.
 
 **Project framing.** The live transaction thesis is a capital-light, vendor-financed flip
 (on-sell to a third party at ~$1,200/m²); this development concept underpins the land

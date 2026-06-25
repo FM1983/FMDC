@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 3370 Great North Road - Mixed Residential Scheme
-Citadel-branded concept-development pack (A4 portrait, 11 pages).
+Citadel-branded concept-development pack (A4 portrait, 12 pages).
 
 Brand helpers (rook, wordmark, footer, header, sect, wrap, mtable, bar, kv)
 are adapted from the proven build_pack_reference.py from this project.
@@ -31,7 +31,7 @@ FIGDIR = os.path.join(HERE, "..", "figures")
 OUT = os.path.join(HERE, "..", "3370 Great North Road - Mixed Residential Scheme.pdf")
 DATA = json.load(open(os.path.join(HERE, "mixed_scheme.json")))
 
-TOTAL = 11
+TOTAL = 12
 CAP = ("Indicative schematic only — not to scale, not for construction or resource "
        "consent. Architectural design to be prepared by a registered architect.")
 
@@ -213,6 +213,18 @@ def figure(c, y, name, disp_w, x=None, max_h=None, caption=True):
     return yy, (x, w, h)
 
 
+def pimg(c, name, x, y_top, box_w, box_h):
+    """Fit a precedent photo inside a box (preserve aspect), thin border, centered in box."""
+    img = ImageReader(os.path.join(FIGDIR, 'precedents', name))
+    iw, ih = img.getSize()
+    scale = min(box_w / iw, box_h / ih)
+    w, h = iw * scale, ih * scale
+    px = x + (box_w - w) / 2.0
+    c.drawImage(img, px, y_top - h, width=w, height=h, mask='auto')
+    c.setStrokeColor(MID_GREEN); c.setLineWidth(0.6); c.rect(px, y_top - h, w, h, fill=0, stroke=1)
+    return px, w, h
+
+
 def flagbox(c, y, heading, text, height=58):
     c.setStrokeColor(FLAG); c.setLineWidth(1.2); c.line(ML + 2, y + 6, ML + 2, y - height)
     c.setFont('Helvetica-Bold', 8.5); c.setFillColor(FLAG); c.drawString(ML + 10, y, heading)
@@ -279,7 +291,7 @@ y = kv(c, y, [
     ('Residual land value (at 18% margin)', '$1,761 / m2'),
 ], split=0.52, bold={'Development profit', 'Development margin', 'Residual land value (at 18% margin)'})
 y -= 14
-y = flagbox(c, y, 'Key sensitivities - read pages 9 & 11',
+y = flagbox(c, y, 'Key sensitivities - read pages 10 & 12',
             'The result depends on achieving design-premium prices that are high for Glen Eden '
             'and not yet supported by a confirmed local comparable; on the dual-key build cost '
             '(the swing variable); and on council’s treatment of the dual-key consent. A '
@@ -332,7 +344,41 @@ y = wrap(c, 'Amenity-rich, dual-key product can suit build-to-hold-and-operate a
          colour=TEXT_LIGHT)
 footer(c, 3); c.showPage()
 
-# ----- P4 INDICATIVE MASSING & SITE - SCHEMATIC -----
+# ----- P4 DESIGN PRECEDENTS (reference imagery, not this scheme) -----
+y = H - MT
+y = header(c, y, 'Design Precedents',
+           'Existing developments - reference imagery only, not this scheme')
+y = wrap(c, 'The design language is grounded in built West Auckland precedent: a raw '
+            'board-formed concrete shell warmed by timber and signalled by a brick-red '
+            'entry, with shared "colliding" amenity at its heart. The photographs below '
+            'are existing, third-party developments shown to convey that intent.',
+         ML + 2, y, CW - 4, size=8.5, lead=11.5)
+y -= 8
+# Hyde (landscape) centred
+_, hw, hh = pimg(c, 'hyde-street.png', ML + 2, y, CW - 4, 196)
+y = y - hh - 9
+c.setFont('Helvetica', 7.2); c.setFillColor(TEXT_LIGHT)
+c.drawCentredString(ML + CW / 2.0, y,
+                    'Hyde - board-formed concrete walk-up on an arterial frontage (existing development; reference only).')
+y -= 14
+# Two Glen Eden portraits side by side
+box_w = (CW - 16) / 2.0
+top = y
+pimg(c, 'glen-eden-grid.png', ML + 2, top, box_w, 290)
+pimg(c, 'glen-eden-montage.png', ML + 10 + box_w, top, box_w, 290)
+y = top - 290 - 7
+c.setFont('Helvetica', 7.2); c.setFillColor(TEXT_LIGHT)
+c.drawCentredString(ML + CW / 2.0, y,
+                    'The Glen Eden Co-Living - concrete shell, brick-red doors, timber warmth, shared courtyard & rooftop (existing development).')
+y -= 16
+y = flagbox(c, y, 'Important - these are not the proposed scheme',
+            'Imagery on this page shows existing, third-party developments, included only to '
+            'illustrate the intended design language. They are NOT the proposed building, not '
+            'to scale, and not architecture by Citadel. The building design is to be prepared '
+            'by the appointed registered architect. For internal reference.', height=52)
+footer(c, 4); c.showPage()
+
+# ----- P5 INDICATIVE MASSING & SITE - SCHEMATIC -----
 y = H - MT
 y = header(c, y, 'Indicative Massing & Site', 'Schematic - not to scale, not for consent')
 y = wrap(c, 'The THAB zone permits 16 m height and 50% building coverage. A four-level walk-up '
@@ -368,7 +414,7 @@ c.setFont('Helvetica-Bold', 8.5); c.setFillColor(BLACK)
 y = wrap(c, 'Any scheme denser than the existing 2020 consent (10 apartments) requires a fresh '
             'resource consent - allowed at $110,000 and ~6-12 months in the feasibility.',
          ML + 2, y, CW - 4, font='Helvetica-Bold', size=8.5, lead=11, colour=BLACK)
-footer(c, 4); c.showPage()
+footer(c, 5); c.showPage()
 
 # ----- P5 INDICATIVE UNIT LAYOUTS - SCHEMATIC -----
 y = H - MT
@@ -384,7 +430,7 @@ y = wrap(c, 'The dual-key residence is a single title comprising two independent
             'studios served by a shared entry - sold as one dwelling, capable of two tenancies. '
             'Layouts are schematic and indicative only.', ML + 2, y, CW - 4, size=8.5, lead=11.5,
          colour=TEXT_MID)
-footer(c, 5); c.showPage()
+footer(c, 6); c.showPage()
 
 # ----- P6 INDICATIVE ELEVATION - SCHEMATIC -----
 y = H - MT
@@ -401,7 +447,7 @@ y = wrap(c, 'Brutalist expression - board-formed or precast concrete and exposed
             'with the structure as the finished surface. Material and detailed design to be '
             'developed by the appointed architect.', ML + 2, y, CW - 4, size=8.5, lead=11.5,
          colour=TEXT_MID)
-footer(c, 6); c.showPage()
+footer(c, 7); c.showPage()
 
 # ----- P7 UNIT SCHEDULE & MIX -----
 y = H - MT
@@ -427,7 +473,7 @@ y = wrap(c, 'The 60/40 split (16 one-bed / 10 dual-key) is the balanced choice: 
             'harder-to-sell investor product. Skewing further to dual-key lifts margin slightly '
             '(higher price point) but concentrates absorption risk; see the mix sensitivity on '
             'the following pages.', ML + 2, y, CW - 4, size=8.5, lead=11.5)
-footer(c, 7); c.showPage()
+footer(c, 8); c.showPage()
 
 # ----- P8 FEASIBILITY -----
 y = H - MT
@@ -467,7 +513,7 @@ y = kv(c, y, [
     ('Residual land value (at 18% margin)', '$1,761 / m2  (vs $1,400 / m2 ask: +$361 / m2)'),
     ('Programme', '~14 months'),
 ], split=0.50, bold={'Development margin', 'Return on equity', 'Residual land value (at 18% margin)'})
-footer(c, 8); c.showPage()
+footer(c, 9); c.showPage()
 
 # ----- P9 INVESTOR YIELD & SENSITIVITY -----
 y = H - MT
@@ -510,7 +556,7 @@ y -= 4
 y = wrap(c, 'More dual-key slightly lifts margin and land value (higher price point) but '
             'concentrates the harder-to-sell investor product. The adopted 60/40 split is the '
             'balanced choice.', ML + 2, y, CW - 4, size=8, lead=10.5, colour=TEXT_MID)
-footer(c, 9); c.showPage()
+footer(c, 10); c.showPage()
 
 # ----- P10 MARKET ASSESSMENT -----
 y = H - MT
@@ -544,7 +590,7 @@ y = wrap(c, 'New townhouse supply is active (e.g. Creston Group, 39 Brandon Road
             'absorption: 16 one-bedrooms to a broad buyer pool and 10 dual-keys to yield '
             'investors spreads the sell-down across audiences rather than concentrating it.',
          ML + 2, y, CW - 4, size=8.5, lead=11.5)
-footer(c, 10); c.showPage()
+footer(c, 11); c.showPage()
 
 # ----- P11 FINANCING & RECOMMENDATION -----
 y = H - MT
@@ -609,7 +655,7 @@ y = wrap(c, 'Indicative concept information only. Not a registered valuation, no
             'valuation, and contract. Schematic diagrams are not to scale and not for '
             'construction or resource consent. E&OE.', ML + 2, y, CW - 4, size=7,
          lead=9.5, colour=TEXT_LIGHT)
-footer(c, 11); c.showPage()
+footer(c, 12); c.showPage()
 
 c.save()
 print('PDF written:', OUT, '-', os.path.getsize(OUT), 'bytes')

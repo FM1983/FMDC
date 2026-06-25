@@ -5,7 +5,8 @@ Road, Glen Eden. Built from the self-contained handoff brief (CLAUDE.md / specs 
 data) for output **008**, dated **2026-06-25**.
 
 ## Deliverables (four-file set)
-- `3370 Great North Road - Mixed Residential Scheme.pdf` — primary pack (A4, 11 pages)
+- `3370 Great North Road - Mixed Residential Scheme.pdf` — primary pack (A4, 12 pages,
+  incl. a design-precedents page referencing existing West Auckland developments)
 - `2026-06-25_008_feasibility_mixed-residential-scheme.md` — full markdown twin
 - `2026-06-25_008_summary_mixed-residential-scheme.md` — condensed summary
 
