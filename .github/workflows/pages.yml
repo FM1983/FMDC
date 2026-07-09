@@ -1,0 +1,37 @@
+name: Deploy to GitHub Pages
+
+# Publishes the repo root as a static site on every push to main:
+#   https://fm1983.github.io/FMDC/         -> Scorched Mobile
+#   https://fm1983.github.io/FMDC/f117a/   -> F-117A Night Strike
+#
+# One-time setup in repo Settings:
+#   1. Repo must be public (free plan) — Settings > General > Danger Zone.
+#   2. Settings > Pages > Build and deployment > Source: "GitHub Actions".
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
