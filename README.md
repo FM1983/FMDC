@@ -5,7 +5,7 @@
 A one-file, mobile-first retro tribute to the classic early-90s stealth flight sims.
 Original code and art — software flat-shaded 3D on HTML5 Canvas, no dependencies, installable PWA.
 
-👉 **Play:** open `f117a/index.html` (best on a phone in landscape; Add to Home Screen for fullscreen).
+👉 **Play:** <https://fm1983.github.io/FMDC/f117a/> (best on a phone in landscape; Add to Home Screen for fullscreen) — or open `f117a/index.html` locally.
 
 - **Cockpit flight sim** with pitch ladder, heading tape, speed/altitude boxes, radar altimeter and stall/pull-up warnings.
 - **Stealth gameplay:** an EMV bar shows your radar visibility (bay doors, gear, altitude and bank all matter). Thread the gaps between SAM/radar rings on the tactical MAP, or fly low to shrink them.
