@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="20" fill="#020c06"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#0f3a1e" stroke-width="2" stroke-dasharray="6 5"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#0f3a1e" stroke-width="2" stroke-dasharray="6 5"/>
+  <!-- faceted stealth jet, nose up -->
+  <g fill="#39ff6a">
+    <polygon points="64,18 76,66 64,58 52,66" opacity="0.95"/>
+    <polygon points="64,44 104,78 76,72 64,62" opacity="0.75"/>
+    <polygon points="64,44 24,78 52,72 64,62" opacity="0.75"/>
+    <polygon points="58,74 64,96 70,74 64,68" opacity="0.6"/>
+  </g>
+  <rect x="20" y="104" width="88" height="6" rx="2" fill="#1f7a3a"/>
+  <rect x="58" y="105.5" width="12" height="3" fill="#8affae"/>
+</svg>
