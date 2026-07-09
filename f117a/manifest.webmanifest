@@ -1,0 +1,13 @@
+{
+  "name": "F-117A Stealth Fighter — Night Strike",
+  "short_name": "F-117A",
+  "description": "Retro flat-shaded 3D stealth flight sim tribute. Fly low, stay dark, hit the target, get home.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
