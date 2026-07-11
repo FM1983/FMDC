@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#12002b">
+<title>Raf ⚡ Meimei — K-Pop Quiz Quest!</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow:hidden; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background:#12002b; color:#fff; user-select:none; -webkit-user-select:none;
+    touch-action:manipulation;
+  }
+
+  /* ===== animated disco background ===== */
+  #disco {
+    position:fixed; inset:-20%; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,0,150,.35), transparent 40%),
+      radial-gradient(circle at 80% 20%, rgba(0,200,255,.35), transparent 40%),
+      radial-gradient(circle at 60% 80%, rgba(160,0,255,.35), transparent 45%),
+      radial-gradient(circle at 30% 75%, rgba(255,220,0,.22), transparent 40%),
+      linear-gradient(160deg,#1a0140,#12002b 60%,#020016);
+    animation: discoSpin 24s linear infinite;
+  }
+  @keyframes discoSpin { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+
+  .float-emoji { position:fixed; z-index:1; pointer-events:none; opacity:.18; font-size:34px; animation:floatUp linear infinite; }
+  @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+  #fx { position:fixed; inset:0; z-index:50; pointer-events:none; }
+
+  .screen { position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; overflow:hidden; }
+  .hidden { display:none !important; }
+
+  /* ===== TITLE ===== */
+  #title { justify-content:center; gap:10px; padding:12px 16px 52px; text-align:center; overflow-y:auto; }
+
+  /* --- concert hero scene --- */
+  #hero { position:relative; width:min(92vw,430px); height:158px; flex-shrink:0; }
+  #heroLasers {
+    position:absolute; left:50%; top:50%; width:560px; height:560px; margin:-280px 0 0 -280px; border-radius:50%;
+    background:conic-gradient(from 0deg,
+      transparent 0 18deg, rgba(255,45,149,.30) 18deg 26deg, transparent 26deg 70deg,
+      rgba(0,229,255,.30) 70deg 78deg, transparent 78deg 128deg, rgba(255,212,0,.26) 128deg 136deg,
+      transparent 136deg 196deg, rgba(160,77,255,.30) 196deg 204deg, transparent 204deg 286deg,
+      rgba(0,230,118,.24) 286deg 294deg, transparent 294deg 360deg);
+    animation:laserSpin 9s linear infinite; pointer-events:none;
+  }
+  @keyframes laserSpin { to { transform:rotate(360deg); } }
+  #ball { position:absolute; top:-8px; left:50%; z-index:3; font-size:44px;
+    filter:drop-shadow(0 0 16px rgba(255,255,255,.9)); animation:ballSway 3.4s ease-in-out infinite; }
+  @keyframes ballSway { 0%,100%{transform:translateX(-50%) rotate(-14deg)} 50%{transform:translateX(-50%) rotate(14deg)} }
+  .hspot { position:absolute; top:26px; left:50%; width:74px; height:134px; margin-left:-37px; opacity:.45; z-index:1;
+    background:linear-gradient(180deg, rgba(255,255,200,.95), transparent 85%);
+    clip-path:polygon(44% 0,56% 0,100% 100%,0 100%); transform-origin:top center; }
+  .hspot.h1 { animation:sweep 2.3s ease-in-out infinite alternate; }
+  .hspot.h2 { animation:sweep 2.3s ease-in-out infinite alternate-reverse; }
+  #heroStage { position:absolute; bottom:0; left:4%; right:4%; height:38px; border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(255,45,149,.6), rgba(255,45,149,.1) 65%, transparent 75%);
+    box-shadow:0 0 34px rgba(255,45,149,.45); }
+  #dancers { position:absolute; bottom:8px; left:0; right:0; z-index:2; display:flex; justify-content:center; align-items:flex-end; gap:12px; }
+  #dancers .star { font-size:48px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,212,0,.35)); animation:danceBig .5s ease-in-out infinite alternate; }
+  #dancers .star.s2 { font-size:56px; animation-delay:.16s; }
+  #dancers .star.s3 { animation-delay:.32s; }
+  #dancers .backup { font-size:26px; opacity:.85; animation:bop .7s ease-in-out infinite; }
+  #dancers .backup.b2 { animation-delay:.35s; }
+  @keyframes danceBig { 0%{transform:translateY(0) rotate(-9deg) scale(1)} 100%{transform:translateY(-13px) rotate(9deg) scale(1.07)} }
+
+  .live-chip { background:linear-gradient(135deg,#e4003c,#8f0030); padding:4px 16px; border-radius:99px; font-weight:900; font-size:12px;
+    letter-spacing:3px; box-shadow:0 0 20px rgba(255,0,80,.9), inset 0 0 8px rgba(255,255,255,.25); animation:blinkLive 1.1s steps(2) infinite; }
+  @keyframes blinkLive { 50%{opacity:.5} }
+  #villainPeek { position:absolute; bottom:2px; right:-4px; font-size:30px; z-index:2;
+    filter:drop-shadow(0 0 8px rgba(255,60,60,.8)); animation:villainSneak 5s ease-in-out infinite; transform-origin:bottom center; }
+  @keyframes villainSneak { 0%,55%,100%{transform:translateY(34px) rotate(0)} 65%,90%{transform:translateY(0) rotate(-14deg)} 78%{transform:translateY(-4px) rotate(10deg)} }
+
+  h1.logo {
+    font-size: clamp(32px, 8.6vw, 60px); font-weight:900; line-height:1.04;
+    background: linear-gradient(90deg,#ff2d95,#ffd400,#00e5ff,#ff2d95);
+    background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke:1.5px rgba(255,255,255,.16);
+    filter:drop-shadow(0 0 12px rgba(255,45,149,.65)) drop-shadow(0 0 30px rgba(0,229,255,.35));
+    animation: shimmer 3s linear infinite, logoPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes shimmer { 0%{background-position:0 0} 100%{background-position:300% 0} }
+  @keyframes logoPulse { 0%,100%{transform:scale(1) rotate(-1.2deg)} 50%{transform:scale(1.045) rotate(1.2deg)} }
+  .tagline { font-size:14px; opacity:.9; font-weight:600; max-width:460px; }
+
+  /* bottom marquee ticker */
+  #ticker { position:absolute; bottom:0; left:0; right:0; padding:7px 0 max(7px, env(safe-area-inset-bottom));
+    background:rgba(0,0,0,.55); border-top:2px solid rgba(255,212,0,.65); overflow:hidden; box-shadow:0 -4px 24px rgba(255,45,149,.25); }
+  #ticker span { display:inline-block; white-space:nowrap; font-weight:900; font-size:13px; letter-spacing:2px; color:#ffd400;
+    text-shadow:0 0 10px rgba(255,212,0,.6); animation:marquee 14s linear infinite; }
+  @keyframes marquee { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+  .btn { position:relative; overflow:hidden; }
+  .btn::after { content:""; position:absolute; top:0; bottom:0; left:-80%; width:36%; pointer-events:none;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent);
+    transform:skewX(-20deg); animation:sheen 2.9s ease-in-out infinite; }
+  @keyframes sheen { 0%,55%{left:-80%} 100%{left:135%} }
+
+  .picker-row { display:flex; gap:12px; margin-top:6px; }
+  .picker { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); border-radius:20px; padding:10px 18px; text-align:center; cursor:pointer; transition:transform .15s; }
+  .picker:active { transform:scale(.93); }
+  .picker .face { font-size:52px; display:block; animation:bop 1.2s ease-in-out infinite; }
+  .picker .pname { font-weight:900; font-size:18px; letter-spacing:1px; }
+  .picker .hint { font-size:10px; opacity:.6; }
+  #pickRaf .pname { color:#4dc3ff; } #pickMei .pname { color:#ff8bd2; } #pickAri .pname { color:#7cff4d; }
+  #pickAri { position:relative; }
+  #pickAri .bonus-tag { position:absolute; top:-10px; right:-8px; background:#ffd400; color:#4a2a00; font-size:10px; font-weight:900; padding:2px 8px; border-radius:99px; transform:rotate(12deg); animation:bop 1s ease-in-out infinite; }
+  @keyframes bop { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-9px) rotate(4deg)} }
+
+  .btn {
+    border:none; border-radius:999px; font-weight:900; color:#fff; cursor:pointer;
+    padding:16px 30px; font-size:19px; letter-spacing:1px;
+    background:linear-gradient(135deg,#ff2d95,#a04dff); box-shadow:0 6px 0 #7a1d63, 0 12px 24px rgba(0,0,0,.45);
+    transition: transform .12s;
+  }
+  .btn:active { transform:translateY(4px); box-shadow:0 2px 0 #7a1d63; }
+  .btn.small { padding:10px 20px; font-size:14px; box-shadow:0 4px 0 #7a1d63; }
+  .btn.cyan { background:linear-gradient(135deg,#00c6ff,#0072ff); box-shadow:0 6px 0 #084a8f, 0 12px 24px rgba(0,0,0,.45); }
+  .btn.cyan:active { box-shadow:0 2px 0 #084a8f; }
+
+  .toggle-row { display:flex; gap:10px; margin-top:4px; }
+  .tog { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); color:#fff; border-radius:999px; padding:8px 14px; font-size:14px; font-weight:700; cursor:pointer; }
+  .tog.off { opacity:.4; text-decoration:line-through; }
+
+  /* ===== GAME ===== */
+  #game { padding: max(8px, env(safe-area-inset-top)) 10px 10px; gap:6px; }
+  #hudCtl { display:flex; width:100%; max-width:560px; justify-content:flex-end; gap:6px; }
+  #hud { display:flex; width:100%; max-width:560px; justify-content:center; align-items:center; gap:8px; }
+  .chip {
+    display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.18); border-radius:16px; padding:5px 9px; flex:1; min-width:0; max-width:190px;
+    transition: box-shadow .3s, border-color .3s;
+  }
+  .chip .cface { font-size:24px; }
+  .chip .cname { font-weight:900; font-size:12px; letter-spacing:.5px; white-space:nowrap; }
+  .chip .cstats { font-size:11px; opacity:.9; }
+  .chip.active { border-color:#ffd400; box-shadow:0 0 16px rgba(255,212,0,.55); background:rgba(255,212,0,.12); }
+  .chip.active .cface { animation:bop .7s ease-in-out infinite; }
+  .iconbtn { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); color:#fff; border-radius:12px; width:36px; height:36px; font-size:17px; cursor:pointer; }
+  .iconbtn.off { opacity:.35; }
+
+  #mapWrap { position:relative; width:100%; max-width:560px; }
+  #mapSvg { width:100%; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+  .avatar {
+    position:absolute; font-size:30px; z-index:5; pointer-events:none;
+    transition: left .55s cubic-bezier(.34,1.56,.64,1), top .55s cubic-bezier(.34,1.56,.64,1);
+    text-shadow:0 3px 6px rgba(0,0,0,.6);
+  }
+  .avatar .badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:900; background:#000a; padding:1px 6px; border-radius:99px; letter-spacing:1px; }
+  .avatar.hopping { animation:hop .55s ease; }
+  @keyframes hop { 0%{margin-top:0} 40%{margin-top:-22px} 100%{margin-top:0} }
+  .avatar.sad { animation:sadShake .6s ease; }
+  @keyframes sadShake { 0%,100%{transform:translate(var(--tx),-60%) rotate(0)} 25%{transform:translate(var(--tx),-60%) rotate(-14deg)} 75%{transform:translate(var(--tx),-60%) rotate(14deg)} }
+
+  /* ===== QUESTION CARD ===== */
+  #qcard {
+    width:100%; max-width:560px; background:rgba(10,0,35,.82); backdrop-filter:blur(6px);
+    border:2px solid rgba(255,255,255,.2); border-radius:22px; padding:12px 14px 14px;
+    display:flex; flex-direction:column; gap:9px; flex:1; min-height:0; justify-content:center;
+    animation:popIn .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { 0%{transform:scale(.6); opacity:0} 100%{transform:scale(1); opacity:1} }
+  #qcard.shake, .shakeme { animation:shakeX .5s; }
+  @keyframes shakeX { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(6px)} }
+
+  #timerWrap { height:10px; background:rgba(255,255,255,.12); border-radius:99px; overflow:hidden; }
+  #timerBar { height:100%; width:100%; border-radius:99px; background:linear-gradient(90deg,#00e676,#ffd400,#ff2d95); transition:width .1s linear; }
+
+  #qTop { display:flex; align-items:center; gap:10px; }
+  #qEmoji { font-size:44px; animation:bop 1s ease-in-out infinite; }
+  #qText { font-size: clamp(16px, 4.6vw, 23px); font-weight:800; line-height:1.25; flex:1; }
+  #speakBtn { flex-shrink:0; }
+
+  #answers { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .ans {
+    border:none; border-radius:16px; padding:14px 8px; font-size:clamp(14px,4vw,18px); font-weight:800; color:#fff; cursor:pointer;
+    min-height:58px; transition:transform .1s; line-height:1.2;
+  }
+  .ans:active { transform:scale(.95); }
+  .ans:nth-child(1){ background:linear-gradient(135deg,#ff5f6d,#d4145a); box-shadow:0 4px 0 #8f0c3c;}
+  .ans:nth-child(2){ background:linear-gradient(135deg,#24c6dc,#1466a0); box-shadow:0 4px 0 #0c3e63;}
+  .ans:nth-child(3){ background:linear-gradient(135deg,#f7971e,#e5484d00), linear-gradient(135deg,#f7971e,#c96805); box-shadow:0 4px 0 #7c4103;}
+  .ans:nth-child(4){ background:linear-gradient(135deg,#7f00ff,#e100ff); box-shadow:0 4px 0 #55019d;}
+  .ans.correct { animation:winPulse .5s ease 2; background:linear-gradient(135deg,#00e676,#00a152)!important; box-shadow:0 4px 0 #00602f!important; }
+  .ans.wrong { background:linear-gradient(135deg,#555,#333)!important; box-shadow:0 4px 0 #111!important; opacity:.75; }
+  .ans:disabled { cursor:default; }
+  @keyframes winPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+
+  #toast {
+    position:fixed; left:50%; top:38%; transform:translate(-50%,-50%) scale(0); z-index:60;
+    background:rgba(0,0,0,.85); border:3px solid #ffd400; border-radius:24px; padding:16px 26px;
+    font-size:clamp(19px,5.5vw,30px); font-weight:900; text-align:center; max-width:88vw;
+    pointer-events:none; box-shadow:0 0 40px rgba(255,212,0,.4);
+  }
+  #toast.show { animation:toastIn 1.5s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes toastIn { 0%{transform:translate(-50%,-50%) scale(0)} 15%{transform:translate(-50%,-50%) scale(1.05)} 80%{transform:translate(-50%,-50%) scale(1); opacity:1} 100%{transform:translate(-50%,-50%) scale(.9); opacity:0} }
+
+  /* ===== BANNER (turn / boss / world) ===== */
+  #banner {
+    position:fixed; inset:0; z-index:55; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    background:rgba(5,0,20,.72); backdrop-filter:blur(3px); pointer-events:none;
+  }
+  #bannerEmoji { font-size:90px; animation:bannerSpin .9s cubic-bezier(.34,1.56,.64,1); }
+  #bannerText { font-size:clamp(26px,8vw,46px); font-weight:900; letter-spacing:2px; text-align:center; padding:0 14px;
+    background:linear-gradient(90deg,#ffd400,#ff2d95); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #bannerSub { font-size:16px; font-weight:700; opacity:.9; text-align:center; padding:0 20px; }
+  @keyframes bannerSpin { 0%{transform:scale(0) rotate(-360deg)} 100%{transform:scale(1) rotate(0)} }
+
+  /* ===== VICTORY ===== */
+  #victory { justify-content:center; gap:12px; text-align:center; padding:18px; z-index:20; }
+  #stage {
+    position:relative; width:min(84vw,330px); height:200px; border-radius:24px 24px 12px 12px; overflow:visible;
+    background:linear-gradient(180deg,#2b0a52,#4a0e70);
+    border:3px solid #ffd400; box-shadow:0 0 60px rgba(255,45,149,.5);
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .spotlight { position:absolute; top:-8px; width:70px; height:190px; opacity:.5;
+    background:linear-gradient(180deg, rgba(255,255,180,.9), transparent 85%);
+    clip-path:polygon(42% 0, 58% 0, 100% 100%, 0% 100%); transform-origin:top center; animation:sweep 2.2s ease-in-out infinite alternate; }
+  .spotlight.s1{ left:14%; } .spotlight.s2{ right:14%; animation-delay:-1.1s; }
+  @keyframes sweep { 0%{transform:rotate(-24deg)} 100%{transform:rotate(24deg)} }
+  #winFace { font-size:86px; margin-bottom:26px; animation:winnerDance .55s ease-in-out infinite alternate; }
+  @keyframes winnerDance { 0%{transform:translateY(0) rotate(-10deg) scale(1)} 100%{transform:translateY(-16px) rotate(10deg) scale(1.08)} }
+  #winTitle { font-size:clamp(28px,8vw,44px); font-weight:900;
+    background:linear-gradient(90deg,#ffd400,#ff2d95,#00e5ff); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 2.5s linear infinite; }
+  #winSub { font-size:17px; font-weight:700; opacity:.95; max-width:420px; }
+  #crowd { font-size:30px; letter-spacing:4px; }
+  #crowd span { display:inline-block; animation:bop .6s ease-in-out infinite; }
+  #crowd span:nth-child(2n){ animation-delay:.15s; } #crowd span:nth-child(3n){ animation-delay:.3s; }
+
+  /* ===== STICK BASH MINI GAME ===== */
+  .btn.orange { background:linear-gradient(135deg,#ff7043,#f7b733); box-shadow:0 6px 0 #8f4a00, 0 12px 24px rgba(0,0,0,.45); }
+  .btn.orange:active { box-shadow:0 2px 0 #8f4a00; }
+  #bash { z-index:30; }
+  #bashSelect { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; height:100%; width:100%; padding:16px; text-align:center; overflow-y:auto; }
+  #bashSelect h2 { font-size:clamp(28px,8vw,46px); font-weight:900;
+    background:linear-gradient(90deg,#ff7043,#ffd400,#ff2d95); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 3s linear infinite; }
+  #bashSelect .sub { font-size:15px; font-weight:700; opacity:.9; max-width:420px; }
+  .bash-cards { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .bcard { width:120px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); border-radius:20px; padding:12px 8px; cursor:pointer; transition:transform .15s, border-color .2s; }
+  .bcard:active { transform:scale(.93); }
+  .bcard .bface { font-size:46px; display:block; animation:bop 1.1s ease-in-out infinite; }
+  .bcard .bnick { font-weight:900; font-size:12px; margin-top:4px; line-height:1.2; }
+  .bcard .brole { font-size:10px; opacity:.75; font-weight:700; margin-top:2px; }
+  .bcard.sel { border-color:#ffd400; box-shadow:0 0 18px rgba(255,212,0,.6); background:rgba(255,212,0,.14); }
+  .bcard.villain { position:relative; border-color:rgba(255,60,60,.55); background:rgba(120,0,20,.25); }
+  .bcard.villain.sel { border-color:#ff3b3b; box-shadow:0 0 22px rgba(255,60,60,.8); background:rgba(255,60,60,.16); }
+  #pineTog { border-width:2px; font-size:15px; padding:10px 18px; }
+  #pineTog.on { background:linear-gradient(135deg,#ffd400,#f7b733); color:#4a2a00; border-color:#fff; box-shadow:0 0 22px rgba(255,212,0,.8); animation:winPulse .8s ease-in-out infinite; }
+  #bashPlay { position:absolute; inset:0; }
+  #bashCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+  #bashBtn {
+    position:absolute; right:16px; bottom:max(18px, env(safe-area-inset-bottom)); z-index:5;
+    width:86px; height:86px; border-radius:50%; border:3px solid #fff; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #ff9a68, #e64a19); color:#fff; font-weight:900; font-size:15px;
+    box-shadow:0 6px 0 #8f2500, 0 10px 30px rgba(0,0,0,.5); transition:transform .08s;
+  }
+  #bashBtn:active { transform:scale(.9); }
+  #bashExit { position:absolute; top:max(10px, env(safe-area-inset-top)); right:12px; z-index:5; }
+  #bashEnd {
+    position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    background:rgba(5,0,20,.8); backdrop-filter:blur(4px); text-align:center; padding:18px;
+  }
+  #bashEndTitle { font-size:clamp(30px,9vw,52px); font-weight:900;
+    background:linear-gradient(90deg,#ffd400,#ff2d95,#00e5ff); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 2.5s linear infinite; }
+  #bashEndStats { font-size:17px; font-weight:800; line-height:1.6; }
+  #bashEndRank { font-size:clamp(20px,6vw,30px); font-weight:900; color:#ffd400; animation:bop 1s ease-in-out infinite; }
+
+  @media (min-height:700px){ .ans{ min-height:64px; } }
+</style>
+</head>
+<body>
+<div id="disco"></div>
+<canvas id="fx"></canvas>
+
+<!-- ================= TITLE ================= -->
+<div id="title" class="screen">
+  <div id="hero">
+    <div id="heroLasers"></div>
+    <span id="ball">🪩</span>
+    <div class="hspot h1"></div><div class="hspot h2"></div>
+    <div id="heroStage"></div>
+    <div id="dancers">
+      <span class="backup b1">🕺</span>
+      <span class="star s1" id="heroRaf">😎</span>
+      <span class="star s2" id="heroAri">🐣</span>
+      <span class="star s3" id="heroMei">🦄</span>
+      <span class="backup b2">💃</span>
+    </div>
+    <span id="villainPeek" title="Meatball Monty is watching">🍝</span>
+  </div>
+  <div class="live-chip">🔴 LIVE ON STAGE</div>
+  <h1 class="logo">RAF ⚡ MEIMEI<br>K-POP QUIZ QUEST!</h1>
+  <div class="tagline">Race to the Mega Concert Stage! 🏟️ Defeat silly bosses... and survive <b>MEATBALL MONTY</b>, the 10-year-old MENACE! 🍝😈</div>
+
+  <div class="picker-row">
+    <div class="picker" id="pickRaf">
+      <span class="face" id="faceRaf">😎</span>
+      <span class="pname">RAF</span>
+      <div class="hint">🍍 PINEAPPLE RAF<br>tap to change hero!</div>
+    </div>
+    <div class="picker" id="pickMei">
+      <span class="face" id="faceMei">🦄</span>
+      <span class="pname">MEIMEI</span>
+      <div class="hint">🙃 OTHERKID MEIMEI<br>tap to change hero!</div>
+    </div>
+    <div class="picker" id="pickAri">
+      <span class="bonus-tag">BONUS!</span>
+      <span class="face" id="faceAri">🐣</span>
+      <span class="pname">ARI</span>
+      <div class="hint">🍉 WATERMELON ARI<br>little bro, age 4!</div>
+    </div>
+  </div>
+
+  <button class="btn" id="btnRace">⚔️ 2-PLAYER RACE!</button>
+  <button class="btn cyan" id="btnRace3">🎁 3-PLAYER — ARI JOINS!</button>
+  <button class="btn orange" id="btnBash">🏏 STICK BASH! — Ari's Revenge</button>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+    <button class="btn cyan small" id="btnSoloRaf">🎮 Just Raf</button>
+    <button class="btn cyan small" id="btnSoloMei">🎮 Just Meimei</button>
+    <button class="btn cyan small" id="btnSoloAri">🎮 Just Ari</button>
+  </div>
+  <div class="toggle-row">
+    <button class="tog" id="togMusic">🎵 Music ON</button>
+    <button class="tog" id="togSfx">🔊 Sounds ON</button>
+  </div>
+  <div id="ticker"><span>⭐ PINEAPPLE RAF ⚡ OTHERKID MEIMEI ⚡ WATERMELON ARI ⭐ LIVE AT THE MEGA CONCERT STAGE 🏟️ ⭐ STICK BASH — NOBODY IS SAFE, BRUZ 🏏 ⭐ PINEAPPLE MODE 🍍🍍🍍 ⭐ ⚠️ WARNING: MEATBALL MONTY IS LOOSE 🍝😈 ⚠️ ⭐</span></div>
+</div>
+
+<!-- ================= GAME ================= -->
+<div id="game" class="screen hidden">
+  <div id="hudCtl">
+    <button class="iconbtn" id="gMusic">🎵</button>
+    <button class="iconbtn" id="gSfx">🔊</button>
+    <button class="iconbtn" id="gQuit">✖️</button>
+  </div>
+  <div id="hud">
+    <div class="chip" id="chip0"><span class="cface"></span><div><div class="cname"></div><div class="cstats"></div></div></div>
+    <div class="chip" id="chip1"><span class="cface"></span><div><div class="cname"></div><div class="cstats"></div></div></div>
+    <div class="chip" id="chip2"><span class="cface"></span><div><div class="cname"></div><div class="cstats"></div></div></div>
+  </div>
+
+  <div id="mapWrap">
+    <svg id="mapSvg" viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="avatar" id="av0" style="--tx:-72%"><span class="badge">RAF</span><span class="aface">😎</span></div>
+    <div class="avatar" id="av1" style="--tx:-28%"><span class="badge">MEI</span><span class="aface">🦄</span></div>
+    <div class="avatar" id="av2" style="--tx:-50%"><span class="badge">ARI</span><span class="aface">🐣</span></div>
+  </div>
+
+  <div id="qcard">
+    <div id="timerWrap"><div id="timerBar"></div></div>
+    <div id="qTop">
+      <span id="qEmoji">🧠</span>
+      <div id="qText">Question goes here?</div>
+      <button class="iconbtn" id="speakBtn" title="read aloud">📢</button>
+    </div>
+    <div id="answers"></div>
+  </div>
+</div>
+
+<!-- ================= STICK BASH MINI GAME ================= -->
+<div id="bash" class="screen hidden">
+  <div id="bashSelect">
+    <h2>🏏 STICK BASH!</h2>
+    <div class="sub">ARI found a foam bashing stick. NOBODY IS SAFE, BRUZ. 😱<br>Pick your fighter:</div>
+    <div class="bash-cards">
+      <div class="bcard sel" id="bcAri" data-mode="ari">
+        <span class="bface">🍉</span>
+        <div class="bnick">WATERMELON<br>ARI</div>
+        <div class="brole">🏏 BASH THE BIG KIDS!</div>
+      </div>
+      <div class="bcard" id="bcRaf" data-mode="raf">
+        <span class="bface">🍍</span>
+        <div class="bnick">PINEAPPLE<br>RAF</div>
+        <div class="brole">💨 RUN, BRUZ, RUN!</div>
+      </div>
+      <div class="bcard" id="bcMei" data-mode="mei">
+        <span class="bface">🙃</span>
+        <div class="bnick">OTHERKID<br>MEIMEI</div>
+        <div class="brole">💨 DODGE THE STICK!</div>
+      </div>
+      <div class="bcard villain" id="bcMonty" data-mode="monty">
+        <span class="bonus-tag" style="background:#ff3b3b; color:#fff;">VILLAIN!</span>
+        <span class="bface">😜</span>
+        <div class="bnick">MEATBALL<br>MONTY</div>
+        <div class="brole">🍝 SAUCE EVERYONE! Age 10. MENACE.</div>
+      </div>
+    </div>
+    <button class="tog" id="pineTog">🍍 PINEAPPLE MODE: OFF</button>
+    <div class="sub" style="font-size:12px; opacity:.7;">Grab 🍌 to go RAFFLEBACK GORILLA · 👹 for monsterMeimei · watch for 💦 PISSPANTZ puddles!<br>⚠️ MEATBALL MONTY is ALWAYS in the arena. Nobody is safe. Not even Ari.</div>
+    <button class="btn orange" id="bashGo">🚨 GO GO GO GO!</button>
+    <button class="btn cyan small" id="bashBack">⬅️ Back</button>
+  </div>
+  <div id="bashPlay" class="hidden">
+    <canvas id="bashCanvas"></canvas>
+    <button class="iconbtn" id="bashExit">✖️</button>
+    <button id="bashBtn">🏏<br>BASH!</button>
+    <div id="bashEnd" class="hidden">
+      <div id="bashEndTitle">TIME'S UP!</div>
+      <div id="bashEndRank"></div>
+      <div id="bashEndStats"></div>
+      <button class="btn orange" id="bashAgain">🔁 REMATCH, BRUZ!</button>
+      <button class="btn cyan small" id="bashPick">🔀 Change fighter</button>
+      <button class="btn cyan small" id="bashHome">🏠 Quiz Quest</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="banner" class="hidden">
+  <div id="bannerEmoji">😎</div>
+  <div id="bannerText">RAF'S TURN!</div>
+  <div id="bannerSub"></div>
+</div>
+
+<!-- ================= VICTORY ================= -->
+<div id="victory" class="screen hidden">
+  <div id="stage">
+    <div class="spotlight s1"></div><div class="spotlight s2"></div>
+    <div id="winFace">😎</div>
+  </div>
+  <div id="winTitle">RAF WINS!</div>
+  <div id="winSub"></div>
+  <div id="crowd"></div>
+  <button class="btn" id="btnAgain">🔁 PLAY AGAIN!</button>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   RAF ⚡ MEIMEI — K-POP QUIZ QUEST
+   One-file quiz/adventure race for two kids. No dependencies.
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+/* ---------------- WORLDS & MAP ---------------- */
+const FINISH = 15;
+const WORLDS = [
+  { name:"Bubble Beach",   emoji:"🏖️", from:0,  to:3  },
+  { name:"Neon Jungle",    emoji:"🌴", from:4,  to:7  },
+  { name:"Space Disco",    emoji:"🚀", from:8,  to:11 },
+  { name:"Dragon Karaoke", emoji:"🎤", from:12, to:15 },
+];
+const BOSSES = {
+  5:  { name:"DJ PICKLE",       emoji:"🥒", line:"He drops the SOUREST beats!" },
+  10: { name:"CAPTAIN BROCCOLI",emoji:"🥦", line:"He forces kids to eat... QUESTIONS!" },
+  13: { name:"DISCO DRAGON",    emoji:"🐉", line:"His dance moves are FIRE. Literally." },
+};
+// FINAL BOSS: Meatball Monty guards the Mega Concert Stage itself.
+const MONTY = { name:"MEATBALL MONTY", emoji:"🍝", line:"A 10-year-old MENACE blocks the stage, armed with saucy meatballs!" };
+const MONTY_WIN  = ["MONTY DEFEATED! He slurps away crying 🍝😭","THE MENACE IS TOAST! Stage unlocked! 🎤","Monty rage-quits to eat spaghetti 🍝"];
+const MONTY_LOSE = ["MEATBALL BARRAGE!! Blown back 2 steps! 🍝🍝🍝","SAUCED!! Monty cackles: NYAHAHA! 😈"];
+function worldOf(pos){ return WORLDS.find(w => pos >= w.from && pos <= w.to) || WORLDS[3]; }
+
+// serpentine board: 4 rows x 4 cols
+const NODES = [];
+for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+  const cc = (r % 2) ? (3 - c) : c;
+  NODES.push({ x: 45 + cc * 90, y: 30 + r * 50 });
+}
+
+/* ---------------- QUESTIONS (answer is always index 0; shuffled at render) ---------------- */
+const POOLS = [
+[ // Bubble Beach — sea critters + easy math
+ {q:"How many arms does an octopus have?", o:["8","6","10","One million"], e:"🐙"},
+ {q:"What do fish breathe with?", o:["Gills","Noses","Snorkels","Wi-Fi"], e:"🐠"},
+ {q:"7 + 8 = ?", o:["15","14","16","78"], e:"🧮"},
+ {q:"Which animal walks sideways?", o:["Crab","Dog","Turtle","Grandpa"], e:"🦀"},
+ {q:"What makes the sea taste funny?", o:["Salt","Sugar","Mermaid tears","Ketchup"], e:"🌊"},
+ {q:"A baby dog is called a...?", o:["Puppy","Kitten","Cub","Doglet 3000"], e:"🐶"},
+ {q:"10 − 4 = ?", o:["6","5","7","104"], e:"➖"},
+ {q:"Which one can REALLY fly?", o:["Seagull","Penguin","Crab","Sandcastle"], e:"🕊️"},
+ {q:"What color are flamingos?", o:["Pink","Blue","Green","Invisible"], e:"🦩"},
+ {q:"How many arms does a starfish usually have?", o:["5","3","8","2"], e:"⭐"},
+ {q:"Double 6 is...?", o:["12","10","11","66"], e:"✖️"},
+ {q:"A shark is a kind of...?", o:["Fish","Mammal","Robot","Vegetable"], e:"🦈"},
+ {q:"What does a turtle carry on its back?", o:["Its shell","A backpack","A skateboard","A pizza"], e:"🐢"},
+ {q:"What's the BIGGEST animal ever?", o:["Blue whale","Elephant","T-Rex","Your dad"], e:"🐋"},
+],
+[ // Neon Jungle — animals + math
+ {q:"What do pandas munch all day?", o:["Bamboo","Pizza","Burgers","Homework"], e:"🐼"},
+ {q:"Fastest runner on land?", o:["Cheetah","Lion","Horse","School bus"], e:"🐆"},
+ {q:"Which animal says 'ribbit'?", o:["Frog","Snake","Parrot","Monkey"], e:"🐸"},
+ {q:"3 × 4 = ?", o:["12","7","9","34"], e:"✖️"},
+ {q:"How many legs does a spider have?", o:["8","6","4","100"], e:"🕷️"},
+ {q:"Monkeys go BANANAS for...?", o:["Bananas","Onions","Lemons","Broccoli"], e:"🍌"},
+ {q:"Which big cat has stripes?", o:["Tiger","Lion","Cheetah","Leopard"], e:"🐯"},
+ {q:"A group of lions is called a...?", o:["Pride","Party","Squad","Roar-gang"], e:"🦁"},
+ {q:"9 + 6 = ?", o:["15","14","16","96"], e:"➕"},
+ {q:"Which animal changes color?", o:["Chameleon","Elephant","Sloth","Zebra"], e:"🦎"},
+ {q:"Sloths are super famous for being...?", o:["Slooooow","Fast","Loud","Sparkly"], e:"🦥"},
+ {q:"A baby frog is called a...?", o:["Tadpole","Puppy","Frog Jr.","Chick"], e:"🐸"},
+ {q:"Which bird can copy what you say?", o:["Parrot","Owl","Chicken","Penguin"], e:"🦜"},
+ {q:"20 − 9 = ?", o:["11","12","10","209"], e:"➖"},
+],
+[ // Space Disco — space + math
+ {q:"Which planet is the Red Planet?", o:["Mars","Jupiter","Pluto","Planet Ketchup"], e:"🔴"},
+ {q:"What does the Sun give us?", o:["Light and heat","Rain","Homework","Pizza"], e:"☀️"},
+ {q:"How many moons does Earth have?", o:["1","5","0","42"], e:"🌙"},
+ {q:"What do astronauts wear in space?", o:["Spacesuits","Pajamas","Swimsuits","Tutus"], e:"👨‍🚀"},
+ {q:"5 + 5 + 5 = ?", o:["15","10","20","555"], e:"🧮"},
+ {q:"The BIGGEST planet is...?", o:["Jupiter","Mars","Earth","The Moon"], e:"🪐"},
+ {q:"Stars are giant balls of...?", o:["Hot glowing gas","Ice cream","Glitter","Cheese"], e:"⭐"},
+ {q:"What do rockets need to blast off?", o:["Fuel","Juice","Batteries","Magic beans"], e:"🚀"},
+ {q:"Half of 100 is...?", o:["50","25","75","99"], e:"➗"},
+ {q:"Which one is closest to Earth?", o:["The Moon","The Sun","Mars","Narnia"], e:"🌕"},
+ {q:"Astronauts float because there's not much...?", o:["Gravity","Wi-Fi","Battery","Snacks"], e:"🧑‍🚀"},
+ {q:"100 + 100 = ?", o:["200","110","1000","A billion"], e:"➕"},
+ {q:"What shape is planet Earth?", o:["Round like a ball","Flat like a pancake","Square","Banana-shaped"], e:"🌍"},
+ {q:"Saturn is famous for its...?", o:["Rings","Earrings","Sneakers","Funny hat"], e:"🪐"},
+],
+[ // Dragon Karaoke — words, music, K-pop
+ {q:"The 'K' in K-pop stands for...?", o:["Korean","Kangaroo","Ketchup","Karate"], e:"🎤"},
+ {q:"K-pop comes from which country?", o:["South Korea","Brazil","France","The Moon"], e:"🇰🇷"},
+ {q:"Which word rhymes with 'cat'?", o:["Hat","Dog","Car","Banana"], e:"🐱"},
+ {q:"The opposite of 'hot' is...?", o:["Cold","Warm","Spicy","Purple"], e:"🧊"},
+ {q:"Which spelling is correct?", o:["Because","Becuz","Beecause","Bekawze"], e:"✏️"},
+ {q:"How many letters in 'DANCE'?", o:["5","4","6","26"], e:"💃"},
+ {q:"🐝 + '4' sounds like which word?", o:["Before","Behind","Beyond","Bumblefour"], e:"🐝"},
+ {q:"'Music' starts with which letter?", o:["M","N","U","W"], e:"🎵"},
+ {q:"Which one is a REAL instrument?", o:["Guitar","Guitarsaurus","Air fryer","Sock"], e:"🎸"},
+ {q:"The opposite of 'loud' is...?", o:["Quiet","Big","Screamy","EXTRA loud"], e:"🤫"},
+ {q:"A group of people singing together is a...?", o:["Choir","Herd","Flock","Noise club"], e:"🎶"},
+ {q:"The dance moves in a K-pop video are called...?", o:["Choreography","Choreo-spaghetti","Dance-o-tron","Wiggle science"], e:"🕺"},
+ {q:"Which word rhymes with 'sing'?", o:["King","Song","Sock","Pizza"], e:"👑"},
+ {q:"How many days in a week?", o:["7","5","10","100"], e:"📅"},
+],
+];
+// ARI's pool — age 4! colors, counting, animal sounds. Auto-read aloud.
+const ARI_POOL = [
+ {q:"What color is a banana?", o:["Yellow","Blue","Red","Green"], e:"🍌"},
+ {q:"How many apples? 🍎🍎🍎", o:["3","2","5","10"], e:"🍎"},
+ {q:"What does a cow say?", o:["Moo","Woof","Meow","Beep beep"], e:"🐮"},
+ {q:"What does a dog say?", o:["Woof","Moo","Quack","Vroom"], e:"🐶"},
+ {q:"Which one is BIG?", o:["Elephant","Mouse","Ant","Pea"], e:"🐘"},
+ {q:"What color is the sky on a sunny day?", o:["Blue","Pink","Black","Cheese"], e:"☀️"},
+ {q:"How many cars? 🚗🚗", o:["2","1","4","7"], e:"🚗"},
+ {q:"Which animal hops?", o:["Bunny","Fish","Snake","Cow"], e:"🐰"},
+ {q:"What does a cat say?", o:["Meow","Woof","Moo","Achoo"], e:"🐱"},
+ {q:"What color is grass?", o:["Green","Purple","Orange","White"], e:"🌱"},
+ {q:"How many fingers on one hand?", o:["5","3","10","2"], e:"✋"},
+ {q:"Which one can swim?", o:["Fish","Cat","Chicken","Truck"], e:"🐟"},
+ {q:"What does a duck say?", o:["Quack","Roar","Meow","Uh-oh"], e:"🦆"},
+ {q:"What shape is a ball?", o:["Round","Square","Triangle","Flat"], e:"⚽"},
+ {q:"How many cookies? 🍪🍪🍪🍪", o:["4","3","5","100"], e:"🍪"},
+ {q:"What color is a strawberry?", o:["Red","Blue","Green","Gold"], e:"🍓"},
+ {q:"Which one flies in the sky?", o:["Airplane","Car","Boat","Shoe"], e:"✈️"},
+ {q:"What does a lion say?", o:["ROAR","Meow","Peep","Hello"], e:"🦁"},
+];
+const BOSS_POOL = [
+ {q:"25 + 25 = ?", o:["50","45","55","2525"], e:"🔥"},
+ {q:"How many minutes in one hour?", o:["60","100","30","24"], e:"⏰"},
+ {q:"Which animal can sleep standing up?", o:["Horse","Fish","Snake","Snail"], e:"🐴"},
+ {q:"6 × 6 = ?", o:["36","30","12","66"], e:"💥"},
+ {q:"Frozen water is called...?", o:["Ice","Steam","Juice","Cold soup"], e:"🧊"},
+ {q:"Which month comes after June?", o:["July","May","October","Snacktober"], e:"📆"},
+ {q:"How many sides does a hexagon have?", o:["6","5","8","100"], e:"⬡"},
+ {q:"What do bees make?", o:["Honey","Butter","Ketchup","Homework"], e:"🐝"},
+ {q:"100 − 40 = ?", o:["60","50","70","640"], e:"➖"},
+ {q:"Which one is NOT a fruit?", o:["Potato","Apple","Mango","Banana"], e:"🥔"},
+ {q:"Caterpillars turn into...?", o:["Butterflies","Birds","Dragons","Teachers"], e:"🦋"},
+ {q:"How many hours in a whole day?", o:["24","12","60","7"], e:"🕛"},
+];
+
+/* ---------------- FUNNY REACTIONS ---------------- */
+const YAY = ["GENIUS ALERT! 🚨🧠","BOOM! Big brain! 💥","Even the llama is impressed 🦙","K-POP STAR MOVE! 🌟","Correcto-mundo! 🌮","The crowd goes WILD! 🎉","Smarty-pants detected! 👖✨","10 out of 10 hamsters agree 🐹"];
+const NAY = ["Oopsie daisy! 🌼","WOMP WOMP 📯","A potato answered faster 🥔","The llama is laughing at us 🦙😂","Not today, superstar! 😅","Plot twist: NOPE 🙃","The goldfish knew that one 🐟","Brain took a snack break 🍪"];
+const SLOW = ["TOO SLOW! A snail beat you 🐌","Time's up! The clock did a victory dance ⏰💃"];
+const BOSS_WIN = ["BOSS DEFEATED! He ran away crying 😭","BOSS BONKED! Bonus hop! 💫","The boss rage-quit! 🎮"];
+const BOSS_LOSE = ["The boss giggles... back ONE step! 👹","BONKED by the boss! Step back! 💢"];
+
+/* ---------------- AUDIO ENGINE (synth K-pop, no files) ---------------- */
+let actx = null, masterG, musicG, sfxG, leadDelay;
+let musicOn = true, sfxOn = true, musicTimer = null, seqStep = 0, nextT = 0;
+const BPM = 128, STEP16 = 60 / BPM / 4;
+const mf = m => 440 * Math.pow(2, (m - 69) / 12);
+const CHORDS = [[57,60,64],[53,57,60],[60,64,67],[55,59,62]];   // Am F C G
+const ROOTS  = [45,41,48,43];
+const MEL = {0:76,2:76,4:72,6:69,8:72,10:74,12:76,14:74,
+             16:72,18:72,20:69,22:65,24:69,26:72,28:74,30:72,
+             32:76,34:79,36:76,38:72,40:67,42:72,44:76,46:79,
+             48:74,50:71,52:67,54:71,56:74,58:76,60:74,62:71};
+let noiseBuf = null;
+
+function ensureAudio(){
+  if (actx) { if (actx.state === "suspended") actx.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  actx = new AC();
+  masterG = actx.createGain(); masterG.gain.value = .9; masterG.connect(actx.destination);
+  musicG = actx.createGain(); musicG.gain.value = musicOn ? .5 : 0; musicG.connect(masterG);
+  sfxG = actx.createGain(); sfxG.gain.value = sfxOn ? 1 : 0; sfxG.connect(masterG);
+  leadDelay = actx.createDelay(1); leadDelay.delayTime.value = STEP16 * 6; // dotted 8th echo
+  const fb = actx.createGain(); fb.gain.value = .3;
+  leadDelay.connect(fb); fb.connect(leadDelay); leadDelay.connect(musicG);
+  noiseBuf = actx.createBuffer(1, actx.sampleRate * 1, actx.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  startMusic();
+}
+function osc(type, freq, t, dur, gain, dest, freqEnd){
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (freqEnd) o.frequency.exponentialRampToValueAtTime(Math.max(freqEnd, 1), t + dur);
+  g.gain.setValueAtTime(gain, t);
+  g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g); g.connect(dest || sfxG);
+  o.start(t); o.stop(t + dur + .02);
+}
+function noise(t, dur, gain, filterType, freq, dest){
+  const s = actx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+  const f = actx.createBiquadFilter(); f.type = filterType; f.frequency.value = freq;
+  const g = actx.createGain();
+  g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  s.connect(f); f.connect(g); g.connect(dest || sfxG);
+  s.start(t); s.stop(t + dur + .02);
+}
+function schedStep(s, t){
+  const ch = Math.floor(s / 16) % 4;
+  if (s % 4 === 0) osc("sine", 150, t, .22, 1.0, musicG, 40);                    // kick
+  if (s % 16 === 4 || s % 16 === 12){ noise(t, .14, .5, "bandpass", 1800, musicG); osc("triangle", 190, t, .1, .4, musicG, 120); } // snare
+  if (s % 2 === 0) noise(t, s % 8 === 6 ? .12 : .04, .18, "highpass", 7500, musicG); // hats
+  if (s % 2 === 0){                                                              // bass 8ths
+    const up = (s % 8 === 6) ? 12 : 0;
+    osc("sawtooth", mf(ROOTS[ch] + up), t, .18, .4, musicG);
+  }
+  if (s % 16 === 0 || s % 16 === 10){                                            // chord stabs
+    CHORDS[ch].forEach(n => osc("square", mf(n), t, .16, .09, musicG));
+  }
+  const m = MEL[s % 64];
+  if (m !== undefined){                                                          // lead hook + echo
+    const g = actx.createGain(); g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + .24);
+    const o = actx.createOscillator(); o.type = "square"; o.frequency.value = mf(m);
+    o.connect(g); g.connect(musicG); g.connect(leadDelay);
+    o.start(t); o.stop(t + .3);
+  }
+}
+function startMusic(){
+  if (musicTimer || !actx) return;
+  seqStep = 0; nextT = actx.currentTime + .06;
+  musicTimer = setInterval(() => {
+    if (!actx) return;
+    while (nextT < actx.currentTime + .18){ schedStep(seqStep % 64, nextT); seqStep++; nextT += STEP16; }
+  }, 50);
+}
+/* SFX */
+function sCorrect(){ if(!actx) return; const t = actx.currentTime; [72,76,79,84].forEach((n,i)=>osc("triangle", mf(n), t + i*.07, .25, .5)); }
+function sWrong(){ if(!actx) return; const t = actx.currentTime;
+  osc("sawtooth", 220, t, .3, .4, sfxG, 140); osc("sawtooth", 165, t + .28, .45, .4, sfxG, 82);
+  osc("square", 75, t + .1, .35, .5, sfxG, 45); // rubber-duck raspberry
+}
+function sHop(){ if(!actx) return; osc("square", 660, actx.currentTime, .09, .35, sfxG, 990); }
+function sBoss(){ if(!actx) return; const t = actx.currentTime; osc("sawtooth", 110, t, .5, .6, sfxG, 40); osc("sawtooth", 55, t+.15, .6, .6, sfxG, 30); noise(t, .5, .25, "lowpass", 400); }
+function sFanfare(){ if(!actx) return; const t = actx.currentTime;
+  [[72,0],[76,.12],[79,.24],[84,.36],[84,.6],[86,.72],[88,.84]].forEach(([n,d])=>{ osc("square", mf(n), t+d, .3, .35); osc("triangle", mf(n-12), t+d, .3, .3); });
+  noise(t + .9, .8, .3, "highpass", 5000);
+}
+function sTick(){ if(!actx) return; osc("square", 1100, actx.currentTime, .04, .12); }
+function sThwack(){ if(!actx) return; const t = actx.currentTime; noise(t, .12, .7, "lowpass", 900); osc("square", 180, t, .14, .6, sfxG, 50); osc("sine", 300, t, .08, .4, sfxG, 80); }
+function sWhoosh(){ if(!actx) return; noise(actx.currentTime, .16, .3, "bandpass", 2600); }
+function sBoing(){ if(!actx) return; osc("triangle", 130, actx.currentTime, .28, .5, sfxG, 520); }
+function sWhistle(){ if(!actx) return; const t = actx.currentTime; osc("square", 2100, t, .12, .3); osc("square", 2400, t + .16, .3, .3); }
+function sSplash(){ if(!actx) return; noise(actx.currentTime, .35, .4, "lowpass", 1400); osc("sine", 240, actx.currentTime, .3, .3, sfxG, 60); }
+
+/* speech: silly announcer */
+function speak(txt){
+  try {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt);
+    u.rate = 1.02; u.pitch = 1.25; u.lang = "en-US";
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+
+/* ---------------- CONFETTI CANVAS ---------------- */
+const fx = $("fx"), fctx = fx.getContext("2d");
+let parts = [];
+function sizeFx(){ fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+addEventListener("resize", sizeFx); sizeFx();
+const COLORS = ["#ff2d95","#ffd400","#00e5ff","#7cff4d","#ff7b00","#c86bff","#fff"];
+function burst(x, y, n, spread){
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, v = (spread || 6) * (0.4 + Math.random());
+    parts.push({ x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v - 4, rot: Math.random()*6, vr: (Math.random()-.5)*.4,
+                 s: 4 + Math.random()*6, c: COLORS[(Math.random()*COLORS.length)|0], life: 70 + Math.random()*40 });
+  }
+}
+function fxLoop(){
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(p => p.life > 0 && p.y < innerHeight + 30);
+  for (const p of parts){
+    p.x += p.vx; p.y += p.vy; p.vy += .18; p.vx *= .99; p.rot += p.vr; p.life--;
+    fctx.save(); fctx.translate(p.x, p.y); fctx.rotate(p.rot);
+    fctx.fillStyle = p.c; fctx.globalAlpha = Math.min(1, p.life / 30);
+    fctx.fillRect(-p.s/2, -p.s/2, p.s, p.s * .6);
+    fctx.restore();
+  }
+  requestAnimationFrame(fxLoop);
+}
+fxLoop();
+
+/* floating background emojis */
+(function(){
+  const es = ["🎵","⭐","🎤","💜","✨","🎧","🌟","💖"];
+  for (let i = 0; i < 10; i++){
+    const d = document.createElement("div");
+    d.className = "float-emoji"; d.textContent = es[i % es.length];
+    d.style.left = (5 + Math.random()*90) + "vw";
+    d.style.animationDuration = (14 + Math.random()*14) + "s";
+    d.style.animationDelay = (-Math.random()*20) + "s";
+    document.body.appendChild(d);
+  }
+})();
+
+/* ---------------- MAP RENDER ---------------- */
+function drawMap(){
+  const svg = $("mapSvg");
+  let path = "M " + NODES.map(n => n.x + " " + n.y).join(" L ");
+  let html = `<path d="${path}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="${path}" fill="none" stroke="rgba(255,45,149,.5)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round" stroke-linejoin="round"/>`;
+  NODES.forEach((n, i) => {
+    const boss = BOSSES[i], w = worldOf(i);
+    if (i === FINISH){
+      html += `<circle cx="${n.x}" cy="${n.y}" r="17" fill="#ffd400" opacity=".25"><animate attributeName="r" values="15;20;15" dur="1.2s" repeatCount="indefinite"/></circle>
+               <circle cx="${n.x}" cy="${n.y}" r="13" fill="#2b0a52" stroke="#ffd400" stroke-width="2.5"/>
+               <text x="${n.x}" y="${n.y+5}" font-size="15" text-anchor="middle">🏟️</text>
+               <text x="${n.x+17}" y="${n.y-8}" font-size="12" text-anchor="middle">🍝</text>
+               <text x="${n.x+17}" y="${n.y-18}" font-size="7" text-anchor="middle" fill="#ff6b6b" font-weight="900">MONTY!</text>`;
+    } else if (boss){
+      html += `<circle cx="${n.x}" cy="${n.y}" r="12.5" fill="#4a002c" stroke="#ff2d95" stroke-width="2.5"/>
+               <text x="${n.x}" y="${n.y+4.5}" font-size="13" text-anchor="middle">${boss.emoji}</text>`;
+    } else {
+      html += `<circle cx="${n.x}" cy="${n.y}" r="9.5" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+               <text x="${n.x}" y="${n.y+3.5}" font-size="9" text-anchor="middle" opacity=".9">${i === 0 ? "🚩" : w.emoji}</text>`;
+    }
+  });
+  svg.innerHTML = html;
+}
+drawMap();
+
+/* ---------------- GAME STATE ---------------- */
+const RAF_FACES = ["😎","🦖","🐯","🤖","🐺","⚡"];
+const MEI_FACES = ["🦄","🐱","🌸","🐼","🧜‍♀️","🍓"];
+const ARI_FACES = ["🐣","🦕","🚗","🐸","🍪","🦁"];
+let rafFace = 0, meiFace = 0, ariFace = 0;
+const TXS = { 1:["-50%"], 2:["-72%","-28%"], 3:["-88%","-50%","-12%"] };
+let players = [], cur = 0, mode = "race";
+let phase = "idle";           // idle | asking | anim
+let curQ = null, curShown = [], isBossQ = false, isFinalQ = false, pendingBoss = null;
+let timerId = null, timeLeft = 0;
+const TIME_MAX = 20;
+let poolIdx = [[],[],[],[]], bossIdx = [], ariIdx = [];
+
+function shuffled(n){ const a = [...Array(n).keys()]; for (let i = a.length-1; i > 0; i--){ const j = (Math.random()*(i+1))|0; [a[i],a[j]] = [a[j],a[i]]; } return a; }
+function drawFrom(pool, idxArr){ if (!idxArr.length) idxArr.push(...shuffled(pool.length)); return pool[idxArr.pop()]; }
+
+function newGame(m){
+  mode = m;
+  const raf = { name:"RAF",    face:RAF_FACES[rafFace], pos:0, stars:0, streak:0, asked:0, easy:false };
+  const mei = { name:"MEIMEI", face:MEI_FACES[meiFace], pos:0, stars:0, streak:0, asked:0, easy:false };
+  const ari = { name:"ARI",    face:ARI_FACES[ariFace], pos:0, stars:0, streak:0, asked:0, easy:true };
+  players = m === "race"  ? [raf, mei]
+          : m === "race3" ? [raf, mei, ari]
+          : [m === "soloRaf" ? raf : m === "soloMei" ? mei : ari];
+  cur = 0; phase = "idle";
+  poolIdx = POOLS.map(p => shuffled(p.length)); bossIdx = shuffled(BOSS_POOL.length); ariIdx = shuffled(ARI_POOL.length);
+  $("title").classList.add("hidden"); $("victory").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  for (let i = 0; i < 3; i++){
+    const p = players[i];
+    $("chip" + i).style.display = p ? "" : "none";
+    $("av" + i).style.display = p ? "" : "none";
+    if (p){
+      $("av" + i).style.setProperty("--tx", TXS[players.length][i]);
+      $("av" + i).querySelector(".aface").textContent = p.face;
+      $("av" + i).querySelector(".badge").textContent = p.name.slice(0, 3);
+      placeAvatar(i, p.pos);
+    }
+  }
+  renderHud();
+  banner(players[0].face, players[0].name + (players.length > 1 ? "'S TURN!" : ", LET'S GO!"), "Race to the Mega Concert Stage! 🏟️", 1500, startTurn);
+}
+
+function renderHud(){
+  players.forEach((p, i) => {
+    const c = $("chip" + i);
+    c.querySelector(".cface").textContent = p.face;
+    c.querySelector(".cname").textContent = p.name;
+    c.querySelector(".cstats").textContent = `⭐${p.stars}` + (p.streak >= 2 ? ` 🔥${p.streak}` : "");
+    c.classList.toggle("active", i === cur && players.length > 1);
+  });
+}
+function placeAvatar(i, pos){
+  const n = NODES[Math.min(pos, FINISH)];
+  const av = $("av" + i);
+  av.style.left = (n.x / 360 * 100) + "%";
+  av.style.top  = (n.y / 210 * 100) + "%";
+  av.style.transform = `translate(var(--tx),-60%)`;
+}
+
+/* ---------------- BANNERS & TOASTS ---------------- */
+let bannerTo = null;
+function banner(emoji, text, sub, ms, then){
+  $("bannerEmoji").textContent = emoji;
+  $("bannerText").textContent = text;
+  $("bannerSub").textContent = sub || "";
+  const b = $("banner"); b.classList.remove("hidden");
+  // retrigger pop animation
+  const be = $("bannerEmoji"); be.style.animation = "none"; void be.offsetWidth; be.style.animation = "";
+  clearTimeout(bannerTo);
+  bannerTo = setTimeout(() => { b.classList.add("hidden"); if (then) then(); }, ms);
+}
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
+}
+
+/* ---------------- TURN FLOW ---------------- */
+function startTurn(){
+  if (phase === "over") return;
+  phase = "asking";
+  renderHud();
+  isFinalQ = false;
+  askQuestion(false);
+}
+function askQuestion(boss){
+  isBossQ = boss;
+  const p = players[cur];
+  if (p.easy){
+    curQ = drawFrom(ARI_POOL, ariIdx);            // Ari is 4 — always kid-easy, even vs bosses!
+  } else {
+    const wi = WORLDS.indexOf(worldOf(p.pos));
+    curQ = boss ? drawFrom(BOSS_POOL, bossIdx) : drawFrom(POOLS[wi], poolIdx[wi]);
+  }
+  p.asked++;
+  $("qEmoji").textContent = curQ.e;
+  $("qText").textContent = curQ.q;
+  // shuffle options; remember where the right one lands
+  const order = shuffled(curQ.o.length);
+  curShown = order.map(oi => curQ.o[oi]);
+  const box = $("answers"); box.innerHTML = "";
+  order.forEach(oi => {
+    const b = document.createElement("button");
+    b.className = "ans"; b.textContent = curQ.o[oi];
+    b.onclick = () => answer(b, oi === 0);
+    box.appendChild(b);
+  });
+  const card = $("qcard"); card.style.animation = "none"; void card.offsetWidth; card.style.animation = "";
+  if (p.easy) speak(curQ.q + " ... " + curShown.join("? ... or ... ") + "?");   // auto read-aloud for Ari
+  startTimer(p.easy ? TIME_MAX + 10 : boss ? TIME_MAX + 5 : TIME_MAX);
+}
+function startTimer(secs){
+  stopTimer(); timeLeft = secs;
+  $("timerBar").style.width = "100%";
+  timerId = setInterval(() => {
+    timeLeft -= .1;
+    const f = Math.max(0, timeLeft / secs);
+    $("timerBar").style.width = (f * 100) + "%";
+    if (timeLeft <= 5.05 && timeLeft > 4.95) sTick();
+    if (timeLeft <= 3 && Math.abs(timeLeft % 1) < .1) sTick();
+    if (timeLeft <= 0){ stopTimer(); timeUp(); }
+  }, 100);
+}
+function stopTimer(){ clearInterval(timerId); timerId = null; }
+
+function lockAnswers(correctToo){
+  document.querySelectorAll("#answers .ans").forEach(b => {
+    b.disabled = true;
+    const isRight = curQ && b.textContent === curQ.o[0];
+    if (isRight && correctToo) b.classList.add("correct");
+    else if (!isRight) b.classList.add("wrong");
+  });
+}
+function timeUp(){
+  if (phase !== "asking") return;
+  phase = "anim";
+  lockAnswers(true);
+  sWrong();
+  players[cur].streak = 0;
+  renderHud();
+  toast(SLOW[(Math.random()*SLOW.length)|0]);
+  handleWrong();
+}
+function answer(btn, right){
+  if (phase !== "asking") return;
+  phase = "anim";
+  stopTimer();
+  const p = players[cur];
+  if (right){
+    btn.classList.add("correct");
+    lockAnswers(false); btn.disabled = true;
+    sCorrect();
+    const r = btn.getBoundingClientRect();
+    burst(r.left + r.width/2, r.top + r.height/2, 50, 7);
+    p.stars++; p.streak++;
+    if (isFinalQ){
+      toast(MONTY_WIN[(Math.random()*MONTY_WIN.length)|0]);
+      sFanfare();
+      setTimeout(() => win(cur), 1600);
+    } else if (isBossQ){
+      toast(BOSS_WIN[(Math.random()*BOSS_WIN.length)|0]);
+      setTimeout(() => moveBy(2, false), 1000);
+    } else {
+      toast(YAY[(Math.random()*YAY.length)|0]);
+      const streakBonus = p.streak > 0 && p.streak % 3 === 0;
+      const turbo = !streakBonus && p.easy && Math.random() < .3;   // Ari's secret bonus power!
+      setTimeout(() => {
+        if (streakBonus){ toast("🔥 STREAK x" + p.streak + "! BONUS HOP!"); sFanfare(); }
+        else if (turbo){ toast("🛴💨 ARI'S TURBO TRIKE! EXTRA HOP!"); sFanfare(); }
+        moveBy((streakBonus || turbo) ? 2 : 1, false);
+      }, 1000);
+    }
+  } else {
+    btn.classList.add("wrong");
+    lockAnswers(true);
+    sWrong();
+    p.streak = 0;
+    $("qcard").classList.add("shake");
+    setTimeout(() => $("qcard").classList.remove("shake"), 550);
+    const av = $("av" + cur); av.classList.add("sad"); setTimeout(() => av.classList.remove("sad"), 650);
+    toast(isFinalQ ? MONTY_LOSE[(Math.random()*MONTY_LOSE.length)|0]
+        : isBossQ ? BOSS_LOSE[(Math.random()*BOSS_LOSE.length)|0]
+        : NAY[(Math.random()*NAY.length)|0]);
+    handleWrong();
+  }
+  renderHud();
+}
+function handleWrong(){
+  const p = players[cur];
+  if (isFinalQ){
+    setTimeout(() => { p.pos = Math.max(0, p.pos - 2); sBoss(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1200);
+  } else if (isBossQ && p.pos > 0){
+    setTimeout(() => { p.pos--; sHop(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1100);
+  } else {
+    setTimeout(endTurn, 1600);
+  }
+}
+function hopAvatar(){
+  const av = $("av" + cur);
+  av.classList.remove("hopping"); void av.offsetWidth; av.classList.add("hopping");
+}
+function shakeMap(){
+  const m = $("mapWrap");
+  m.classList.remove("shakeme"); void m.offsetWidth; m.classList.add("shakeme");
+}
+function moveBy(steps, fromBoss){
+  const p = players[cur];
+  const stepOnce = left => {
+    if (left <= 0 || p.pos >= FINISH){ afterMove(fromBoss); return; }
+    p.pos++;
+    sHop(); hopAvatar(); placeAvatar(cur, p.pos);
+    setTimeout(() => stepOnce(left - 1), 620);
+  };
+  stepOnce(steps);
+}
+function afterMove(fromBoss){
+  const p = players[cur];
+  if (p.pos >= FINISH){
+    // MEATBALL MONTY guards the stage — beat the final boss to win!
+    p.pos = FINISH;
+    sBoss(); shakeMap();
+    banner(MONTY.emoji, "FINAL BOSS!", MONTY.name + " — " + MONTY.line, 2300, () => { phase = "asking"; isFinalQ = true; askQuestion(true); });
+    speak("Final boss! Meatball Monty! Nyahaha!");
+    return;
+  }
+  const boss = BOSSES[p.pos];
+  const w = worldOf(p.pos), prevW = worldOf(Math.max(0, p.pos - 1));
+  if (boss && !fromBoss){
+    pendingBoss = boss;
+    sBoss();
+    banner(boss.emoji, "BOSS BATTLE!", boss.name + " — " + boss.line, 2000, () => { phase = "asking"; askQuestion(true); });
+    speak("Boss battle! " + boss.name.toLowerCase() + "!");
+    return;
+  }
+  if (w !== prevW && p.pos > 0){
+    banner(w.emoji, w.name.toUpperCase() + "!", "New world unlocked!", 1400, endTurn);
+    return;
+  }
+  endTurn();
+}
+function endTurn(){
+  if (phase === "over") return;
+  if (players.length > 1){
+    cur = (cur + 1) % players.length;
+    renderHud();
+    banner(players[cur].face, players[cur].name + "'S TURN!", "", 1100, startTurn);
+  } else {
+    startTurn();
+  }
+}
+
+/* ---------------- WIN ---------------- */
+let winConfettiId = null;
+function win(i){
+  phase = "over";
+  stopTimer();
+  const p = players[i];
+  $("game").classList.add("hidden");
+  $("victory").classList.remove("hidden");
+  $("winFace").textContent = p.face;
+  $("winTitle").textContent = players.length > 1 ? p.name + " WINS!" : p.name + " DID IT!";
+  let sub;
+  if (players.length > 1){
+    const others = players.filter((_, j) => j !== i).map(o => `${o.name} ⭐${o.stars}`).join(" · ");
+    sub = `⭐ ${p.stars} correct answers! ${others} — rematch time?!`;
+  } else {
+    const acc = p.asked ? Math.round(p.stars / p.asked * 100) : 0;
+    const rank = acc >= 90 ? "MEGA POPSTAR 🌟🌟🌟" : acc >= 70 ? "SUPERSTAR 🌟🌟" : acc >= 50 ? "RISING STAR 🌟" : "TRAINEE — encore!";
+    sub = `⭐ ${p.stars}/${p.asked} correct — rank: ${rank}`;
+  }
+  $("winSub").textContent = sub;
+  $("crowd").innerHTML = ["🕺","💃","🐢","🦙","🐹","🐙","🦄","🕺","💃","🎉"].map(e => `<span>${e}</span>`).join("");
+  sFanfare();
+  speak((players.length > 1 ? p.name + " wins!" : "Amazing, " + p.name + "!") + " You are a K-pop legend!");
+  clearInterval(winConfettiId);
+  let bursts = 0;
+  winConfettiId = setInterval(() => {
+    burst(Math.random() * innerWidth, innerHeight * (0.15 + Math.random() * .4), 40, 8);
+    if (++bursts > 24) clearInterval(winConfettiId);
+  }, 450);
+  burst(innerWidth / 2, innerHeight / 3, 120, 10);
+}
+
+/* ---------------- UI WIRES ---------------- */
+$("pickRaf").onclick = () => { rafFace = (rafFace + 1) % RAF_FACES.length; $("faceRaf").textContent = $("heroRaf").textContent = RAF_FACES[rafFace]; ensureAudio(); sHop(); };
+$("pickMei").onclick = () => { meiFace = (meiFace + 1) % MEI_FACES.length; $("faceMei").textContent = $("heroMei").textContent = MEI_FACES[meiFace]; ensureAudio(); sHop(); };
+$("pickAri").onclick = () => { ariFace = (ariFace + 1) % ARI_FACES.length; $("faceAri").textContent = $("heroAri").textContent = ARI_FACES[ariFace]; ensureAudio(); sHop(); };
+$("btnRace").onclick    = () => { ensureAudio(); newGame("race"); };
+$("btnRace3").onclick   = () => { ensureAudio(); newGame("race3"); };
+$("btnSoloRaf").onclick = () => { ensureAudio(); newGame("soloRaf"); };
+$("btnSoloMei").onclick = () => { ensureAudio(); newGame("soloMei"); };
+$("btnSoloAri").onclick = () => { ensureAudio(); newGame("soloAri"); };
+$("btnAgain").onclick   = () => { clearInterval(winConfettiId); $("victory").classList.add("hidden"); $("title").classList.remove("hidden"); };
+$("gQuit").onclick = () => { stopTimer(); phase = "over"; clearTimeout(bannerTo); $("banner").classList.add("hidden"); $("game").classList.add("hidden"); $("title").classList.remove("hidden"); };
+$("speakBtn").onclick = () => { if (curQ) speak(curQ.q + " ... Is it ... " + curShown.join("? ... or ... ") + "?"); };
+
+function setMusic(on){
+  musicOn = on;
+  if (musicG) musicG.gain.value = on ? .5 : 0;
+  $("togMusic").textContent = "🎵 Music " + (on ? "ON" : "OFF");
+  $("togMusic").classList.toggle("off", !on);
+  $("gMusic").classList.toggle("off", !on);
+}
+function setSfx(on){
+  sfxOn = on;
+  if (sfxG) sfxG.gain.value = on ? 1 : 0;
+  $("togSfx").textContent = "🔊 Sounds " + (on ? "ON" : "OFF");
+  $("togSfx").classList.toggle("off", !on);
+  $("gSfx").classList.toggle("off", !on);
+}
+$("togMusic").onclick = () => { ensureAudio(); setMusic(!musicOn); };
+$("togSfx").onclick   = () => { ensureAudio(); setSfx(!sfxOn); };
+$("gMusic").onclick   = () => { ensureAudio(); setMusic(!musicOn); };
+$("gSfx").onclick     = () => { ensureAudio(); setSfx(!sfxOn); };
+
+/* ============================================================
+   STICK BASH! — foam-stick chase minigame.
+   Ari hunts PINEAPPLE RAF & OTHERKID MEIMEI around a zany arena.
+   ============================================================ */
+const BASH = (() => {
+  const cv = $("bashCanvas"), c = cv.getContext("2d");
+  const ROUND = 45, STICK_LEN = 62;
+  let W = 0, H = 0, S = 1, rafId = null, last = 0, running = false;
+  let mode = "ari", pineMode = false, phase = "count";
+  let timeLeft = 0, countT = 0, bonks = 0, taken = 0, dodges = 0, gorillaBonks = 0;
+  let ents = [], pows = [], pines = [], parts = [], puddles = [], deco = [], balls = [];
+  let swingT = 0, swingCool = 0, swingHit = false, swingDodged = false;
+  let shakeT = 0, powTimer = 5, tauntT = 3, endedByExit = false;
+  let joy = null; const keys = {};
+
+  const LINES = {
+    rafFlee:  ["CAN'T CATCH ME BRUZ! 😝","RUN BRUZZY RUN!","TOO SLOW BRUZ! 🐌","YO BRUZZY, OVER HERE!","EASY, BRUZ! EASY!"],
+    rafBonk:  ["OW BRUZ!! 😵","NOT THE HAIR, BRUZZY!!","MUUUM! ARI'S BASHING ME, BRUZ!","THAT'S ASSAULT, BRUZ! 🚨"],
+    meiFlee:  ["NOT TODAY, TINY! 😤","MEIMEI OUT! 💨","hehehe 😏","You run like a NOODLE!"],
+    meiBonk:  ["MUM!!! 😡","SO. FOUR. YEARS. OLD.","MY DRAMA! 🎭","RUDE!!! 💢"],
+    ariChase: ["BONK BONK BONK! 🏏","hehehehe 😈","STICKY TIME!","I AM SPEED! 💨","GET BACK HERE!"],
+    ariBonk:  ["WAAAH! 😭","NO FAIR!!","MY STICK! 😤"],
+    ariTrip:  ["oopsie 🍑💥","wobbly legs!!"],
+    ariPiss:  ["uh oh... 💦","SLIPPY MODE 💦"],
+    montyChase:["NYAHAHA! 😈","MEATBALL DELIVERY! 🍝","YOU'VE BEEN SAUCED!","FEAR THE MEAT! 💪","TEN YEARS OF MENACE!"],
+    montyBonk: ["MY MEATBALLS!! 😤","IMPOSSIBLE!!","OW!! RUDE!!","MENACE DOWN! 😵"],
+  };
+  const pick = a => a[(Math.random() * a.length) | 0];
+
+  function mk(id, nick, emoji, color, x, y, spd){
+    return { id, nick, emoji, color, x, y, vx:0, vy:0, r:26, spd, face:0,
+             bonkT:0, invT:0, powT:0, slipT:0, tripT:0, hitCool:0, bub:"", bubT:0, wob:Math.random()*9 };
+  }
+  function say(e, txt, tts){
+    e.bub = txt; e.bubT = 2.2;
+    if (tts && Math.random() < .5) speak(txt.replace(/[^\w\s!?',.]/g, ""));
+  }
+  function nickOf(e){
+    if (e.id === "raf" && e.powT > 0) return "RAFFLEBACK GORILLA";
+    if (e.id === "mei" && e.powT > 0) return "monsterMeimei";
+    if (e.id === "ari" && e.slipT > 0) return "PISSPANTZ ARI";
+    return e.nick;
+  }
+  function faceOf(e){
+    if (e.bonkT > 0) return "😵‍💫";
+    if (e.id === "raf") return e.powT > 0 ? "🦍" : "🍍";
+    if (e.id === "mei") return e.powT > 0 ? "👹" : (pineMode ? "🍍" : "🙃");
+    if (e.id === "monty") return pineMode ? "🍍" : "😜";
+    return e.slipT > 0 ? "😨" : (pineMode ? "🍍" : "🍉");
+  }
+
+  function resize(){
+    const dpr = devicePixelRatio || 1;
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.min(W, H) / 480;
+  }
+
+  function start(){
+    resize();
+    endedByExit = false;
+    phase = "count"; countT = 3.4; timeLeft = ROUND;
+    bonks = taken = dodges = gorillaBonks = 0;
+    swingT = swingCool = 0; shakeT = 0; powTimer = 5; tauntT = 2.5;
+    pows = []; pines = []; parts = []; puddles = []; balls = []; joy = null;
+    const sp = 1 + (pineMode ? .3 : 0);
+    ents = [
+      mk("ari", "WATERMELON ARI", "🍉", "#2e7d32", W*.5,  H*.72, 205*sp),
+      mk("raf", "PINEAPPLE RAF",  "🍍", "#1e88e5", W*.25, H*.3,  190*sp),
+      mk("mei", "OTHERKID MEIMEI","🙃", "#7a4b2e", W*.75, H*.3,  190*sp),
+      mk("monty","MEATBALL MONTY","😜", "#b71c1c", W*.5,  H*.15, 185*sp),
+    ];
+    ents.forEach(e => e.r = 26 * S);
+    const monty0 = ents.find(e => e.id === "monty");
+    monty0.throwT = 3; monty0.wtx = W*.5; monty0.wty = H*.5;
+    // player gets a fair speed edge
+    const me = ents.find(e => e.id === mode);
+    me.spd *= 1.08;
+    deco = [];
+    const ds = pineMode ? ["🍍","🍍","🌼","🍍","⭐","🍍"] : ["🌼","🍕","⭐","🌈","🧦","🍩","🛼","🌵"];
+    for (let i = 0; i < 14; i++) deco.push({ x:Math.random()*W, y:Math.random()*H, e:ds[i % ds.length], s:16 + Math.random()*18, a:Math.random()*6 });
+    if (pineMode) for (let i = 0; i < 8; i++) spawnPine();
+    $("bashBtn").style.display = (mode === "ari" || mode === "monty") ? "" : "none";
+    $("bashBtn").innerHTML = mode === "monty" ? "🍝<br>HURL!" : "🏏<br>BASH!";
+    $("bashEnd").classList.add("hidden");
+    sWhistle();
+    speak(mode === "monty" ? "Meatball Monty time! Nyahaha!" : pineMode ? "Pineapple mode! Go go go go!" : "Stick bash! Go go go go!");
+    running = true; last = performance.now();
+    cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop);
+  }
+  function stop(){ running = false; cancelAnimationFrame(rafId); rafId = null; }
+
+  function spawnPine(){
+    const a = Math.random() * Math.PI * 2, v = (120 + Math.random()*120) * S;
+    pines.push({ x:Math.random()*W, y:Math.random()*H, vx:Math.cos(a)*v, vy:Math.sin(a)*v, r:17*S, rot:0, vr:(Math.random()-.5)*6, t:1e9 });
+  }
+  function spawnPow(){
+    const types = ["ban","mask","zap","pine","pud"];
+    const t = types[(Math.random() * types.length) | 0];
+    if (t === "pud"){
+      puddles.push({ x:W*.15 + Math.random()*W*.7, y:H*.2 + Math.random()*H*.6, r:44*S, t:8 });
+      parts.push({ txt:"💦 PISSPANTZ PUDDLE!", x:W/2, y:H*.2, t:1.4, big:false });
+    } else {
+      pows.push({ x:W*.12 + Math.random()*W*.76, y:H*.15 + Math.random()*H*.7, t:9, type:t,
+                  e:{ban:"🍌",mask:"👹",zap:"⚡",pine:"🍍"}[t] });
+    }
+  }
+
+  function comic(txt, x, y, big){ parts.push({ txt, x, y, t:1.1, big:!!big }); }
+
+  function bonk(victim, from, tag){
+    if (victim.invT > 0) return;
+    const dx = victim.x - from.x, dy = victim.y - from.y, d = Math.hypot(dx, dy) || 1;
+    victim.vx += dx / d * 640 * S; victim.vy += dy / d * 640 * S;
+    victim.bonkT = .9; victim.invT = 1.7;
+    shakeT = .35; sThwack();
+    comic(pick(["BONK!💥","THWACK!⚡","BOP!🌟","SPLAT!💫"]), victim.x, victim.y - 40*S, true);
+    burst(victim.x * (innerWidth / W), victim.y * (innerHeight / H), 30, 7);
+    if (victim.id === "raf") say(victim, pick(LINES.rafBonk), true);
+    else if (victim.id === "mei") say(victim, pick(LINES.meiBonk), true);
+    else if (victim.id === "monty") say(victim, pick(LINES.montyBonk), true);
+    else say(victim, pick(LINES.ariBonk), true);
+    if (tag === "stick"){ if (mode === "ari") bonks++; else if (victim.id === mode) taken++; }
+    if (tag === "power"){ gorillaBonks++; if (mode === "ari") taken++; }
+  }
+
+  /* ---------- update ---------- */
+  function update(dt){
+    if (phase === "count"){ countT -= dt; if (countT <= 0) phase = "play"; return; }
+    if (phase === "end") return;
+    timeLeft -= dt;
+    if (timeLeft <= 0){ endRound(); return; }
+
+    powTimer -= dt;
+    if (powTimer <= 0){ powTimer = 6 + Math.random()*3; spawnPow(); }
+    tauntT -= dt;
+    if (tauntT <= 0){
+      tauntT = 3.5 + Math.random()*3;
+      const ai = ents.filter(e => e.id !== mode);
+      const e = ai[(Math.random()*ai.length)|0];
+      if (e.id === "raf") say(e, pick(LINES.rafFlee));
+      else if (e.id === "mei") say(e, pick(LINES.meiFlee));
+      else if (e.id === "monty") say(e, pick(LINES.montyChase));
+      else say(e, pick(LINES.ariChase));
+    }
+
+    const ari = ents.find(e => e.id === "ari");
+    const monty = ents.find(e => e.id === "monty");
+    const kids = ents.filter(e => e.id === "raf" || e.id === "mei");
+
+    for (const e of ents){
+      e.bonkT = Math.max(0, e.bonkT - dt); e.invT = Math.max(0, e.invT - dt);
+      e.powT = Math.max(0, e.powT - dt); e.slipT = Math.max(0, e.slipT - dt);
+      e.tripT = Math.max(0, e.tripT - dt); e.hitCool = Math.max(0, e.hitCool - dt);
+      e.hurlCool = Math.max(0, (e.hurlCool || 0) - dt);
+      e.bubT = Math.max(0, e.bubT - dt); e.wob += dt * 9;
+
+      let dx = 0, dy = 0;
+      const isPlayer = e.id === mode;
+      if (e.bonkT > 0 || e.tripT > 0){ /* ragdoll / tripped: no control */ }
+      else if (isPlayer){
+        if (joy){ dx = joy.dx; dy = joy.dy; }
+        if (keys.ArrowLeft || keys.a) dx -= 1; if (keys.ArrowRight || keys.d) dx += 1;
+        if (keys.ArrowUp || keys.w) dy -= 1;   if (keys.ArrowDown || keys.s) dy += 1;
+      } else if (e.id === "ari"){
+        // AI Ari: hunt nearest big kid, wobble like a 4-year-old, sometimes trip
+        let tgt = kids[0];
+        for (const s2 of kids) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        // run away from monsters, gorillas... and Monty!
+        const scary = kids.find(s2 => s2.powT > 0);
+        if (scary){ dx = e.x - scary.x; dy = e.y - scary.y; }
+        else if (Math.hypot(monty.x-e.x, monty.y-e.y) < 130*S){ dx = e.x - monty.x; dy = e.y - monty.y; }
+        else { dx = tgt.x - e.x; dy = tgt.y - e.y; }
+        const wob = Math.sin(e.wob) * .55;
+        const a = Math.atan2(dy, dx) + wob;
+        dx = Math.cos(a); dy = Math.sin(a);
+        if (Math.random() < dt / 8){ e.tripT = 1.1; say(e, pick(LINES.ariTrip), true); comic("💥", e.x, e.y, false); sBoing(); }
+        if (!scary && Math.hypot(tgt.x-e.x, tgt.y-e.y) < e.r + tgt.r + STICK_LEN*S*.8 && swingCool <= 0) aiSwing();
+      } else if (e.id === "monty"){
+        // AI MEATBALL MONTY: stalks the whole arena, lobbing meatballs at EVERYONE
+        const scary = kids.find(s2 => s2.powT > 0);
+        if (!e.wtx || Math.hypot(e.wtx-e.x, e.wty-e.y) < 40*S || Math.random() < dt/3){
+          e.wtx = W*.12 + Math.random()*W*.76; e.wty = H*.12 + Math.random()*H*.76;
+        }
+        let tgt = ents[0] === e ? ents[1] : ents[0];
+        for (const s2 of ents) if (s2 !== e && Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        if (scary){ dx = e.x - scary.x; dy = e.y - scary.y; }
+        else { dx = (e.wtx - e.x)*.6 + (tgt.x - e.x)*.4; dy = (e.wty - e.y)*.6 + (tgt.y - e.y)*.4; }
+        e.throwT -= dt;
+        if (e.throwT <= 0 && phase === "play"){ e.throwT = 2.4 + Math.random()*2; hurl(e); }
+      } else {
+        // AI kid: powered → hunt Ari; else grab own power-up or flee the nearest menace
+        const myPow = pows.find(p => (p.type === "ban" && e.id === "raf") || (p.type === "mask" && e.id === "mei"));
+        if (e.powT > 0){ dx = ari.x - e.x; dy = ari.y - e.y; }
+        else if (myPow && Math.hypot(myPow.x-e.x, myPow.y-e.y) < 260*S){ dx = myPow.x - e.x; dy = myPow.y - e.y; }
+        else {
+          const threat = Math.hypot(ari.x-e.x, ari.y-e.y) < Math.hypot(monty.x-e.x, monty.y-e.y) ? ari : monty;
+          dx = e.x - threat.x; dy = e.y - threat.y;
+          // steer off walls
+          if (e.x < 70*S) dx += 2; if (e.x > W - 70*S) dx -= 2;
+          if (e.y < 70*S) dy += 2; if (e.y > H - 70*S) dy -= 2;
+          const a = Math.atan2(dy, dx) + Math.sin(e.wob * .7) * .5;
+          dx = Math.cos(a); dy = Math.sin(a);
+        }
+      }
+      const m = Math.hypot(dx, dy);
+      if (m > 0){ dx /= m; dy /= m; }
+      let spd = e.spd * S;
+      if (e.powT > 0) spd *= 1.45;
+      if (e.slipT > 0) spd *= .55;
+      const drag = e.slipT > 0 ? 1.2 : (e.bonkT > 0 ? 2.2 : 8);   // slippy = low grip
+      e.vx += (dx * spd - e.vx) * Math.min(1, drag * dt);
+      e.vy += (dy * spd - e.vy) * Math.min(1, drag * dt);
+      e.x += e.vx * dt; e.y += e.vy * dt;
+      // walls
+      const pad = e.r;
+      if (e.x < pad){ e.x = pad; e.vx = Math.abs(e.vx) * .6; }
+      if (e.x > W - pad){ e.x = W - pad; e.vx = -Math.abs(e.vx) * .6; }
+      if (e.y < pad){ e.y = pad; e.vy = Math.abs(e.vy) * .6; }
+      if (e.y > H - pad){ e.y = H - pad; e.vy = -Math.abs(e.vy) * .6; }
+      // face target/motion
+      if (e.id === "ari"){
+        let tgt = kids[0];
+        for (const s2 of kids) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        e.face = Math.atan2(tgt.y - e.y, tgt.x - e.x);
+      } else if (Math.hypot(e.vx, e.vy) > 20) e.face = Math.atan2(e.vy, e.vx);
+    }
+
+    // puddles trip up Ari (PISSPANTZ ARI!)
+    for (const pu of puddles){
+      pu.t -= dt;
+      if (ari.slipT <= 0 && Math.hypot(ari.x-pu.x, ari.y-pu.y) < pu.r){
+        ari.slipT = 4; sSplash(); say(ari, pick(LINES.ariPiss), true);
+        comic("💦 PISSPANTZ ARI! 💦", ari.x, ari.y - 46*S, true);
+        speak("Piss pants Ari!");
+      }
+    }
+    puddles = puddles.filter(p => p.t > 0);
+
+    // power-ups
+    for (const p of pows){
+      p.t -= dt;
+      for (const e of ents){
+        if (Math.hypot(e.x-p.x, e.y-p.y) > e.r + 18*S) continue;
+        if (p.type === "ban" && e.id === "raf"){
+          e.powT = 5; p.t = 0; sFanfare(); shakeT = .3;
+          comic("🦍 RAFFLEBACK GORILLA!!", e.x, e.y - 46*S, true);
+          say(e, "RAFFLEBACK GORILLA TIME, BRUZ! 🦍"); speak("Raffleback gorilla!");
+        } else if (p.type === "mask" && e.id === "mei"){
+          e.powT = 5; p.t = 0; sBoss(); shakeT = .3;
+          comic("👹 monsterMeimei!!", e.x, e.y - 46*S, true);
+          say(e, "monsterMeimei AWAKENS 👹"); speak("Monster Meimei!");
+        } else if (p.type === "zap"){
+          e.spd *= 1.25; setTimeout(() => e.spd /= 1.25, 4000);
+          p.t = 0; sCorrect(); comic("⚡ ZOOM!", e.x, e.y - 40*S, false);
+        } else if (p.type === "pine"){
+          p.t = 0; sBoing(); comic("🍍 PINEAPPLE PANIC!", e.x, e.y - 40*S, true);
+          for (let i = 0; i < 3; i++){ spawnPine(); pines[pines.length-1].t = 8; }
+        }
+      }
+    }
+    pows = pows.filter(p => p.t > 0);
+
+    // meatballs fly, splat, and SAUCE people
+    for (const b of balls){
+      b.t -= dt; b.x += b.vx * dt; b.y += b.vy * dt;
+      if (b.x < 0 || b.x > W || b.y < 0 || b.y > H){ b.t = 0; comic("splat 🍝", b.x, b.y, false); continue; }
+      for (const e of ents){
+        if (e.id === b.by || e.invT > 0 || b.t <= 0) continue;
+        if (Math.hypot(e.x-b.x, e.y-b.y) < e.r + b.r){
+          b.t = 0;
+          const thrower = ents.find(x => x.id === b.by) || monty;
+          bonk(e, { x: b.x - b.vx*.01, y: b.y - b.vy*.01 }, "meat");
+          comic("SAUCED!! 🍝", e.x, e.y - 60*S, true);
+          if (b.by === mode){ bonks++; if (thrower) say(thrower, pick(LINES.montyChase)); }
+          if (e.id === mode) taken++;
+          break;
+        }
+      }
+    }
+    balls = balls.filter(b => b.t > 0);
+
+    // gorilla / monster body-bonk Ari
+    for (const s2 of kids){
+      if (s2.powT > 0 && s2.hitCool <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < s2.r + ari.r + 6*S){
+        s2.hitCool = 1;
+        bonk(ari, s2, "power");
+        comic(s2.id === "raf" ? "OOK OOK BRUZ!! 🦍" : "RAWR!! 👹", s2.x, s2.y - 44*S, true);
+        if (mode === s2.id) comic("REVENGE! 💪", ari.x, ari.y - 70*S, false);
+      }
+    }
+
+    // bouncy pineapples
+    for (const b of pines){
+      b.t -= dt; b.x += b.vx * dt; b.y += b.vy * dt; b.rot += b.vr * dt;
+      if (b.x < b.r || b.x > W - b.r){ b.vx *= -1; b.x = Math.max(b.r, Math.min(W - b.r, b.x)); }
+      if (b.y < b.r || b.y > H - b.r){ b.vy *= -1; b.y = Math.max(b.r, Math.min(H - b.r, b.y)); }
+      for (const e of ents){
+        const d = Math.hypot(e.x-b.x, e.y-b.y);
+        if (d < e.r + b.r){
+          const nx = (e.x-b.x)/(d||1), ny = (e.y-b.y)/(d||1);
+          e.vx += nx * 300 * S; e.vy += ny * 300 * S;
+          b.vx -= nx * 120 * S; b.vy -= ny * 120 * S;
+          if (Math.random() < .3) sBoing();
+        }
+      }
+    }
+    pines = pines.filter(b => b.t > 0);
+
+    // stick swing (player Ari or AI Ari) — Monty is bonkable too!
+    swingCool = Math.max(0, swingCool - dt);
+    if (swingT > 0){
+      swingT -= dt;
+      for (const s2 of ents){
+        if (s2 === ari) continue;
+        if (s2.invT <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < ari.r + s2.r + STICK_LEN*S*.95){
+          bonk(s2, ari, "stick"); swingHit = true;
+          if (mode === "ari") speak(pick(["Bonk!","Gotcha!","Boom!"]));
+        } else if (!swingHit && !swingDodged && Math.hypot(s2.x-ari.x, s2.y-ari.y) < ari.r + s2.r + STICK_LEN*S*1.6){
+          if (s2.id === mode){ dodges++; swingDodged = true; comic("DODGE! 🌀", s2.x, s2.y - 42*S, false); }
+        }
+      }
+    }
+
+    // particles / bubbles decay
+    for (const p of parts) p.t -= dt;
+    parts = parts.filter(p => p.t > 0);
+    shakeT = Math.max(0, shakeT - dt);
+  }
+  function aiSwing(){ swingT = .28; swingCool = 1.1; swingHit = false; swingDodged = false; sWhoosh(); }
+  function playerSwing(){
+    if (phase !== "play") return;
+    if (mode === "monty"){
+      const me = ents.find(e => e.id === "monty");
+      if (me && me.hurlCool > 0) return;
+      if (me){ me.hurlCool = .8; hurl(me); }
+      return;
+    }
+    if (mode !== "ari" || swingCool > 0) return;
+    swingT = .28; swingCool = .75; swingHit = false; swingDodged = false; sWhoosh();
+  }
+  function hurl(from){
+    // auto-aim at the nearest victim (kid-friendly!)
+    let tgt = null, best = 1e9;
+    for (const e of ents){
+      if (e === from) continue;
+      const d = Math.hypot(e.x-from.x, e.y-from.y);
+      if (d < best){ best = d; tgt = e; }
+    }
+    if (!tgt) return;
+    const a = Math.atan2(tgt.y-from.y, tgt.x-from.x);
+    const v = 380 * S;
+    balls.push({ x:from.x + Math.cos(a)*from.r, y:from.y + Math.sin(a)*from.r,
+                 vx:Math.cos(a)*v, vy:Math.sin(a)*v, r:11*S, t:1.8, by:from.id });
+    sWhoosh(); comic("🍝!", from.x, from.y - 44*S, false);
+  }
+
+  function endRound(){
+    phase = "end";
+    sWhistle(); setTimeout(sFanfare, 300);
+    let rank, stats;
+    if (mode === "ari"){
+      rank = bonks >= 12 ? "BONK LEGEND 👑" : bonks >= 8 ? "FOAM FURY 🔥" : bonks >= 4 ? "BONK APPRENTICE 🏏" : "SOGGY NOODLE 🍜";
+      stats = `🏏 Bonks landed: <b>${bonks}</b><br>😵 Times bonked back: <b>${taken}</b>`;
+      speak(`Time's up! ${bonks} bonks! ${rank.replace(/[^\w\s]/g,"")}!`);
+    } else if (mode === "monty"){
+      rank = bonks >= 12 ? "MENACE SUPREME 👑" : bonks >= 8 ? "SAUCE LORD 🍝" : bonks >= 4 ? "SAUCY RASCAL 😈" : "SOGGY SPAGHETTI 🍜";
+      stats = `🍝 Kids sauced: <b>${bonks}</b><br>😵 Times bonked: <b>${taken}</b>`;
+      speak(`Time's up! ${bonks} splats! ${rank.replace(/[^\w\s]/g,"")}! Nyahaha!`);
+    } else {
+      rank = taken === 0 ? "UNTOUCHABLE LEGEND 👑" : taken <= 2 ? "SLIPPERY EEL 🐍" : taken <= 5 ? "BRUISED BANANA 🍌" : "HUMAN PIÑATA 🪅";
+      stats = `😵 Bonks survived: <b>${taken}</b> · 🌀 Dodges: <b>${dodges}</b><br>${mode === "raf" ? "🦍 Gorilla revenge bonks" : "👹 Monster revenge bonks"}: <b>${gorillaBonks}</b>`;
+      speak(`Time's up! ${rank.replace(/[^\w\s]/g,"")}${mode === "raf" ? ", bruz!" : "!"}`);
+    }
+    $("bashEndRank").textContent = rank;
+    $("bashEndStats").innerHTML = stats + (pineMode ? "<br>🍍 PINEAPPLE MODE SURVIVED 🍍" : "");
+    $("bashEnd").classList.remove("hidden");
+    burst(innerWidth/2, innerHeight/3, 120, 10);
+  }
+
+  /* ---------- draw ---------- */
+  function drawStick(ari){
+    const swing = swingT > 0 ? (1 - swingT / .28) : 0;
+    const base = ari.face + (swingT > 0 ? (-1.5 + swing * 3) : Math.sin(ari.wob) * .25);
+    const hx = ari.x + Math.cos(base) * ari.r * .7, hy = ari.y + Math.sin(base) * ari.r * .7;
+    const len = STICK_LEN * S * (ari.slipT > 0 ? .85 : 1);
+    c.save();
+    c.translate(hx, hy); c.rotate(base);
+    c.fillStyle = "#ff7043";
+    const w = 15 * S;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(0, -w/2, len, w, w/2); else c.rect(0, -w/2, len, w);
+    c.fill();
+    c.fillStyle = "#e64a19";
+    for (let i = 1; i <= 3; i++) c.fillRect(len * i / 4 - 3*S, -w/2, 6*S, w);
+    c.fillStyle = "#ffd54f";
+    c.beginPath(); c.arc(len, 0, w * .62, 0, 7); c.fill();
+    c.restore();
+  }
+  function drawEnt(e){
+    const squash = e.bonkT > 0 ? 1 + Math.sin(e.bonkT * 20) * .15 : 1;
+    const bob = Math.sin(e.wob * 1.4) * 3 * S;
+    c.save();
+    if (e.invT > 0 && Math.floor(e.invT * 12) % 2 === 0) c.globalAlpha = .45;
+    // shadow
+    c.fillStyle = "rgba(0,0,0,.3)";
+    c.beginPath(); c.ellipse(e.x, e.y + e.r * .95, e.r * .8, e.r * .3, 0, 0, 7); c.fill();
+    // body
+    const R = e.r * (e.powT > 0 ? 1.35 : 1);
+    c.fillStyle = e.color;
+    c.strokeStyle = "rgba(255,255,255,.75)"; c.lineWidth = 3 * S;
+    c.beginPath(); c.arc(e.x, e.y + bob, R * squash, 0, 7); c.fill(); c.stroke();
+    if (e.slipT > 0){ c.fillStyle = "rgba(80,160,255,.5)"; c.beginPath(); c.arc(e.x, e.y + bob + R*.5, R*.5, 0, 7); c.fill(); }
+    // face
+    c.font = `${R * 1.35}px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif`;
+    c.textAlign = "center"; c.textBaseline = "middle";
+    c.save();
+    c.translate(e.x, e.y + bob - R * .1);
+    if (e.bonkT > 0) c.rotate(e.bonkT * 14);
+    else if (e.powT > 0) c.rotate(Math.sin(e.wob * 2) * .2);
+    c.fillText(faceOf(e), 0, 0);
+    c.restore();
+    // name tag
+    const nick = nickOf(e);
+    c.font = `900 ${11 * S}px -apple-system,sans-serif`;
+    const tw = c.measureText(nick).width + 12 * S;
+    c.fillStyle = e.powT > 0 ? "rgba(255,212,0,.9)" : (e.slipT > 0 ? "rgba(80,160,255,.9)" : "rgba(0,0,0,.65)");
+    const ty = e.y - R - 16 * S;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(e.x - tw/2, ty - 8*S, tw, 16*S, 8*S); else c.rect(e.x - tw/2, ty - 8*S, tw, 16*S);
+    c.fill();
+    c.fillStyle = (e.powT > 0 || e.slipT > 0) ? "#201000" : "#fff";
+    c.fillText(nick, e.x, ty);
+    // speech bubble
+    if (e.bubT > 0){
+      c.font = `800 ${13 * S}px -apple-system,sans-serif`;
+      const bw = c.measureText(e.bub).width + 16 * S;
+      const by = ty - 24 * S;
+      c.fillStyle = "rgba(255,255,255,.95)";
+      c.beginPath();
+      if (c.roundRect) c.roundRect(e.x - bw/2, by - 11*S, bw, 22*S, 10*S); else c.rect(e.x - bw/2, by - 11*S, bw, 22*S);
+      c.fill();
+      c.beginPath(); c.moveTo(e.x - 5*S, by + 10*S); c.lineTo(e.x + 6*S, by + 10*S); c.lineTo(e.x, by + 18*S); c.fill();
+      c.fillStyle = "#1a0140";
+      c.fillText(e.bub, e.x, by);
+    }
+    c.restore();
+  }
+  function draw(){
+    c.save();
+    if (shakeT > 0) c.translate((Math.random()-.5) * 14 * shakeT * 3, (Math.random()-.5) * 14 * shakeT * 3);
+    // floor
+    const g = c.createLinearGradient(0, 0, 0, H);
+    if (pineMode){ g.addColorStop(0, "#7a5c00"); g.addColorStop(1, "#3d2c00"); }
+    else { g.addColorStop(0, "#26124f"); g.addColorStop(1, "#0d0526"); }
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.globalAlpha = .18;
+    c.font = `20px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+    for (const d of deco){ c.save(); c.translate(d.x, d.y); c.rotate(d.a); c.font = `${d.s}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`; c.fillText(d.e, 0, 0); c.restore(); }
+    c.globalAlpha = 1;
+    // puddles
+    for (const pu of puddles){
+      c.fillStyle = "rgba(70,150,255,.4)"; c.strokeStyle = "rgba(150,200,255,.7)"; c.lineWidth = 2;
+      c.beginPath(); c.ellipse(pu.x, pu.y, pu.r, pu.r * .6, 0, 0, 7); c.fill(); c.stroke();
+      c.font = `${20*S}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText("💦", pu.x, pu.y);
+    }
+    // power-ups
+    c.textAlign = "center"; c.textBaseline = "middle";
+    for (const p of pows){
+      const pulse = 1 + Math.sin(performance.now() / 150) * .15;
+      c.font = `${30 * S * pulse}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+      c.fillText(p.e, p.x, p.y);
+    }
+    // pineapple balls
+    for (const b of pines){
+      c.save(); c.translate(b.x, b.y); c.rotate(b.rot);
+      c.font = `${b.r * 2.1}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+      c.fillText("🍍", 0, 0); c.restore();
+    }
+    // flying meatballs (with saucy trail)
+    for (const b of balls){
+      c.strokeStyle = "rgba(211,47,47,.5)"; c.lineWidth = b.r * 1.1; c.lineCap = "round";
+      c.beginPath(); c.moveTo(b.x - b.vx*.06, b.y - b.vy*.06); c.lineTo(b.x, b.y); c.stroke();
+      c.fillStyle = "#6d2016";
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, 7); c.fill();
+      c.fillStyle = "#a5442c";
+      c.beginPath(); c.arc(b.x - b.r*.3, b.y - b.r*.3, b.r*.4, 0, 7); c.fill();
+    }
+    // entities (ari last so stick is on top)
+    const ari = ents.find(e => e.id === "ari");
+    for (const e of ents) if (e !== ari) drawEnt(e);
+    if (ari){ drawStick(ari); drawEnt(ari); }
+    // comic particles
+    for (const p of parts){
+      c.font = `900 ${(p.big ? 30 : 18) * S}px -apple-system,sans-serif`;
+      c.textAlign = "center";
+      c.strokeStyle = "#000"; c.lineWidth = 4 * S; c.globalAlpha = Math.min(1, p.t * 2);
+      const yy = p.y - (1.1 - p.t) * 44 * S;
+      c.strokeText(p.txt, p.x, yy);
+      c.fillStyle = p.big ? "#ffd400" : "#fff";
+      c.fillText(p.txt, p.x, yy);
+      c.globalAlpha = 1;
+    }
+    // HUD
+    c.fillStyle = "rgba(0,0,0,.5)";
+    c.beginPath();
+    if (c.roundRect) c.roundRect(W/2 - 110*S, 8, 220*S, 34*S, 17*S); else c.rect(W/2 - 110*S, 8, 220*S, 34*S);
+    c.fill();
+    c.fillStyle = "#fff"; c.font = `900 ${16*S}px -apple-system,sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    const score = mode === "ari" ? `🏏 ${bonks}` : mode === "monty" ? `🍝 ${bonks}` : `🌀 ${dodges} 😵 ${taken}`;
+    c.fillText(`⏰ ${Math.ceil(Math.max(0, timeLeft))}   ${score}`, W/2, 8 + 17*S);
+    // joystick
+    if (joy){
+      c.globalAlpha = .35;
+      c.fillStyle = "#fff";
+      c.beginPath(); c.arc(joy.sx, joy.sy, 44*S, 0, 7); c.fill();
+      c.beginPath(); c.arc(joy.sx + joy.dx * 34*S, joy.sy + joy.dy * 34*S, 22*S, 0, 7); c.fill();
+      c.globalAlpha = 1;
+    }
+    // countdown
+    if (phase === "count"){
+      c.fillStyle = "rgba(0,0,0,.45)"; c.fillRect(0, 0, W, H);
+      const n = Math.ceil(countT - .4);
+      c.fillStyle = "#ffd400"; c.font = `900 ${90*S}px -apple-system,sans-serif`;
+      c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText(n > 0 ? String(n) : (mode === "monty" ? "SAUCE!!" : "BASH!!"), W/2, H*.4);
+      c.font = `800 ${16*S}px -apple-system,sans-serif`; c.fillStyle = "#fff";
+      c.fillText(mode === "ari" ? "Chase them down. BONK EVERYONE."
+               : mode === "monty" ? "SAUCE THEM ALL. NYAHAHA. 😈"
+               : "RUN. DODGE. SURVIVE, BRUZ.", W/2, H*.4 + 70*S);
+    }
+    c.restore();
+  }
+
+  function loop(ts){
+    if (!running) return;
+    const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+    update(dt); draw();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ---------- input ---------- */
+  cv.addEventListener("pointerdown", ev => {
+    ev.preventDefault();
+    const r = cv.getBoundingClientRect();
+    joy = { id: ev.pointerId, sx: ev.clientX - r.left, sy: ev.clientY - r.top, dx: 0, dy: 0 };
+  });
+  cv.addEventListener("pointermove", ev => {
+    if (!joy || ev.pointerId !== joy.id) return;
+    const r = cv.getBoundingClientRect();
+    let dx = (ev.clientX - r.left - joy.sx) / (46 * S), dy = (ev.clientY - r.top - joy.sy) / (46 * S);
+    const m = Math.hypot(dx, dy);
+    if (m > 1){ dx /= m; dy /= m; }
+    joy.dx = dx; joy.dy = dy;
+  });
+  const joyEnd = ev => { if (joy && ev.pointerId === joy.id) joy = null; };
+  cv.addEventListener("pointerup", joyEnd); cv.addEventListener("pointercancel", joyEnd);
+  addEventListener("keydown", ev => { keys[ev.key] = true; if (ev.key === " " && running) playerSwing(); });
+  addEventListener("keyup", ev => { keys[ev.key] = false; });
+  addEventListener("resize", () => { if (running) resize(); });
+
+  /* ---------- screen wiring ---------- */
+  function open(){
+    $("title").classList.add("hidden");
+    $("bash").classList.remove("hidden");
+    $("bashSelect").classList.remove("hidden");
+    $("bashPlay").classList.add("hidden");
+  }
+  function close(){
+    stop();
+    $("bash").classList.add("hidden");
+    $("title").classList.remove("hidden");
+  }
+  document.querySelectorAll(".bcard").forEach(card => {
+    card.onclick = () => {
+      document.querySelectorAll(".bcard").forEach(x => x.classList.remove("sel"));
+      card.classList.add("sel");
+      mode = card.dataset.mode;
+      ensureAudio(); sHop();
+    };
+  });
+  $("pineTog").onclick = () => {
+    pineMode = !pineMode;
+    $("pineTog").textContent = "🍍 PINEAPPLE MODE: " + (pineMode ? "ON!!!" : "OFF");
+    $("pineTog").classList.toggle("on", pineMode);
+    ensureAudio(); if (pineMode){ sFanfare(); speak("Pineapple mode!"); } else sHop();
+  };
+  $("bashGo").onclick = () => {
+    ensureAudio();
+    $("bashSelect").classList.add("hidden");
+    $("bashPlay").classList.remove("hidden");
+    requestAnimationFrame(() => start());   // let layout settle so canvas has size
+  };
+  $("bashBack").onclick = close;
+  $("bashExit").onclick = () => { stop(); $("bashPlay").classList.add("hidden"); $("bashSelect").classList.remove("hidden"); };
+  $("bashBtn").onclick = playerSwing;
+  $("bashAgain").onclick = () => start();
+  $("bashPick").onclick = () => { stop(); $("bashPlay").classList.add("hidden"); $("bashSelect").classList.remove("hidden"); };
+  $("bashHome").onclick = close;
+  $("btnBash").onclick = () => { ensureAudio(); open(); };
+
+  return { start, stop, get state(){ return { phase, bonks, taken, dodges, timeLeft, mode, pineMode }; }, set time(v){ timeLeft = v; }, get ents(){ return ents; } };
+})();
+window.BASH = BASH;
+
+document.addEventListener("visibilitychange", () => {
+  if (actx){ if (document.hidden) actx.suspend(); else actx.resume(); }
+});
+</script>
+</body>
+</html>

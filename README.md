@@ -1,5 +1,22 @@
 # FMDC Games
 
+## Raf ⚡ Meimei — K-Pop Quiz Quest! 🎤 (`/rafmeimei/`)
+
+A one-file, mobile-first quiz/adventure race for the kids — Raf (7), Meimei (7) and bonus hero little bro Ari (4).
+Pure HTML/CSS/JS, no dependencies, with a fully synthesized K-pop soundtrack (Web Audio — no audio files!).
+
+👉 **Play:** <https://fm1983.github.io/FMDC/rafmeimei/> (best on a phone) — or open `rafmeimei/index.html` locally.
+
+- **Race across 4 worlds** — Bubble Beach 🏖️, Neon Jungle 🌴, Space Disco 🚀 and Dragon Karaoke 🎤 — to the Mega Concert Stage 🏟️.
+- **2-player race** (Raf vs Meimei), **3-player race** with Ari, or solo mode with popstar ranks.
+- **Boss battles** against DJ Pickle 🥒, Captain Broccoli 🥦 and the Disco Dragon 🐉 — win for a double hop, lose and get bonked back a step.
+- **FINAL BOSS: MEATBALL MONTY 🍝** — a 10-year-old menace who guards the Mega Concert Stage. Beat his final question or get blasted back 2 steps by a meatball barrage.
+- **~90 kid-tuned questions** (age-7 math/animals/space/words/K-pop + an age-4 pool for Ari: colors, counting, animal sounds — auto-read aloud for the non-reader).
+- **Streak bonuses 🔥**, Ari's random **Turbo Trike 🛴** extra hop, hilarious right/wrong reactions, a goofy text-to-speech announcer.
+- **🏏 STICK BASH! minigame** — WATERMELON ARI chases PINEAPPLE RAF and OTHERKID MEIMEI around a zany arena with a foam bashing stick. Play as Ari (bonk everyone), a big kid (dodge & survive), or villain **MEATBALL MONTY 🍝** — the 10-year-old menace who is ALWAYS in the arena auto-lobbing meatballs at everyone. Power-ups turn Raf into the **RAFFLEBACK GORILLA 🦍** and Meimei into **monsterMeimei 👹** for stick-turning revenge, while 💦 puddles trigger **PISSPANTZ ARI** slippy mode. Plus **🍍 PINEAPPLE MODE**: bouncing pineapples everywhere, everyone gets a pineapple head, +30% chaos. Raf calls everyone "bruz".
+- **Concert-scene cover page**: spinning disco ball, sweeping spotlights, rotating laser rig, the three heroes dancing on a neon stage (synced to your avatar picks), a blinking LIVE chip, a scrolling news ticker — and Monty periodically peeking up from the corner.
+- **Full production values:** animated disco background, confetti cannon, screen shake, spotlight victory stage with a dancing emoji crowd, and a synthesized 128 BPM K-pop banger (kick/snare/hats/bass/chord stabs/lead hook with echo).
+
 ## F-117A Stealth Fighter — Night Strike 🛩️ (`/f117a/`)
 
 A one-file, mobile-first retro tribute to the classic early-90s stealth flight sims.
