@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#12002b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
 <title>Raf ⚡ Meimei — K-Pop Quiz Quest!</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -94,6 +99,21 @@
   #ticker span { display:inline-block; white-space:nowrap; font-weight:900; font-size:13px; letter-spacing:2px; color:#ffd400;
     text-shadow:0 0 10px rgba(255,212,0,.6); animation:marquee 14s linear infinite; }
   @keyframes marquee { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+  /* trophy room */
+  #trophyScr { z-index:35; justify-content:center; gap:10px; padding:16px; text-align:center; overflow-y:auto; }
+  #trophyScr h2 { font-size:clamp(26px,7.5vw,42px); font-weight:900;
+    background:linear-gradient(90deg,#ffd400,#ff2d95,#00e5ff); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 3s linear infinite; }
+  #trophyStats { font-size:14px; font-weight:800; opacity:.95; }
+  #trophyGrid { display:grid; grid-template-columns:repeat(2, minmax(150px, 200px)); gap:9px; }
+  .tcard { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); border-radius:16px; padding:9px 10px; display:flex; align-items:center; gap:9px; text-align:left; }
+  .tcard .te { font-size:30px; }
+  .tcard .tn { font-weight:900; font-size:12px; }
+  .tcard .td { font-size:10px; opacity:.75; }
+  .tcard.locked { opacity:.45; filter:grayscale(1); }
+  .tcard.unlocked { border-color:#ffd400; box-shadow:0 0 14px rgba(255,212,0,.4); }
+  .tcard.unlocked .te { animation:bop 1.2s ease-in-out infinite; }
 
   .btn { position:relative; overflow:hidden; }
   .btn::after { content:""; position:absolute; top:0; bottom:0; left:-80%; width:36%; pointer-events:none;
@@ -339,7 +359,9 @@
   <div class="toggle-row">
     <button class="tog" id="togMusic">🎵 Music ON</button>
     <button class="tog" id="togSfx">🔊 Sounds ON</button>
+    <button class="tog" id="btnTrophies">🏆 Trophies</button>
   </div>
+  <div id="saveStats" style="font-size:11px; opacity:.7; font-weight:700;"></div>
   <div id="ticker"><span>⭐ PINEAPPLE RAF ⚡ OTHERKID MEIMEI ⚡ WATERMELON ARI ⭐ LIVE AT THE MEGA CONCERT STAGE 🏟️ ⭐ STICK BASH — NOBODY IS SAFE, BRUZ 🏏 ⭐ PINEAPPLE MODE 🍍🍍🍍 ⭐ ⚠️ WARNING: MEATBALL MONTY IS LOOSE 🍝😈 ⚠️ ⭐ NEW: MONTY'S BLOCK BASH ⛏️🧟 SURVIVE THE WAVES ⭐</span></div>
 </div>
 
@@ -469,6 +491,15 @@
   </div>
 </div>
 
+<!-- ================= TROPHY ROOM ================= -->
+<div id="trophyScr" class="screen hidden">
+  <h2>🏆 TROPHY ROOM</h2>
+  <div id="trophyStats"></div>
+  <div id="trophyGrid"></div>
+  <div style="font-size:11px; opacity:.7; font-weight:700;">Collect 3 trophies to unlock SECRET HEROES... collect 6 for LEGENDARY ones! 🤫</div>
+  <button class="btn cyan small" id="trophyBack">⬅️ Back</button>
+</div>
+
 <div id="toast"></div>
 
 <div id="banner" class="hidden">
@@ -498,6 +529,44 @@
 
 const $ = id => document.getElementById(id);
 
+/* ---------------- SAVE DATA, TROPHIES & HAPTICS ---------------- */
+const SAVE_KEY = "rmq_save_v1";
+const TROPHIES = [
+  { id:"first_win",    e:"🏆", n:"First Victory",      d:"Win a Quiz Quest game" },
+  { id:"monty_slayer", e:"🍝", n:"Monty Slayer",       d:"Defeat the final boss" },
+  { id:"streak5",      e:"🔥", n:"On Fire",            d:"Get a 5-answer streak" },
+  { id:"stars100",     e:"💯", n:"Century Star",       d:"Earn 100 lifetime stars" },
+  { id:"gorilla",      e:"🦍", n:"Going Ape",          d:"Unleash the Raffleback Gorilla" },
+  { id:"monster",      e:"👹", n:"Monster Mode",       d:"Awaken monsterMeimei" },
+  { id:"bonk10",       e:"🏏", n:"Bonk Legend",        d:"Land 10 bonks in one round" },
+  { id:"pinevictor",   e:"🍍", n:"Pineapple Survivor", d:"Finish a Pineapple Mode round" },
+  { id:"wave5",        e:"🧱", n:"Block Boss",         d:"Reach wave 5 in Block Bash" },
+  { id:"megaboss",     e:"💥", n:"Meatball Slayer",    d:"Defeat the MEGA MEATBALL" },
+];
+let save = { stars:0, wins:0, bashBest:0, mineBest:0, trophies:[], musicOn:true, sfxOn:true };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || "{}")); } catch(e){}
+function persist(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch(e){} }
+function award(id){
+  if (save.trophies.includes(id)) return;
+  save.trophies.push(id); persist(); renderSaveStats();
+  const t = TROPHIES.find(x => x.id === id);
+  setTimeout(() => {
+    toast(`🏆 NEW TROPHY: ${t.n}! ${t.e}`);
+    sFanfare(); burst(innerWidth / 2, innerHeight * .3, 60, 8);
+    speak("New trophy! " + t.n + "!");
+  }, 600);
+}
+function addStars(n){
+  save.stars += n;
+  if (save.stars >= 100) award("stars100");
+  persist(); renderSaveStats();
+}
+function renderSaveStats(){
+  const el = $("saveStats");
+  if (el) el.textContent = `⭐ ${save.stars} lifetime stars · 🏆 ${save.trophies.length}/${TROPHIES.length} trophies · 🏏 best ${save.bashBest} · 🧱 wave ${save.mineBest}`;
+}
+function buzz(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch(e){} }
+
 /* ---------------- WORLDS & MAP ---------------- */
 const FINISH = 15;
 const WORLDS = [
@@ -511,6 +580,8 @@ const BOSSES = {
   10: { name:"CAPTAIN BROCCOLI",emoji:"🥦", line:"He forces kids to eat... QUESTIONS!" },
   13: { name:"DISCO DRAGON",    emoji:"🐉", line:"His dance moves are FIRE. Literally." },
 };
+// Mystery gift tiles — land on one, anything can happen!
+const MYSTERY = { 3:true, 7:true, 11:true };
 // FINAL BOSS: Meatball Monty guards the Mega Concert Stage itself.
 const MONTY = { name:"MEATBALL MONTY", emoji:"🍝", line:"A 10-year-old MENACE blocks the stage, armed with saucy meatballs!" };
 const MONTY_WIN  = ["MONTY DEFEATED! He slurps away crying 🍝😭","THE MENACE IS TOAST! Stage unlocked! 🎤","Monty rage-quits to eat spaghetti 🍝"];
@@ -541,6 +612,12 @@ const POOLS = [
  {q:"A shark is a kind of...?", o:["Fish","Mammal","Robot","Vegetable"], e:"🦈"},
  {q:"What does a turtle carry on its back?", o:["Its shell","A backpack","A skateboard","A pizza"], e:"🐢"},
  {q:"What's the BIGGEST animal ever?", o:["Blue whale","Elephant","T-Rex","Your dad"], e:"🐋"},
+ {q:"Which sea animal has a horn like a unicorn?", o:["Narwhal","Dolphin","Crab","Sea potato"], e:"🦄"},
+ {q:"What do you build with sand?", o:["Sandcastles","Sand-burgers","Snowmen","Homework"], e:"🏰"},
+ {q:"8 + 7 = ?", o:["15","14","16","87"], e:"➕"},
+ {q:"Dolphins breathe with...?", o:["Lungs — they need air!","Gills","Snorkels","Wi-Fi"], e:"🐬"},
+ {q:"Which one lives in a borrowed shell?", o:["Hermit crab","Puppy","Seagull","Shark"], e:"🐚"},
+ {q:"2 + 2 + 2 + 2 = ?", o:["8","6","4","2222"], e:"🧮"},
 ],
 [ // Neon Jungle — animals + math
  {q:"What do pandas munch all day?", o:["Bamboo","Pizza","Burgers","Homework"], e:"🐼"},
@@ -557,6 +634,12 @@ const POOLS = [
  {q:"A baby frog is called a...?", o:["Tadpole","Puppy","Frog Jr.","Chick"], e:"🐸"},
  {q:"Which bird can copy what you say?", o:["Parrot","Owl","Chicken","Penguin"], e:"🦜"},
  {q:"20 − 9 = ?", o:["11","12","10","209"], e:"➖"},
+ {q:"Which animal has the LONGEST neck?", o:["Giraffe","Zebra","Hippo","Worm"], e:"🦒"},
+ {q:"What do bees collect from flowers?", o:["Nectar","Ketchup","Glitter","Stickers"], e:"🌺"},
+ {q:"6 + 6 = ?", o:["12","10","14","66"], e:"➕"},
+ {q:"An elephant's nose is called a...?", o:["Trunk","Hose","Snoot 3000","Spaghetti"], e:"🐘"},
+ {q:"Which animal is called king of the jungle?", o:["Lion","Chicken","Sloth","Mouse"], e:"🦁"},
+ {q:"4 × 5 = ?", o:["20","15","25","45"], e:"✖️"},
 ],
 [ // Space Disco — space + math
  {q:"Which planet is the Red Planet?", o:["Mars","Jupiter","Pluto","Planet Ketchup"], e:"🔴"},
@@ -573,6 +656,12 @@ const POOLS = [
  {q:"100 + 100 = ?", o:["200","110","1000","A billion"], e:"➕"},
  {q:"What shape is planet Earth?", o:["Round like a ball","Flat like a pancake","Square","Banana-shaped"], e:"🌍"},
  {q:"Saturn is famous for its...?", o:["Rings","Earrings","Sneakers","Funny hat"], e:"🪐"},
+ {q:"What do we call a shooting star?", o:["Meteor","Rocket","Sky sneeze","Firefly"], e:"☄️"},
+ {q:"The Sun is actually a giant...?", o:["Star","Planet","Lamp","Pizza"], e:"☀️"},
+ {q:"7 + 7 = ?", o:["14","12","16","77"], e:"➕"},
+ {q:"Which planet do WE live on?", o:["Earth","Mars","Jupiter","Planet Snacks"], e:"🌍"},
+ {q:"What pulls things down to the ground?", o:["Gravity","Glue","Magnets","Tiny hands"], e:"🍎"},
+ {q:"10 × 10 = ?", o:["100","20","1000","10"], e:"✖️"},
 ],
 [ // Dragon Karaoke — words, music, K-pop
  {q:"The 'K' in K-pop stands for...?", o:["Korean","Kangaroo","Ketchup","Karate"], e:"🎤"},
@@ -589,6 +678,12 @@ const POOLS = [
  {q:"The dance moves in a K-pop video are called...?", o:["Choreography","Choreo-spaghetti","Dance-o-tron","Wiggle science"], e:"🕺"},
  {q:"Which word rhymes with 'sing'?", o:["King","Song","Sock","Pizza"], e:"👑"},
  {q:"How many days in a week?", o:["7","5","10","100"], e:"📅"},
+ {q:"Which word rhymes with 'star'?", o:["Car","Sun","Moon","Sock"], e:"⭐"},
+ {q:"How many letters in 'BRUZ'?", o:["4","3","5","26"], e:"😎"},
+ {q:"The opposite of 'fast' is...?", o:["Slow","Quick","Zoomy","Purple"], e:"🐌"},
+ {q:"Which one is a drum sound?", o:["Boom","Meow","Splash","Achoo"], e:"🥁"},
+ {q:"'Raf' rhymes with...?", o:["Giraffe","Banana","Truck","Pizza"], e:"🦒"},
+ {q:"A person who sings is called a...?", o:["Singer","Singist","Loud person","Karaoke goblin"], e:"🎤"},
 ],
 ];
 // ARI's pool — age 4! colors, counting, animal sounds. Auto-read aloud.
@@ -611,6 +706,12 @@ const ARI_POOL = [
  {q:"What color is a strawberry?", o:["Red","Blue","Green","Gold"], e:"🍓"},
  {q:"Which one flies in the sky?", o:["Airplane","Car","Boat","Shoe"], e:"✈️"},
  {q:"What does a lion say?", o:["ROAR","Meow","Peep","Hello"], e:"🦁"},
+ {q:"What does a sheep say?", o:["Baa","Moo","Woof","Beep"], e:"🐑"},
+ {q:"How many eyes do you have?", o:["2","1","5","10"], e:"👀"},
+ {q:"Which one is COLD?", o:["Ice cream","Soup","Fire","The sun"], e:"🍦"},
+ {q:"What color is the sun?", o:["Yellow","Blue","Green","Black"], e:"☀️"},
+ {q:"Which animal has a looong trunk?", o:["Elephant","Cat","Fish","Bunny"], e:"🐘"},
+ {q:"How many bananas? 🍌🍌🍌🍌🍌", o:["5","4","3","100"], e:"🍌"},
 ];
 const BOSS_POOL = [
  {q:"25 + 25 = ?", o:["50","45","55","2525"], e:"🔥"},
@@ -625,6 +726,12 @@ const BOSS_POOL = [
  {q:"Which one is NOT a fruit?", o:["Potato","Apple","Mango","Banana"], e:"🥔"},
  {q:"Caterpillars turn into...?", o:["Butterflies","Birds","Dragons","Teachers"], e:"🦋"},
  {q:"How many hours in a whole day?", o:["24","12","60","7"], e:"🕛"},
+ {q:"12 + 13 = ?", o:["25","24","26","1213"], e:"🔥"},
+ {q:"How many legs do TWO spiders have?", o:["16","8","12","100"], e:"🕷️"},
+ {q:"9 × 2 = ?", o:["18","16","20","92"], e:"✖️"},
+ {q:"Which month has Halloween?", o:["October","June","March","Snacktober"], e:"🎃"},
+ {q:"How many zeros in one hundred?", o:["2","1","3","100"], e:"💯"},
+ {q:"A baby cat is called a...?", o:["Kitten","Puppy","Catlet","Meowball"], e:"🐱"},
 ];
 
 /* ---------------- FUNNY REACTIONS ---------------- */
@@ -636,15 +743,19 @@ const BOSS_LOSE = ["The boss giggles... back ONE step! 👹","BONKED by the boss
 
 /* ---------------- AUDIO ENGINE (synth K-pop, no files) ---------------- */
 let actx = null, masterG, musicG, sfxG, leadDelay;
-let musicOn = true, sfxOn = true, musicTimer = null, seqStep = 0, nextT = 0;
+let musicOn = save.musicOn !== false, sfxOn = save.sfxOn !== false, musicTimer = null, seqStep = 0, nextT = 0;
 const BPM = 128, STEP16 = 60 / BPM / 4;
 const mf = m => 440 * Math.pow(2, (m - 69) / 12);
 const CHORDS = [[57,60,64],[53,57,60],[60,64,67],[55,59,62]];   // Am F C G
 const ROOTS  = [45,41,48,43];
-const MEL = {0:76,2:76,4:72,6:69,8:72,10:74,12:76,14:74,
-             16:72,18:72,20:69,22:65,24:69,26:72,28:74,30:72,
-             32:76,34:79,36:76,38:72,40:67,42:72,44:76,46:79,
-             48:74,50:71,52:67,54:71,56:74,58:76,60:74,62:71};
+const MEL_A = {0:76,2:76,4:72,6:69,8:72,10:74,12:76,14:74,
+               16:72,18:72,20:69,22:65,24:69,26:72,28:74,30:72,
+               32:76,34:79,36:76,38:72,40:67,42:72,44:76,46:79,
+               48:74,50:71,52:67,54:71,56:74,58:76,60:74,62:71};
+const MEL_B = {0:81,2:79,4:76,6:74,8:76,10:79,12:76,14:74,
+               16:77,18:76,20:72,22:69,24:72,26:76,28:77,30:76,
+               32:79,34:76,36:72,38:67,40:72,42:76,44:79,46:84,
+               48:83,50:79,52:74,54:79,56:83,58:79,60:74,62:71};
 let noiseBuf = null;
 
 function ensureAudio(){
@@ -680,11 +791,18 @@ function noise(t, dur, gain, filterType, freq, dest){
   s.connect(f); f.connect(g); g.connect(dest || sfxG);
   s.start(t); s.stop(t + dur + .02);
 }
-function schedStep(s, t){
+function schedStep(s128, t){
+  const s = s128 % 64, bar = Math.floor(s128 / 16), sectionB = bar >= 4;
   const ch = Math.floor(s / 16) % 4;
+  const fillBar = (bar % 4 === 3) && s % 16 >= 12;                               // drum fill at end of bars 4 & 8
   if (s % 4 === 0) osc("sine", 150, t, .22, 1.0, musicG, 40);                    // kick
-  if (s % 16 === 4 || s % 16 === 12){ noise(t, .14, .5, "bandpass", 1800, musicG); osc("triangle", 190, t, .1, .4, musicG, 120); } // snare
+  if (s % 16 === 4 || s % 16 === 12 || (fillBar && s % 2 === 0)){                // snare (+ fills)
+    noise(t, .14, fillBar ? .38 : .5, "bandpass", 1800, musicG);
+    osc("triangle", 190, t, .1, .35, musicG, 120);
+  }
   if (s % 2 === 0) noise(t, s % 8 === 6 ? .12 : .04, .18, "highpass", 7500, musicG); // hats
+  if (sectionB && s % 4 === 2) noise(t, .18, .14, "highpass", 6200, musicG);     // open hats (B section shimmer)
+  if (s128 === 64) noise(t, .7, .28, "highpass", 4500, musicG);                  // crash into B section
   if (s % 2 === 0){                                                              // bass 8ths
     const up = (s % 8 === 6) ? 12 : 0;
     osc("sawtooth", mf(ROOTS[ch] + up), t, .18, .4, musicG);
@@ -692,7 +810,7 @@ function schedStep(s, t){
   if (s % 16 === 0 || s % 16 === 10){                                            // chord stabs
     CHORDS[ch].forEach(n => osc("square", mf(n), t, .16, .09, musicG));
   }
-  const m = MEL[s % 64];
+  const m = (sectionB ? MEL_B : MEL_A)[s];
   if (m !== undefined){                                                          // lead hook + echo
     const g = actx.createGain(); g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + .24);
     const o = actx.createOscillator(); o.type = "square"; o.frequency.value = mf(m);
@@ -705,7 +823,7 @@ function startMusic(){
   seqStep = 0; nextT = actx.currentTime + .06;
   musicTimer = setInterval(() => {
     if (!actx) return;
-    while (nextT < actx.currentTime + .18){ schedStep(seqStep % 64, nextT); seqStep++; nextT += STEP16; }
+    while (nextT < actx.currentTime + .18){ schedStep(seqStep % 128, nextT); seqStep++; nextT += STEP16; }
   }, 50);
 }
 /* SFX */
@@ -797,6 +915,9 @@ function drawMap(){
     } else if (boss){
       html += `<circle cx="${n.x}" cy="${n.y}" r="12.5" fill="#4a002c" stroke="#ff2d95" stroke-width="2.5"/>
                <text x="${n.x}" y="${n.y+4.5}" font-size="13" text-anchor="middle">${boss.emoji}</text>`;
+    } else if (MYSTERY[i]){
+      html += `<circle cx="${n.x}" cy="${n.y}" r="11" fill="rgba(255,212,0,.2)" stroke="#ffd400" stroke-width="2" stroke-dasharray="3 3"><animateTransform attributeName="transform" type="rotate" from="0 ${n.x} ${n.y}" to="360 ${n.x} ${n.y}" dur="6s" repeatCount="indefinite"/></circle>
+               <text x="${n.x}" y="${n.y+4}" font-size="11" text-anchor="middle">🎁</text>`;
     } else {
       html += `<circle cx="${n.x}" cy="${n.y}" r="9.5" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
                <text x="${n.x}" y="${n.y+3.5}" font-size="9" text-anchor="middle" opacity=".9">${i === 0 ? "🚩" : w.emoji}</text>`;
@@ -810,19 +931,25 @@ drawMap();
 const RAF_FACES = ["😎","🦖","🐯","🤖","🐺","⚡"];
 const MEI_FACES = ["🦄","🐱","🌸","🐼","🧜‍♀️","🍓"];
 const ARI_FACES = ["🐣","🦕","🚗","🐸","🍪","🦁"];
+// trophy-gated secret heroes!
+if (save.trophies.length >= 3){ RAF_FACES.push("🐉"); MEI_FACES.push("🧚"); ARI_FACES.push("🐙"); }
+if (save.trophies.length >= 6){ RAF_FACES.push("👑"); MEI_FACES.push("🌈"); ARI_FACES.push("🛸"); }
 let rafFace = 0, meiFace = 0, ariFace = 0;
 const TXS = { 1:["-50%"], 2:["-72%","-28%"], 3:["-88%","-50%","-12%"] };
 let players = [], cur = 0, mode = "race";
 let phase = "idle";           // idle | asking | anim
 let curQ = null, curShown = [], isBossQ = false, isFinalQ = false, pendingBoss = null;
-let timerId = null, timeLeft = 0;
+let timerId = null, timeLeft = 0, gameGen = 0;
 const TIME_MAX = 20;
+// invalidates stale setTimeout callbacks after quit/new-game
+function guarded(fn){ const g = gameGen; return (...a) => { if (g === gameGen) fn(...a); }; }
 let poolIdx = [[],[],[],[]], bossIdx = [], ariIdx = [];
 
 function shuffled(n){ const a = [...Array(n).keys()]; for (let i = a.length-1; i > 0; i--){ const j = (Math.random()*(i+1))|0; [a[i],a[j]] = [a[j],a[i]]; } return a; }
 function drawFrom(pool, idxArr){ if (!idxArr.length) idxArr.push(...shuffled(pool.length)); return pool[idxArr.pop()]; }
 
 function newGame(m){
+  gameGen++;
   mode = m;
   const raf = { name:"RAF",    face:RAF_FACES[rafFace], pos:0, stars:0, streak:0, asked:0, easy:false };
   const mei = { name:"MEIMEI", face:MEI_FACES[meiFace], pos:0, stars:0, streak:0, asked:0, easy:false };
@@ -958,31 +1085,33 @@ function answer(btn, right){
   if (right){
     btn.classList.add("correct");
     lockAnswers(false); btn.disabled = true;
-    sCorrect();
+    sCorrect(); buzz(25);
     const r = btn.getBoundingClientRect();
     burst(r.left + r.width/2, r.top + r.height/2, 50, 7);
     p.stars++; p.streak++;
+    addStars(1);
+    if (p.streak >= 5) award("streak5");
     if (isFinalQ){
       toast(MONTY_WIN[(Math.random()*MONTY_WIN.length)|0]);
       sFanfare();
-      setTimeout(() => win(cur), 1600);
+      setTimeout(guarded(() => win(cur)), 1600);
     } else if (isBossQ){
       toast(BOSS_WIN[(Math.random()*BOSS_WIN.length)|0]);
-      setTimeout(() => moveBy(2, false), 1000);
+      setTimeout(guarded(() => moveBy(2, false)), 1000);
     } else {
       toast(YAY[(Math.random()*YAY.length)|0]);
       const streakBonus = p.streak > 0 && p.streak % 3 === 0;
       const turbo = !streakBonus && p.easy && Math.random() < .3;   // Ari's secret bonus power!
-      setTimeout(() => {
+      setTimeout(guarded(() => {
         if (streakBonus){ toast("🔥 STREAK x" + p.streak + "! BONUS HOP!"); sFanfare(); }
         else if (turbo){ toast("🛴💨 ARI'S TURBO TRIKE! EXTRA HOP!"); sFanfare(); }
         moveBy((streakBonus || turbo) ? 2 : 1, false);
-      }, 1000);
+      }), 1000);
     }
   } else {
     btn.classList.add("wrong");
     lockAnswers(true);
-    sWrong();
+    sWrong(); buzz([40, 40, 40]);
     p.streak = 0;
     $("qcard").classList.add("shake");
     setTimeout(() => $("qcard").classList.remove("shake"), 550);
@@ -997,11 +1126,11 @@ function answer(btn, right){
 function handleWrong(){
   const p = players[cur];
   if (isFinalQ){
-    setTimeout(() => { p.pos = Math.max(0, p.pos - 2); sBoss(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1200);
+    setTimeout(guarded(() => { p.pos = Math.max(0, p.pos - 2); sBoss(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(guarded(endTurn), 900); }), 1200);
   } else if (isBossQ && p.pos > 0){
-    setTimeout(() => { p.pos--; sHop(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1100);
+    setTimeout(guarded(() => { p.pos--; sHop(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(guarded(endTurn), 900); }), 1100);
   } else {
-    setTimeout(endTurn, 1600);
+    setTimeout(guarded(endTurn), 1600);
   }
 }
 function hopAvatar(){
@@ -1018,7 +1147,7 @@ function moveBy(steps, fromBoss){
     if (left <= 0 || p.pos >= FINISH){ afterMove(fromBoss); return; }
     p.pos++;
     sHop(); hopAvatar(); placeAvatar(cur, p.pos);
-    setTimeout(() => stepOnce(left - 1), 620);
+    setTimeout(guarded(() => stepOnce(left - 1)), 620);
   };
   stepOnce(steps);
 }
@@ -1041,11 +1170,34 @@ function afterMove(fromBoss){
     speak("Boss battle! " + boss.name.toLowerCase() + "!");
     return;
   }
+  if (MYSTERY[p.pos] && !fromBoss){
+    mysteryEvent(p, w, prevW);
+    return;
+  }
   if (w !== prevW && p.pos > 0){
     banner(w.emoji, w.name.toUpperCase() + "!", "New world unlocked!", 1400, endTurn);
     return;
   }
   endTurn();
+}
+function mysteryEvent(p, w, prevW){
+  const roll = Math.random();
+  if (roll < .3){
+    banner("🎁", "MYSTERY GIFT!", "DOUBLE HOP! Zoom zoom! 🎉", 1600, guarded(() => moveBy(1, true)));
+    sFanfare();
+  } else if (roll < .55 && players.length > 1){
+    banner("💃", "DISCO TRAP!", "Everyone ELSE dances back one step!", 1800, guarded(() => {
+      players.forEach((o, j) => { if (j !== cur && o.pos > 0){ o.pos--; placeAvatar(j, o.pos); } });
+      sBoing(); endTurn();
+    }));
+  } else if (roll < .8){
+    banner("⭐", "MYSTERY GIFT!", "SUPER STAR! +2 bonus stars!", 1600, guarded(() => {
+      p.stars += 2; addStars(2); renderHud(); sCorrect(); endTurn();
+    }));
+  } else {
+    banner("🍝", "MEATBALL RAIN!", "...nothing happens. Monty was just showing off. 😒", 1800, guarded(endTurn));
+    sSplash();
+  }
 }
 function endTurn(){
   if (phase === "over") return;
@@ -1079,7 +1231,9 @@ function win(i){
   }
   $("winSub").textContent = sub;
   $("crowd").innerHTML = ["🕺","💃","🐢","🦙","🐹","🐙","🦄","🕺","💃","🎉"].map(e => `<span>${e}</span>`).join("");
-  sFanfare();
+  save.wins = (save.wins || 0) + 1; persist(); renderSaveStats();
+  award("first_win"); award("monty_slayer");
+  sFanfare(); buzz([50, 60, 50, 60, 120]);
   speak((players.length > 1 ? p.name + " wins!" : "Amazing, " + p.name + "!") + " You are a K-pop legend!");
   clearInterval(winConfettiId);
   let bursts = 0;
@@ -1100,11 +1254,12 @@ $("btnSoloRaf").onclick = () => { ensureAudio(); newGame("soloRaf"); };
 $("btnSoloMei").onclick = () => { ensureAudio(); newGame("soloMei"); };
 $("btnSoloAri").onclick = () => { ensureAudio(); newGame("soloAri"); };
 $("btnAgain").onclick   = () => { clearInterval(winConfettiId); $("victory").classList.add("hidden"); $("title").classList.remove("hidden"); };
-$("gQuit").onclick = () => { stopTimer(); phase = "over"; clearTimeout(bannerTo); $("banner").classList.add("hidden"); $("game").classList.add("hidden"); $("title").classList.remove("hidden"); };
+$("gQuit").onclick = () => { gameGen++; stopTimer(); phase = "over"; clearTimeout(bannerTo); $("banner").classList.add("hidden"); $("game").classList.add("hidden"); $("title").classList.remove("hidden"); };
 $("speakBtn").onclick = () => { if (curQ) speak(curQ.q + " ... Is it ... " + curShown.join("? ... or ... ") + "?"); };
 
 function setMusic(on){
   musicOn = on;
+  save.musicOn = on; persist();
   if (musicG) musicG.gain.value = on ? .5 : 0;
   $("togMusic").textContent = "🎵 Music " + (on ? "ON" : "OFF");
   $("togMusic").classList.toggle("off", !on);
@@ -1112,11 +1267,28 @@ function setMusic(on){
 }
 function setSfx(on){
   sfxOn = on;
+  save.sfxOn = on; persist();
   if (sfxG) sfxG.gain.value = on ? 1 : 0;
   $("togSfx").textContent = "🔊 Sounds " + (on ? "ON" : "OFF");
   $("togSfx").classList.toggle("off", !on);
   $("gSfx").classList.toggle("off", !on);
 }
+/* trophy room */
+function renderTrophies(){
+  $("trophyStats").innerHTML = `⭐ <b>${save.stars}</b> lifetime stars · 🏅 <b>${save.wins || 0}</b> wins · 🏏 best bonks <b>${save.bashBest}</b> · 🧱 best wave <b>${save.mineBest}</b>`;
+  $("trophyGrid").innerHTML = TROPHIES.map(t => {
+    const got = save.trophies.includes(t.id);
+    return `<div class="tcard ${got ? "unlocked" : "locked"}">
+      <span class="te">${got ? t.e : "🔒"}</span>
+      <div><div class="tn">${t.n}</div><div class="td">${t.d}</div></div>
+    </div>`;
+  }).join("");
+}
+$("btnTrophies").onclick = () => { ensureAudio(); sHop(); renderTrophies(); $("title").classList.add("hidden"); $("trophyScr").classList.remove("hidden"); };
+$("trophyBack").onclick = () => { $("trophyScr").classList.add("hidden"); $("title").classList.remove("hidden"); };
+renderSaveStats();
+setMusic(musicOn); setSfx(sfxOn);
+
 $("togMusic").onclick = () => { ensureAudio(); setMusic(!musicOn); };
 $("togSfx").onclick   = () => { ensureAudio(); setSfx(!sfxOn); };
 $("gMusic").onclick   = () => { ensureAudio(); setMusic(!musicOn); };
@@ -1135,6 +1307,7 @@ const BASH = (() => {
   let ents = [], pows = [], pines = [], parts = [], puddles = [], deco = [], balls = [];
   let swingT = 0, swingCool = 0, swingHit = false, swingDodged = false;
   let shakeT = 0, powTimer = 5, tauntT = 3, endedByExit = false;
+  let comboN = 0, comboAt = 0, frenzy = false;
   let joy = null; const keys = {};
 
   const LINES = {
@@ -1186,6 +1359,7 @@ const BASH = (() => {
     endedByExit = false;
     phase = "count"; countT = 3.4; timeLeft = ROUND;
     bonks = taken = dodges = gorillaBonks = 0;
+    comboN = 0; comboAt = 0; frenzy = false;
     swingT = swingCool = 0; shakeT = 0; powTimer = 5; tauntT = 2.5;
     pows = []; pines = []; parts = []; puddles = []; balls = []; joy = null;
     const sp = 1 + (pineMode ? .3 : 0);
@@ -1238,15 +1412,24 @@ const BASH = (() => {
     const dx = victim.x - from.x, dy = victim.y - from.y, d = Math.hypot(dx, dy) || 1;
     victim.vx += dx / d * 640 * S; victim.vy += dy / d * 640 * S;
     victim.bonkT = .9; victim.invT = 1.7;
-    shakeT = .35; sThwack();
+    shakeT = .35; sThwack(); buzz(45);
     comic(pick(["BONK!💥","THWACK!⚡","BOP!🌟","SPLAT!💫"]), victim.x, victim.y - 40*S, true);
     burst(victim.x * (innerWidth / W), victim.y * (innerHeight / H), 30, 7);
     if (victim.id === "raf") say(victim, pick(LINES.rafBonk), true);
     else if (victim.id === "mei") say(victim, pick(LINES.meiBonk), true);
     else if (victim.id === "monty") say(victim, pick(LINES.montyBonk), true);
     else say(victim, pick(LINES.ariBonk), true);
-    if (tag === "stick"){ if (mode === "ari") bonks++; else if (victim.id === mode) taken++; }
+    if (tag === "stick"){ if (mode === "ari"){ bonks++; scoreCombo(victim.x, victim.y); } else if (victim.id === mode) taken++; }
     if (tag === "power"){ gorillaBonks++; if (mode === "ari") taken++; }
+  }
+  function scoreCombo(x, y){
+    if (comboAt - timeLeft < 3) comboN++; else comboN = 1;   // timeLeft counts down
+    comboAt = timeLeft;
+    if (comboN >= 2){
+      comic(`COMBO x${comboN}!! 🔥`, x, y - 74*S, true);
+      sCorrect();
+      burst(x, y - 40*S, 15 + comboN * 8, 8);
+    }
   }
 
   /* ---------- update ---------- */
@@ -1255,6 +1438,12 @@ const BASH = (() => {
     if (phase === "end") return;
     timeLeft -= dt;
     if (timeLeft <= 0){ endRound(); return; }
+    if (!frenzy && timeLeft <= 10){                       // last 10 seconds: FRENZY!
+      frenzy = true;
+      ents.forEach(e => e.spd *= 1.25);
+      comic("⚡ FRENZY TIME!! ⚡", W/2, H*.3, true);
+      sWhistle(); speak("Frenzy time!"); shakeT = .5;
+    }
 
     powTimer -= dt;
     if (powTimer <= 0){ powTimer = 6 + Math.random()*3; spawnPow(); }
@@ -1368,11 +1557,11 @@ const BASH = (() => {
       for (const e of ents){
         if (Math.hypot(e.x-p.x, e.y-p.y) > e.r + 18*S) continue;
         if (p.type === "ban" && e.id === "raf"){
-          e.powT = 5; p.t = 0; sFanfare(); shakeT = .3;
+          e.powT = 5; p.t = 0; sFanfare(); shakeT = .3; award("gorilla");
           comic("🦍 RAFFLEBACK GORILLA!!", e.x, e.y - 46*S, true);
           say(e, "RAFFLEBACK GORILLA TIME, BRUZ! 🦍"); speak("Raffleback gorilla!");
         } else if (p.type === "mask" && e.id === "mei"){
-          e.powT = 5; p.t = 0; sBoss(); shakeT = .3;
+          e.powT = 5; p.t = 0; sBoss(); shakeT = .3; award("monster");
           comic("👹 monsterMeimei!!", e.x, e.y - 46*S, true);
           say(e, "monsterMeimei AWAKENS 👹"); speak("Monster Meimei!");
         } else if (p.type === "zap"){
@@ -1397,7 +1586,7 @@ const BASH = (() => {
           const thrower = ents.find(x => x.id === b.by) || monty;
           bonk(e, { x: b.x - b.vx*.01, y: b.y - b.vy*.01 }, "meat");
           comic("SAUCED!! 🍝", e.x, e.y - 60*S, true);
-          if (b.by === mode){ bonks++; if (thrower) say(thrower, pick(LINES.montyChase)); }
+          if (b.by === mode){ bonks++; scoreCombo(e.x, e.y); if (thrower) say(thrower, pick(LINES.montyChase)); }
           if (e.id === mode) taken++;
           break;
         }
@@ -1483,6 +1672,11 @@ const BASH = (() => {
   function endRound(){
     phase = "end";
     sWhistle(); setTimeout(sFanfare, 300);
+    if (mode === "ari" || mode === "monty"){
+      save.bashBest = Math.max(save.bashBest, bonks); persist(); renderSaveStats();
+      if (bonks >= 10) award("bonk10");
+    }
+    if (pineMode) award("pinevictor");
     let rank, stats;
     if (mode === "ari"){
       rank = bonks >= 12 ? "BONK LEGEND 👑" : bonks >= 8 ? "FOAM FURY 🔥" : bonks >= 4 ? "BONK APPRENTICE 🏏" : "SOGGY NOODLE 🍜";
@@ -1738,7 +1932,7 @@ const MINE = (() => {
   let W = 0, H = 0, TS = 40, rafId = null, last = 0, running = false, phase = "count";
   let cols = 0, rows = 0, grid = [], crateHp = {};
   let ply = null, mobs = [], parts = [], loots = [], charId = "monty";
-  let wave = 0, kills = 0, countT = 0, spawnQ = 0, toSpawn = 0, waveMsgT = 0, shakeT = 0, joy = null, swingId = 0;
+  let wave = 0, kills = 0, countT = 0, spawnQ = 0, toSpawn = 0, waveMsgT = 0, shakeT = 0, joy = null, swingId = 0, bossWave = false;
   const keys = {};
   const CHARS = {
     monty:{ name:"MEATBALL MONTY", hood:"#b71c1c", hair:"#1c1210", girl:false, tongue:true,
@@ -1799,12 +1993,23 @@ const MINE = (() => {
 
   function nextWave(){
     wave++;
-    toSpawn = Math.min(3 + wave * 2, 18);
+    bossWave = wave % 5 === 0;
+    toSpawn = bossWave ? 4 : Math.min(3 + wave * 2, 18);
     spawnQ = 1;
-    waveMsgT = 1.8;
+    waveMsgT = bossWave ? 2.4 : 1.8;
     ply.hp = Math.min(ply.maxhp, ply.hp + 1);
-    if (wave > 1) sFanfare();
-    if (wave % 3 === 0) speak("Wave " + wave + "! Nyahaha!");
+    if (wave === 5) award("wave5");
+    if (bossWave){
+      spawnBoss(); sBoss(); shakeT = .6;
+      speak("Boss wave! The mega meatball! Nyahaha!");
+    } else {
+      if (wave > 1) sFanfare();
+      if (wave % 3 === 0) speak("Wave " + wave + "! Nyahaha!");
+    }
+  }
+  function spawnBoss(){
+    const p = freeEdgeTile();
+    mobs.push({ type:"boss", x:p.x, y:p.y, r:TS*.72, hp:10 + wave, maxhp:10 + wave, spd:40, wob:Math.random()*9, hitBy:-1, flash:0 });
   }
   function freeEdgeTile(){
     for (let i = 0; i < 60; i++){
@@ -1851,18 +2056,30 @@ const MINE = (() => {
         grid[r][cc] = 0; debris((cc + .5) * TS, (r + .5) * TS, "#8d6e63", 8); maybeLoot((cc + .5) * TS, (r + .5) * TS);
       }
     }
-    // hurt mobs (chain fun) and the player
+    // hurt mobs (chain fun) and the player — the boss just shrugs it off a bit
     for (const m of mobs){
       if (m.dead) continue;
-      if (Math.hypot(m.x - x, m.y - y) < R){ m.hp = 0; m.dead = true; kills++; debris(m.x, m.y, "#66bb6a", 8); }
+      if (Math.hypot(m.x - x, m.y - y) < R){
+        if (m.type === "boss"){ m.hp -= 3; m.flash = .3; if (m.hp > 0) continue; killBoss(m); continue; }
+        m.hp = 0; m.dead = true; kills++; debris(m.x, m.y, "#66bb6a", 8);
+      }
     }
     if (ply.inv <= 0 && Math.hypot(ply.x - x, ply.y - y) < R){
       hurtPlayer(x, y);
     }
   }
+  function killBoss(m){
+    m.dead = true; kills += 5;
+    award("megaboss");
+    comic("MEGA MEATBALL DOWN!! +5 💥", m.x, m.y - TS, true);
+    debris(m.x, m.y, "#6d2016", 24); debris(m.x, m.y, "#a5442c", 16);
+    burst(m.x, m.y, 70, 9); sBoom(); shakeT = .7; buzz([60, 40, 100]);
+    for (let i = 0; i < 4; i++) loots.push({ x: m.x + (Math.random()-.5)*TS*2, y: m.y + (Math.random()-.5)*TS*2, e: i === 0 ? "❤️" : ["⚡","🍖","❤️"][(Math.random()*3)|0], t: 9 });
+    sFanfare();
+  }
   function hurtPlayer(fx, fy){
     if (ply.inv > 0 || phase !== "play") return;
-    ply.hp--; ply.inv = 1.2; shakeT = Math.max(shakeT, .35);
+    ply.hp--; ply.inv = 1.2; shakeT = Math.max(shakeT, .35); buzz(70);
     const d = Math.hypot(ply.x - fx, ply.y - fy) || 1;
     moveWithCollide(ply, (ply.x - fx) / d * 240, (ply.y - fy) / d * 240, .5);
     sWrong();
@@ -1891,7 +2108,8 @@ const MINE = (() => {
 
   function gameOver(){
     phase = "end";
-    sBoss(); setTimeout(sFanfare, 400);
+    sBoss(); setTimeout(sFanfare, 400); buzz([80, 60, 80]);
+    save.mineBest = Math.max(save.mineBest, Math.max(0, wave - 1)); persist(); renderSaveStats();
     const rank = kills >= 30 ? "BLOCK LORD 👑" : kills >= 18 ? "STICK MINER ⛏️" : kills >= 8 ? "CRAFTY KID 🧱" : "ZOMBIE SNACK 🧟";
     $("mineEndRank").textContent = rank;
     $("mineEndStats").innerHTML = `💀 Mobs bashed: <b>${kills}</b> · 🌊 Waves survived: <b>${Math.max(0, wave - 1)}</b><br>Fighter: <b>${CHARS[charId].name}</b>`;
@@ -1935,12 +2153,14 @@ const MINE = (() => {
       const hx = ply.x + Math.cos(ply.face) * TS * .8, hy = ply.y + Math.sin(ply.face) * TS * .8;
       for (const m of mobs){
         if (m.dead || m.hitBy === swingId) continue;
-        if (Math.hypot(m.x - hx, m.y - hy) < TS * .95){
+        if (Math.hypot(m.x - hx, m.y - hy) < TS * .6 + m.r){
           m.hitBy = swingId; m.hp--; m.flash = .15;
-          sThwack(); shakeT = Math.max(shakeT, .15);
+          sThwack(); buzz(35); shakeT = Math.max(shakeT, .15);
           const d = Math.hypot(m.x - ply.x, m.y - ply.y) || 1;
-          moveWithCollide(m, (m.x - ply.x) / d * 300, (m.y - ply.y) / d * 300, .4);
+          const kb = m.type === "boss" ? 60 : 300;
+          moveWithCollide(m, (m.x - ply.x) / d * kb, (m.y - ply.y) / d * kb, .4);
           if (m.hp <= 0){
+            if (m.type === "boss"){ killBoss(m); continue; }
             m.dead = true; kills++;
             debris(m.x, m.y, m.type === "spider" ? "#37474f" : "#66bb6a", 12);
             comic(pick(["BONK!💥","SMASH!⚡","BOP!🌟"]), m.x, m.y - TS * .8, true);
@@ -2086,6 +2306,23 @@ const MINE = (() => {
       c.fillRect(-s*.3, -s*.35, s*.18, s*.18); c.fillRect(s*.12, -s*.35, s*.18, s*.18);
       c.fillRect(-s*.12, -s*.12, s*.24, s*.3);
       if (m.fuse >= 0){ c.font = `900 ${TS*.4}px sans-serif`; c.textAlign="center"; c.fillStyle="#ff1744"; c.fillText("!!", 0, -s*.8); }
+    } else if (m.type === "boss"){ // MEGA MEATBALL
+      c.fillStyle = flash ? "#fff" : "#6d2016";
+      c.beginPath(); c.arc(0, 0, m.r, 0, 7); c.fill();
+      c.fillStyle = flash ? "#eee" : "#a5442c";
+      c.beginPath(); c.arc(-m.r*.35, -m.r*.35, m.r*.3, 0, 7); c.fill();
+      c.beginPath(); c.arc(m.r*.3, m.r*.25, m.r*.22, 0, 7); c.fill();
+      // angry pixel face
+      c.fillStyle = "#fff";
+      c.fillRect(-m.r*.45, -m.r*.2, m.r*.26, m.r*.26); c.fillRect(m.r*.19, -m.r*.2, m.r*.26, m.r*.26);
+      c.fillStyle = "#c62828";
+      c.fillRect(-m.r*.38, -m.r*.13, m.r*.13, m.r*.13); c.fillRect(m.r*.26, -m.r*.13, m.r*.13, m.r*.13);
+      c.fillStyle = "#20242c"; c.save(); c.rotate(-.2); c.fillRect(-m.r*.5, -m.r*.45, m.r*.4, m.r*.1); c.restore();
+      c.save(); c.rotate(.2); c.fillRect(m.r*.1, -m.r*.45, m.r*.4, m.r*.1); c.restore();
+      c.fillRect(-m.r*.25, m.r*.3, m.r*.5, m.r*.12);
+      // hp bar
+      c.fillStyle = "rgba(0,0,0,.6)"; c.fillRect(-m.r, -m.r - 14, m.r*2, 8);
+      c.fillStyle = "#ff1744"; c.fillRect(-m.r, -m.r - 14, m.r*2 * Math.max(0, m.hp / m.maxhp), 8);
     } else { // zombie
       c.fillStyle = flash ? "#fff" : "#66bb6a"; c.fillRect(-s*.32, -s*.75, s*.64, s*.64); // head
       c.fillStyle = flash ? "#eee" : "#388e3c"; c.fillRect(-s*.36, -s*.1, s*.72, s*.5);   // body
@@ -2148,10 +2385,11 @@ const MINE = (() => {
     c.fillStyle = "#fff"; c.font = `900 ${14 * TS/40}px -apple-system,sans-serif`; c.textAlign = "center";
     c.fillText(`🌊 WAVE ${wave}   💀 ${kills}`, W/2, 6 + TS*.3);
     if (waveMsgT > 0 && phase === "play"){
-      c.font = `900 ${44 * TS/40}px -apple-system,sans-serif`;
+      const msg = bossWave ? "☠️ BOSS WAVE!! ☠️" : `WAVE ${wave}!`;
+      c.font = `900 ${(bossWave ? 36 : 44) * TS/40}px -apple-system,sans-serif`;
       c.globalAlpha = Math.min(1, waveMsgT);
-      c.strokeStyle = "#000"; c.lineWidth = 6; c.strokeText(`WAVE ${wave}!`, W/2, H*.32);
-      c.fillStyle = "#7cff4d"; c.fillText(`WAVE ${wave}!`, W/2, H*.32);
+      c.strokeStyle = "#000"; c.lineWidth = 6; c.strokeText(msg, W/2, H*.32);
+      c.fillStyle = bossWave ? "#ff1744" : "#7cff4d"; c.fillText(msg, W/2, H*.32);
       c.globalAlpha = 1;
     }
     if (joy){
@@ -2235,13 +2473,19 @@ const MINE = (() => {
   return { start, stop,
     get state(){ return { phase, wave, kills, hp: ply ? ply.hp : 0, mobs: mobs.length, char: charId }; },
     get ply(){ return ply; }, get mobs(){ return mobs; },
-    set hp(v){ if (ply){ ply.hp = v; if (v <= 0) gameOver(); } } };
+    set hp(v){ if (ply){ ply.hp = v; if (v <= 0) gameOver(); } },
+    skipWave(){ toSpawn = 0; mobs.forEach(m => m.dead = true); mobs = []; } };
 })();
 window.MINE = MINE;
 
 document.addEventListener("visibilitychange", () => {
   if (actx){ if (document.hidden) actx.suspend(); else actx.resume(); }
 });
+
+// installable PWA — scoped here, wins over the repo-root service worker
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0){
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
 </script>
 </body>
 </html>

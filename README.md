@@ -2,10 +2,14 @@
 
 ## Raf ⚡ Meimei — K-Pop Quiz Quest! 🎤 (`/rafmeimei/`)
 
-A one-file, mobile-first quiz/adventure race for the kids — Raf (7), Meimei (7) and bonus hero little bro Ari (4).
-Pure HTML/CSS/JS, no dependencies, with a fully synthesized K-pop soundtrack (Web Audio — no audio files!).
+A mobile-first quiz/adventure arcade for the kids — Raf (7), Meimei (7) and bonus hero little bro Ari (4).
+Pure HTML/CSS/JS, no dependencies, with a fully synthesized K-pop soundtrack (Web Audio — no audio files!). Installable PWA.
 
-👉 **Play:** <https://fm1983.github.io/FMDC/rafmeimei/> (best on a phone) — or open `rafmeimei/index.html` locally.
+👉 **Play:** <https://fm1983.github.io/FMDC/rafmeimei/> (best on a phone; Add to Home Screen for the full app) — or open `rafmeimei/index.html` locally.
+
+- **Progression & trophies** — 10 unlockable trophies (On Fire, Monty Slayer, Bonk Legend, Meatball Slayer...), lifetime stars, personal bests and win counts saved in `localStorage`, all shown in the 🏆 Trophy Room. Collecting trophies unlocks SECRET and LEGENDARY hero avatars.
+- **Mystery gift tiles 🎁** on the quiz board — double hops, disco traps that dance everyone else backwards, bonus stars, or Monty just showing off.
+- **Two-section synth soundtrack** — an 8-bar A/B arrangement with drum fills, open-hat shimmer and a crash into the B-section hook, plus haptic buzz feedback on phones.
 
 - **Race across 4 worlds** — Bubble Beach 🏖️, Neon Jungle 🌴, Space Disco 🚀 and Dragon Karaoke 🎤 — to the Mega Concert Stage 🏟️.
 - **2-player race** (Raf vs Meimei), **3-player race** with Ari, or solo mode with popstar ranks.
@@ -13,8 +17,8 @@ Pure HTML/CSS/JS, no dependencies, with a fully synthesized K-pop soundtrack (We
 - **FINAL BOSS: MEATBALL MONTY 🍝** — a 10-year-old menace who guards the Mega Concert Stage. Beat his final question or get blasted back 2 steps by a meatball barrage.
 - **~90 kid-tuned questions** (age-7 math/animals/space/words/K-pop + an age-4 pool for Ari: colors, counting, animal sounds — auto-read aloud for the non-reader).
 - **Streak bonuses 🔥**, Ari's random **Turbo Trike 🛴** extra hop, hilarious right/wrong reactions, a goofy text-to-speech announcer.
-- **🏏 STICK BASH! minigame** — WATERMELON ARI chases PINEAPPLE RAF and OTHERKID MEIMEI around a zany arena with a foam bashing stick. Play as Ari (bonk everyone), a big kid (dodge & survive), or villain **MEATBALL MONTY 🍝** — the 10-year-old menace who is ALWAYS in the arena auto-lobbing meatballs at everyone. Power-ups turn Raf into the **RAFFLEBACK GORILLA 🦍** and Meimei into **monsterMeimei 👹** for stick-turning revenge, while 💦 puddles trigger **PISSPANTZ ARI** slippy mode. Plus **🍍 PINEAPPLE MODE**: bouncing pineapples everywhere, everyone gets a pineapple head, +30% chaos. Raf calls everyone "bruz".
-- **⛏️ MONTY'S BLOCK BASH! bonus module** — Meatball Monty hosts a mini Minecraft-style bash-em-up: a blocky tile arena with breakable crates (loot: ❤️ hearts, ⚡ zoom, 🍖 snacks), endless waves of zombie blocks, fast spider blocks and exploding boomer blocks. Pixel-voxel characters (play as Monty or any of the kids), stick-swing combat with block-debris physics, wave banners and ranks from ZOMBIE SNACK 🧟 to BLOCK LORD 👑.
+- **🏏 STICK BASH! minigame** — WATERMELON ARI chases PINEAPPLE RAF and OTHERKID MEIMEI around a zany arena with a foam bashing stick. Play as Ari (bonk everyone), a big kid (dodge & survive), or villain **MEATBALL MONTY 🍝** — the 10-year-old menace who is ALWAYS in the arena auto-lobbing meatballs at everyone. Power-ups turn Raf into the **RAFFLEBACK GORILLA 🦍** and Meimei into **monsterMeimei 👹** for stick-turning revenge, while 💦 puddles trigger **PISSPANTZ ARI** slippy mode. **COMBO chains 🔥** for rapid bonks and a **⚡ FRENZY final 10 seconds** where everyone speeds up. Plus **🍍 PINEAPPLE MODE**: bouncing pineapples everywhere, everyone gets a pineapple head, +30% chaos. Raf calls everyone "bruz".
+- **⛏️ MONTY'S BLOCK BASH! bonus module** — Meatball Monty hosts a mini Minecraft-style bash-em-up: a blocky tile arena with breakable crates (loot: ❤️ hearts, ⚡ zoom, 🍖 snacks), endless waves of zombie blocks, fast spider blocks and exploding boomer blocks — and every 5th wave a **☠️ BOSS WAVE** starring the **MEGA MEATBALL**, a giant angry meatball with a health bar that rains loot when it finally goes down. Pixel-voxel characters (play as Monty or any of the kids), stick-swing combat with block-debris physics, wave banners and ranks from ZOMBIE SNACK 🧟 to BLOCK LORD 👑.
 - **Concert-scene cover page**: spinning disco ball, sweeping spotlights, rotating laser rig, the three heroes dancing on a neon stage (synced to your avatar picks), a blinking LIVE chip, a scrolling news ticker — and Monty periodically peeking up from the corner.
 - **Full production values:** animated disco background, confetti cannon, screen shake, spotlight victory stage with a dancing emoji crowd, and a synthesized 128 BPM K-pop banger (kick/snare/hats/bass/chord stabs/lead hook with echo).
 
