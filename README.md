@@ -29,13 +29,14 @@ Original code and art — software flat-shaded 3D on HTML5 Canvas, no dependenci
 
 👉 **Play:** <https://fm1983.github.io/FMDC/f117a/> (best on a phone in landscape; Add to Home Screen for fullscreen) — or open `f117a/index.html` locally.
 
-- **Cockpit flight sim** with pitch ladder, heading tape, speed/altitude boxes, radar altimeter and stall/pull-up warnings.
-- **Stealth gameplay:** an EMV bar shows your radar visibility (bay doors, gear, altitude and bank all matter). Thread the gaps between SAM/radar rings on the tactical MAP, or fly low to shrink them.
-- **Air defenses:** EW radars, SAM sites with guided missiles, MiG combat air patrols. Break locks with hard turns, terrain masking and chaff/flares.
-- **Weapons:** laser-guided bombs against ground targets (with a release envelope and bay-door tradeoff) and AIM-9s for MiGs.
-- **Full sortie loop:** take off, ingress via waypoints, destroy the primary, egress, land back home (manual or AUTOLAND).
-- **5 scripted missions** (desert, gulf, delta, arctic, capital) + endless generated deep strikes, career score, ranks and mission unlocks saved in `localStorage`.
-- **Touch-first controls:** virtual stick, throttle slider, and buttons for FIRE / TGT / WPN / BAY / countermeasures / gear / map / time-compression / autoland — plus full keyboard support on desktop.
+- **Four views:** cockpit (with canopy frame, pitch ladder, heading tape, radar altimeter, ILS), chase and orbit views of the faceted jet, and an automatic **weapon camera** that rides your bomb or missile to impact.
+- **Stealth gameplay:** an EMV bar shows your radar visibility (bay doors, gear, altitude and bank all matter). Thread the gaps between SAM/radar rings on the tactical MAP, fly low to shrink them — or shoot the rings down with HARMs.
+- **Air defenses:** EW radars, SAM sites with guided missiles, AAA tracer fire when you're low and close, MiG combat air patrols. Break locks with hard turns, terrain masking and chaff/flares.
+- **Loadout screen:** arm your two bays at the briefing — GBU-27 laser-guided bombs (release envelope + bay-door tradeoff), AGM-88 HARMs (kill emitters from 18 km) and AIM-9s for MiGs.
+- **Full sortie loop:** take off (or airborne start), ingress via waypoints, destroy the primary, hit the optional secondary, manage fuel to bingo, egress, land back home (manual with ILS, or AUTOLAND).
+- **Retro 3D:** flat-shaded software renderer — horizon-locked sky with sun/moon/stars, four palettes (day/dusk/night/arctic), ground clutter whipping past at low level, debris, rising smoke columns, aircraft shadows.
+- **5 scripted missions** + endless generated deep strikes, career score, ranks, **medals** and mission unlocks saved in `localStorage`, with sortie stats at debrief.
+- **Touch-first controls:** virtual stick, throttle slider, and buttons for FIRE / TGT / WPN / BAY / countermeasures / gear / map / time-compression / autoland / VIEW — plus full keyboard support on desktop.
 
 ## Scorched Mobile 💥 (`/index.html`)
 
