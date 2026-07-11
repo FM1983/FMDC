@@ -1,0 +1,14 @@
+{
+  "name": "Raf ⚡ Meimei — K-Pop Quiz Quest!",
+  "short_name": "Quiz Quest",
+  "description": "Kids' quiz/adventure arcade: Quiz Quest, Stick Bash and Monty's Block Bash.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12002b",
+  "theme_color": "#12002b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
