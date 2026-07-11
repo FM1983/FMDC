@@ -254,25 +254,32 @@
   .bcard.villain.sel { border-color:#ff3b3b; box-shadow:0 0 22px rgba(255,60,60,.8); background:rgba(255,60,60,.16); }
   #pineTog { border-width:2px; font-size:15px; padding:10px 18px; }
   #pineTog.on { background:linear-gradient(135deg,#ffd400,#f7b733); color:#4a2a00; border-color:#fff; box-shadow:0 0 22px rgba(255,212,0,.8); animation:winPulse .8s ease-in-out infinite; }
-  #bashPlay { position:absolute; inset:0; }
-  #bashCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
-  #bashBtn {
+  #bashPlay, #minePlay { position:absolute; inset:0; }
+  #bashCanvas, #mineCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+  #mine { z-index:30; }
+  #mineSelect { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; height:100%; width:100%; padding:16px; text-align:center; overflow-y:auto; }
+  #mineSelect h2 { font-size:clamp(26px,7.5vw,42px); font-weight:900;
+    background:linear-gradient(90deg,#7cff4d,#b71c1c,#ffd400); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 3s linear infinite; }
+  #mineBtn, #bashBtn {
     position:absolute; right:16px; bottom:max(18px, env(safe-area-inset-bottom)); z-index:5;
     width:86px; height:86px; border-radius:50%; border:3px solid #fff; cursor:pointer;
     background:radial-gradient(circle at 35% 30%, #ff9a68, #e64a19); color:#fff; font-weight:900; font-size:15px;
     box-shadow:0 6px 0 #8f2500, 0 10px 30px rgba(0,0,0,.5); transition:transform .08s;
   }
   #bashBtn:active { transform:scale(.9); }
-  #bashExit { position:absolute; top:max(10px, env(safe-area-inset-top)); right:12px; z-index:5; }
-  #bashEnd {
+  #bashExit, #mineExit { position:absolute; top:max(10px, env(safe-area-inset-top)); right:12px; z-index:5; }
+  #bashEnd, #mineEnd {
     position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
     background:rgba(5,0,20,.8); backdrop-filter:blur(4px); text-align:center; padding:18px;
   }
-  #bashEndTitle { font-size:clamp(30px,9vw,52px); font-weight:900;
+  #bashEndTitle, #mineEndTitle { font-size:clamp(30px,9vw,52px); font-weight:900;
     background:linear-gradient(90deg,#ffd400,#ff2d95,#00e5ff); background-size:300% 100%;
     -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 2.5s linear infinite; }
-  #bashEndStats { font-size:17px; font-weight:800; line-height:1.6; }
-  #bashEndRank { font-size:clamp(20px,6vw,30px); font-weight:900; color:#ffd400; animation:bop 1s ease-in-out infinite; }
+  #bashEndStats, #mineEndStats { font-size:17px; font-weight:800; line-height:1.6; }
+  #bashEndRank, #mineEndRank { font-size:clamp(20px,6vw,30px); font-weight:900; color:#ffd400; animation:bop 1s ease-in-out infinite; }
+  .btn.blocky { background:linear-gradient(135deg,#5d9e31,#37651c); box-shadow:0 6px 0 #1d3a0c, 0 12px 24px rgba(0,0,0,.45); border-radius:10px; }
+  .btn.blocky:active { box-shadow:0 2px 0 #1d3a0c; }
 
   @media (min-height:700px){ .ans{ min-height:64px; } }
 </style>
@@ -323,6 +330,7 @@
   <button class="btn" id="btnRace">⚔️ 2-PLAYER RACE!</button>
   <button class="btn cyan" id="btnRace3">🎁 3-PLAYER — ARI JOINS!</button>
   <button class="btn orange" id="btnBash">🏏 STICK BASH! — Ari's Revenge</button>
+  <button class="btn blocky" id="btnMine">⛏️ MONTY'S BLOCK BASH!</button>
   <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
     <button class="btn cyan small" id="btnSoloRaf">🎮 Just Raf</button>
     <button class="btn cyan small" id="btnSoloMei">🎮 Just Meimei</button>
@@ -332,7 +340,7 @@
     <button class="tog" id="togMusic">🎵 Music ON</button>
     <button class="tog" id="togSfx">🔊 Sounds ON</button>
   </div>
-  <div id="ticker"><span>⭐ PINEAPPLE RAF ⚡ OTHERKID MEIMEI ⚡ WATERMELON ARI ⭐ LIVE AT THE MEGA CONCERT STAGE 🏟️ ⭐ STICK BASH — NOBODY IS SAFE, BRUZ 🏏 ⭐ PINEAPPLE MODE 🍍🍍🍍 ⭐ ⚠️ WARNING: MEATBALL MONTY IS LOOSE 🍝😈 ⚠️ ⭐</span></div>
+  <div id="ticker"><span>⭐ PINEAPPLE RAF ⚡ OTHERKID MEIMEI ⚡ WATERMELON ARI ⭐ LIVE AT THE MEGA CONCERT STAGE 🏟️ ⭐ STICK BASH — NOBODY IS SAFE, BRUZ 🏏 ⭐ PINEAPPLE MODE 🍍🍍🍍 ⭐ ⚠️ WARNING: MEATBALL MONTY IS LOOSE 🍝😈 ⚠️ ⭐ NEW: MONTY'S BLOCK BASH ⛏️🧟 SURVIVE THE WAVES ⭐</span></div>
 </div>
 
 <!-- ================= GAME ================= -->
@@ -410,6 +418,53 @@
       <button class="btn orange" id="bashAgain">🔁 REMATCH, BRUZ!</button>
       <button class="btn cyan small" id="bashPick">🔀 Change fighter</button>
       <button class="btn cyan small" id="bashHome">🏠 Quiz Quest</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MONTY'S BLOCK BASH (mini minecraft-style bash-em-up) ================= -->
+<div id="mine" class="screen hidden">
+  <div id="mineSelect">
+    <h2>⛏️ MONTY'S BLOCK BASH!</h2>
+    <div class="sub" style="font-size:14px; font-weight:700; max-width:430px;">Monty's bonus world! A blocky arena crawling with zombie blocks, sneaky boomer blocks and spider blocks. Grab your stick. SURVIVE THE WAVES. 🧟🧱💥</div>
+    <div class="bash-cards">
+      <div class="bcard villain sel" id="mcMonty" data-char="monty">
+        <span class="bonus-tag" style="background:#ff3b3b; color:#fff;">HOST!</span>
+        <span class="bface">😜</span>
+        <div class="bnick">MEATBALL<br>MONTY</div>
+        <div class="brole">🍝 His world. His rules.</div>
+      </div>
+      <div class="bcard" id="mcAri" data-char="ari">
+        <span class="bface">🍉</span>
+        <div class="bnick">WATERMELON<br>ARI</div>
+        <div class="brole">🏏 Stick expert</div>
+      </div>
+      <div class="bcard" id="mcRaf" data-char="raf">
+        <span class="bface">🍍</span>
+        <div class="bnick">PINEAPPLE<br>RAF</div>
+        <div class="brole">💪 "EZ, bruz"</div>
+      </div>
+      <div class="bcard" id="mcMei" data-char="mei">
+        <span class="bface">🙃</span>
+        <div class="bnick">OTHERKID<br>MEIMEI</div>
+        <div class="brole">😤 Zero mercy</div>
+      </div>
+    </div>
+    <div class="sub" style="font-size:12px; opacity:.7;">Smash 🧱 crates for ❤️ hearts, ⚡ zoom and 🍖 snacks · bash 💣 boomer blocks BEFORE they blow!</div>
+    <button class="btn blocky" id="mineGo">⛏️ DIG IN! GO GO GO!</button>
+    <button class="btn cyan small" id="mineBack">⬅️ Back</button>
+  </div>
+  <div id="minePlay" class="hidden">
+    <canvas id="mineCanvas"></canvas>
+    <button class="iconbtn" id="mineExit">✖️</button>
+    <button id="mineBtn">🏏<br>BASH!</button>
+    <div id="mineEnd" class="hidden">
+      <div id="mineEndTitle">GAME OVER!</div>
+      <div id="mineEndRank"></div>
+      <div id="mineEndStats"></div>
+      <button class="btn blocky" id="mineAgain">🔁 ONE MORE WAVE!</button>
+      <button class="btn cyan small" id="minePick">🔀 Change fighter</button>
+      <button class="btn cyan small" id="mineHome">🏠 Quiz Quest</button>
     </div>
   </div>
 </div>
@@ -671,6 +726,8 @@ function sWhoosh(){ if(!actx) return; noise(actx.currentTime, .16, .3, "bandpass
 function sBoing(){ if(!actx) return; osc("triangle", 130, actx.currentTime, .28, .5, sfxG, 520); }
 function sWhistle(){ if(!actx) return; const t = actx.currentTime; osc("square", 2100, t, .12, .3); osc("square", 2400, t + .16, .3, .3); }
 function sSplash(){ if(!actx) return; noise(actx.currentTime, .35, .4, "lowpass", 1400); osc("sine", 240, actx.currentTime, .3, .3, sfxG, 60); }
+function sCrunch(){ if(!actx) return; noise(actx.currentTime, .1, .55, "lowpass", 1100); osc("square", 120, actx.currentTime, .08, .3, sfxG, 60); }
+function sBoom(){ if(!actx) return; const t = actx.currentTime; osc("sine", 120, t, .5, .9, sfxG, 30); noise(t, .5, .6, "lowpass", 700); }
 
 /* speech: silly announcer */
 function speak(txt){
@@ -1640,9 +1697,9 @@ const BASH = (() => {
     $("bash").classList.add("hidden");
     $("title").classList.remove("hidden");
   }
-  document.querySelectorAll(".bcard").forEach(card => {
+  document.querySelectorAll("#bashSelect .bcard").forEach(card => {
     card.onclick = () => {
-      document.querySelectorAll(".bcard").forEach(x => x.classList.remove("sel"));
+      document.querySelectorAll("#bashSelect .bcard").forEach(x => x.classList.remove("sel"));
       card.classList.add("sel");
       mode = card.dataset.mode;
       ensureAudio(); sHop();
@@ -1671,6 +1728,516 @@ const BASH = (() => {
   return { start, stop, get state(){ return { phase, bonks, taken, dodges, timeLeft, mode, pineMode }; }, set time(v){ timeLeft = v; }, get ents(){ return ents; } };
 })();
 window.BASH = BASH;
+
+/* ============================================================
+   MONTY'S BLOCK BASH — mini minecraft-style stick bash-em-up.
+   Blocky arena, breakable crates, waves of block mobs. Survive!
+   ============================================================ */
+const MINE = (() => {
+  const cv = $("mineCanvas"), c = cv.getContext("2d");
+  let W = 0, H = 0, TS = 40, rafId = null, last = 0, running = false, phase = "count";
+  let cols = 0, rows = 0, grid = [], crateHp = {};
+  let ply = null, mobs = [], parts = [], loots = [], charId = "monty";
+  let wave = 0, kills = 0, countT = 0, spawnQ = 0, toSpawn = 0, waveMsgT = 0, shakeT = 0, joy = null, swingId = 0;
+  const keys = {};
+  const CHARS = {
+    monty:{ name:"MEATBALL MONTY", hood:"#b71c1c", hair:"#1c1210", girl:false, tongue:true,
+            lines:["NYAHAHA! 😈","BLOCKED YA! 🍝","FEAR THE MEAT! 💪"] },
+    ari:  { name:"WATERMELON ARI", hood:"#2e7d32", hair:"#3e2b23", girl:false, tongue:false,
+            lines:["BONK! 🏏","hehehe 😈","STICKY TIME!"] },
+    raf:  { name:"PINEAPPLE RAF",  hood:"#1e88e5", hair:"#2b2320", girl:false, tongue:false,
+            lines:["EZ, BRUZ! 😎","GET BLOCKED, BRUZZY!","TOO EASY BRUZ!"] },
+    mei:  { name:"OTHERKID MEIMEI",hood:"#7a4b2e", hair:"#241a14", girl:true, tongue:false,
+            lines:["SQUASHED! 😤","NEXT!","ZERO. MERCY."] },
+  };
+  const pick = a => a[(Math.random() * a.length) | 0];
+
+  function resize(){
+    const dpr = devicePixelRatio || 1;
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.imageSmoothingEnabled = false;
+    TS = Math.max(30, Math.min(56, Math.round(Math.min(W / 9, H / 15))));
+  }
+  const solid = (r, cc) => !grid[r] || grid[r][cc] === undefined || grid[r][cc] >= 1;
+  const tileSolidAt = (x, y) => solid(Math.floor(y / TS), Math.floor(x / TS));
+
+  function genGrid(){
+    cols = Math.ceil(W / TS); rows = Math.ceil(H / TS);
+    grid = []; crateHp = {};
+    for (let r = 0; r < rows; r++){
+      grid[r] = [];
+      for (let cc = 0; cc < cols; cc++){
+        if (r === 0 || cc === 0 || r === rows - 1 || cc === cols - 1){ grid[r][cc] = 1; continue; }
+        const rnd = Math.random();
+        grid[r][cc] = rnd < .055 ? 1 : rnd < .14 ? 2 : 0;
+        if (grid[r][cc] === 2) crateHp[r + "_" + cc] = 3;
+      }
+    }
+    // clear a spawn plaza in the middle
+    const mr = Math.floor(rows / 2), mc2 = Math.floor(cols / 2);
+    for (let r = mr - 1; r <= mr + 1; r++) for (let cc = mc2 - 1; cc <= mc2 + 1; cc++){
+      if (grid[r]) grid[r][cc] = 0;
+    }
+  }
+
+  function start(){
+    resize(); genGrid();
+    phase = "count"; countT = 3.4;
+    ply = { x: (Math.floor(cols/2) + .5) * TS, y: (Math.floor(rows/2) + .5) * TS,
+            r: TS * .3, hp: 3, maxhp: 5, spd: 180, face: 0, swingT: 0, cool: 0, inv: 0, zapT: 0, walk: 0, msg:"", msgT:0 };
+    mobs = []; parts = []; loots = []; joy = null;
+    wave = 0; kills = 0; toSpawn = 0; waveMsgT = 0; shakeT = 0;
+    $("mineEnd").classList.add("hidden");
+    sWhistle();
+    speak(charId === "monty" ? "Monty's block bash! Nyahaha!" : "Block bash! Go go go!");
+    running = true; last = performance.now();
+    cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop);
+  }
+  function stop(){ running = false; cancelAnimationFrame(rafId); rafId = null; }
+
+  function nextWave(){
+    wave++;
+    toSpawn = Math.min(3 + wave * 2, 18);
+    spawnQ = 1;
+    waveMsgT = 1.8;
+    ply.hp = Math.min(ply.maxhp, ply.hp + 1);
+    if (wave > 1) sFanfare();
+    if (wave % 3 === 0) speak("Wave " + wave + "! Nyahaha!");
+  }
+  function freeEdgeTile(){
+    for (let i = 0; i < 60; i++){
+      const side = (Math.random() * 4) | 0;
+      const r = side === 0 ? 1 : side === 1 ? rows - 2 : 1 + ((Math.random() * (rows - 2)) | 0);
+      const cc = side === 2 ? 1 : side === 3 ? cols - 2 : 1 + ((Math.random() * (cols - 2)) | 0);
+      if (!solid(r, cc)) return { x: (cc + .5) * TS, y: (r + .5) * TS };
+    }
+    return { x: TS * 1.5, y: TS * 1.5 };
+  }
+  function spawnMob(){
+    const p = freeEdgeTile();
+    const rnd = Math.random();
+    let m;
+    if (rnd < .25) m = { type:"spider", x:p.x, y:p.y, r:TS*.26, hp:1, spd:150 + wave*6, wob:Math.random()*9 };
+    else if (rnd < .45 && wave >= 2) m = { type:"boomer", x:p.x, y:p.y, r:TS*.3, hp:2, spd:75, fuse:-1, wob:Math.random()*9 };
+    else m = { type:"zombie", x:p.x, y:p.y, r:TS*.3, hp: wave >= 5 ? 2 : 1, spd:62 + wave*4, wob:Math.random()*9 };
+    m.hitBy = -1; m.flash = 0;
+    mobs.push(m);
+  }
+
+  function debris(x, y, color, n){
+    for (let i = 0; i < (n || 10); i++){
+      parts.push({ x, y, vx:(Math.random()-.5)*260, vy:-Math.random()*220 - 40, s:3 + Math.random()*5, c:color, t:.7 + Math.random()*.4 });
+    }
+  }
+  function comic(txt, x, y, big){ parts.push({ txt, x, y, t:1.1, big:!!big, vx:0, vy:-46, s:0, c:"#ffd400" }); }
+
+  function moveWithCollide(e, dx, dy, dt){
+    const nx = e.x + dx * dt, ny = e.y + dy * dt, rr = e.r * .9;
+    if (!tileSolidAt(nx - rr, e.y - rr) && !tileSolidAt(nx + rr, e.y - rr) && !tileSolidAt(nx - rr, e.y + rr) && !tileSolidAt(nx + rr, e.y + rr)) e.x = nx;
+    if (!tileSolidAt(e.x - rr, ny - rr) && !tileSolidAt(e.x + rr, ny - rr) && !tileSolidAt(e.x - rr, ny + rr) && !tileSolidAt(e.x + rr, ny + rr)) e.y = ny;
+  }
+
+  function explode(x, y){
+    sBoom(); shakeT = .5;
+    comic("BOOM!! 💥", x, y - TS, true);
+    debris(x, y, "#7cb342", 16); debris(x, y, "#4e342e", 10);
+    burst(x, y, 40, 8);
+    const R = TS * 1.9;
+    // break crates
+    for (let r = 1; r < rows - 1; r++) for (let cc = 1; cc < cols - 1; cc++){
+      if (grid[r][cc] === 2 && Math.hypot((cc + .5) * TS - x, (r + .5) * TS - y) < R){
+        grid[r][cc] = 0; debris((cc + .5) * TS, (r + .5) * TS, "#8d6e63", 8); maybeLoot((cc + .5) * TS, (r + .5) * TS);
+      }
+    }
+    // hurt mobs (chain fun) and the player
+    for (const m of mobs){
+      if (m.dead) continue;
+      if (Math.hypot(m.x - x, m.y - y) < R){ m.hp = 0; m.dead = true; kills++; debris(m.x, m.y, "#66bb6a", 8); }
+    }
+    if (ply.inv <= 0 && Math.hypot(ply.x - x, ply.y - y) < R){
+      hurtPlayer(x, y);
+    }
+  }
+  function hurtPlayer(fx, fy){
+    if (ply.inv > 0 || phase !== "play") return;
+    ply.hp--; ply.inv = 1.2; shakeT = Math.max(shakeT, .35);
+    const d = Math.hypot(ply.x - fx, ply.y - fy) || 1;
+    moveWithCollide(ply, (ply.x - fx) / d * 240, (ply.y - fy) / d * 240, .5);
+    sWrong();
+    comic("OUCH!", ply.x, ply.y - TS, false);
+    if (ply.hp <= 0) gameOver();
+  }
+  function maybeLoot(x, y){
+    if (Math.random() > .38) return;
+    const r = Math.random();
+    loots.push({ x, y, e: r < .4 ? "❤️" : r < .7 ? "⚡" : "🍖", t: 9 });
+  }
+
+  function swing(){
+    if (phase !== "play" || ply.cool > 0) return;
+    ply.swingT = .22; ply.cool = .45; swingId++;
+    sWhoosh();
+    // crate/stone directly ahead
+    const tx = ply.x + Math.cos(ply.face) * TS * .95, ty = ply.y + Math.sin(ply.face) * TS * .95;
+    const r = Math.floor(ty / TS), cc = Math.floor(tx / TS);
+    if (grid[r] && grid[r][cc] === 2){
+      const k = r + "_" + cc;
+      crateHp[k]--; sCrunch(); debris(tx, ty, "#8d6e63", 5);
+      if (crateHp[k] <= 0){ grid[r][cc] = 0; debris((cc+.5)*TS, (r+.5)*TS, "#a1887f", 12); maybeLoot((cc+.5)*TS, (r+.5)*TS); comic("CRUNCH! 🧱", tx, ty - 10, false); }
+    } else if (grid[r] && grid[r][cc] === 1){ sTick(); }
+  }
+
+  function gameOver(){
+    phase = "end";
+    sBoss(); setTimeout(sFanfare, 400);
+    const rank = kills >= 30 ? "BLOCK LORD 👑" : kills >= 18 ? "STICK MINER ⛏️" : kills >= 8 ? "CRAFTY KID 🧱" : "ZOMBIE SNACK 🧟";
+    $("mineEndRank").textContent = rank;
+    $("mineEndStats").innerHTML = `💀 Mobs bashed: <b>${kills}</b> · 🌊 Waves survived: <b>${Math.max(0, wave - 1)}</b><br>Fighter: <b>${CHARS[charId].name}</b>`;
+    $("mineEnd").classList.remove("hidden");
+    speak(`Game over! ${kills} mobs bashed! ${rank.replace(/[^\w\s]/g,"")}!`);
+    burst(innerWidth / 2, innerHeight / 3, 100, 9);
+  }
+
+  /* ---------- update ---------- */
+  function update(dt){
+    if (phase === "count"){ countT -= dt; if (countT <= 0){ phase = "play"; nextWave(); } return; }
+    if (phase !== "play") return;
+    waveMsgT = Math.max(0, waveMsgT - dt);
+    shakeT = Math.max(0, shakeT - dt);
+    ply.inv = Math.max(0, ply.inv - dt); ply.cool = Math.max(0, ply.cool - dt);
+    ply.swingT = Math.max(0, ply.swingT - dt); ply.zapT = Math.max(0, ply.zapT - dt);
+    ply.msgT = Math.max(0, ply.msgT - dt);
+
+    // spawn queue
+    if (toSpawn > 0){
+      spawnQ -= dt;
+      if (spawnQ <= 0){ spawnQ = Math.max(.35, .9 - wave * .05); toSpawn--; spawnMob(); }
+    }
+
+    // player movement
+    let dx = 0, dy = 0;
+    if (joy){ dx = joy.dx; dy = joy.dy; }
+    if (keys.ArrowLeft || keys.a) dx -= 1; if (keys.ArrowRight || keys.d) dx += 1;
+    if (keys.ArrowUp || keys.w) dy -= 1;   if (keys.ArrowDown || keys.s) dy += 1;
+    const m0 = Math.hypot(dx, dy);
+    if (m0 > 0){
+      dx /= m0; dy /= m0;
+      ply.face = Math.atan2(dy, dx);
+      ply.walk += dt * 10;
+      const spd = ply.spd * (ply.zapT > 0 ? 1.45 : 1) * (TS / 40);
+      moveWithCollide(ply, dx * spd, dy * spd, dt);
+    }
+
+    // swing hits mobs
+    if (ply.swingT > 0){
+      const hx = ply.x + Math.cos(ply.face) * TS * .8, hy = ply.y + Math.sin(ply.face) * TS * .8;
+      for (const m of mobs){
+        if (m.dead || m.hitBy === swingId) continue;
+        if (Math.hypot(m.x - hx, m.y - hy) < TS * .95){
+          m.hitBy = swingId; m.hp--; m.flash = .15;
+          sThwack(); shakeT = Math.max(shakeT, .15);
+          const d = Math.hypot(m.x - ply.x, m.y - ply.y) || 1;
+          moveWithCollide(m, (m.x - ply.x) / d * 300, (m.y - ply.y) / d * 300, .4);
+          if (m.hp <= 0){
+            m.dead = true; kills++;
+            debris(m.x, m.y, m.type === "spider" ? "#37474f" : "#66bb6a", 12);
+            comic(pick(["BONK!💥","SMASH!⚡","BOP!🌟"]), m.x, m.y - TS * .8, true);
+            if (Math.random() < .25){ ply.msg = pick(CHARS[charId].lines); ply.msgT = 2; }
+            if (Math.random() < .18) maybeLoot(m.x, m.y);
+          }
+        }
+      }
+    }
+
+    // mobs
+    for (const m of mobs){
+      if (m.dead) continue;
+      m.flash = Math.max(0, m.flash - dt); m.wob += dt * 8;
+      const d = Math.hypot(ply.x - m.x, ply.y - m.y) || 1;
+      if (m.type === "boomer"){
+        if (m.fuse < 0 && d < TS * 1.6){ m.fuse = .9; sTick(); }
+        if (m.fuse >= 0){
+          m.fuse -= dt;
+          if (m.fuse <= 0){ m.dead = true; explode(m.x, m.y); continue; }
+        } else {
+          const a = Math.atan2(ply.y - m.y, ply.x - m.x) + Math.sin(m.wob) * .3;
+          moveWithCollide(m, Math.cos(a) * m.spd * (TS/40), Math.sin(a) * m.spd * (TS/40), dt);
+        }
+      } else {
+        const a = Math.atan2(ply.y - m.y, ply.x - m.x) + Math.sin(m.wob) * (m.type === "spider" ? .8 : .35);
+        moveWithCollide(m, Math.cos(a) * m.spd * (TS/40), Math.sin(a) * m.spd * (TS/40), dt);
+        if (d < ply.r + m.r + 2) hurtPlayer(m.x, m.y);
+      }
+    }
+    mobs = mobs.filter(m => !m.dead);
+
+    // loot pickup
+    for (const L of loots){
+      L.t -= dt;
+      if (Math.hypot(ply.x - L.x, ply.y - L.y) < ply.r + TS * .3){
+        L.t = 0; sCorrect();
+        if (L.e === "❤️"){ ply.hp = Math.min(ply.maxhp, ply.hp + 1); comic("+❤️", ply.x, ply.y - TS, false); }
+        else if (L.e === "⚡"){ ply.zapT = 5; comic("ZOOM! ⚡", ply.x, ply.y - TS, false); }
+        else { kills += 2; comic("YUM! 🍖 +2", ply.x, ply.y - TS, false); }
+      }
+    }
+    loots = loots.filter(L => L.t > 0);
+
+    // particles
+    for (const p of parts){
+      p.t -= dt;
+      if (p.txt){ p.y += p.vy * dt; }
+      else { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 620 * dt; }
+    }
+    parts = parts.filter(p => p.t > 0);
+
+    // wave cleared
+    if (toSpawn === 0 && mobs.length === 0) nextWave();
+  }
+
+  /* ---------- draw ---------- */
+  function drawTile(r, cc){
+    const x = cc * TS, y = r * TS, t = grid[r][cc];
+    if (t === 1){ // stone block
+      c.fillStyle = "#757575"; c.fillRect(x, y, TS, TS);
+      c.fillStyle = "#9e9e9e"; c.fillRect(x, y, TS, TS * .28);
+      c.fillStyle = "#616161"; c.fillRect(x, y + TS * .78, TS, TS * .22);
+      c.fillStyle = "rgba(0,0,0,.15)";
+      c.fillRect(x + TS*.15, y + TS*.4, TS*.25, TS*.18); c.fillRect(x + TS*.55, y + TS*.55, TS*.3, TS*.15);
+    } else if (t === 2){ // crate
+      c.fillStyle = "#8d6e63"; c.fillRect(x, y, TS, TS);
+      c.fillStyle = "#a1887f"; c.fillRect(x, y, TS, TS * .22);
+      c.fillStyle = "#6d4c41";
+      c.fillRect(x, y + TS * .3, TS, 3); c.fillRect(x, y + TS * .62, TS, 3);
+      c.fillRect(x + 2, y + 2, 3, TS - 4); c.fillRect(x + TS - 5, y + 2, 3, TS - 4);
+      const hp = crateHp[r + "_" + cc];
+      if (hp !== undefined && hp < 3){ // cracks
+        c.strokeStyle = "rgba(0,0,0,.55)"; c.lineWidth = 2; c.beginPath();
+        c.moveTo(x + TS*.2, y + TS*.25); c.lineTo(x + TS*.5, y + TS*.5);
+        if (hp <= 1){ c.lineTo(x + TS*.35, y + TS*.8); c.moveTo(x + TS*.5, y + TS*.5); c.lineTo(x + TS*.82, y + TS*.66); }
+        c.stroke();
+      }
+    } else { // grass
+      c.fillStyle = (r + cc) % 2 ? "#69a83c" : "#5d9e31";
+      c.fillRect(x, y, TS, TS);
+      c.fillStyle = "rgba(0,0,0,.06)"; c.fillRect(x, y + TS * .85, TS, TS * .15);
+    }
+  }
+  function drawBlockyChar(x, y, hood, hair, opts){
+    const s = TS * .92, hw = s * .56, walk = Math.sin((opts.walk || 0)) * s * .1;
+    c.save(); c.translate(x, y);
+    if (opts.inv && Math.floor(opts.inv * 12) % 2 === 0) c.globalAlpha = .45;
+    // shadow
+    c.fillStyle = "rgba(0,0,0,.28)"; c.fillRect(-s*.3, s*.42, s*.6, s*.12);
+    // legs
+    c.fillStyle = "#31435c";
+    c.fillRect(-s*.22, s*.18 + walk, s*.18, s*.26 - walk);
+    c.fillRect(s*.04,  s*.18 - walk, s*.18, s*.26 + walk);
+    // body (hoodie)
+    c.fillStyle = hood; c.fillRect(-s*.28, -s*.1, s*.56, s*.32);
+    c.fillStyle = "rgba(255,255,255,.15)"; c.fillRect(-s*.28, -s*.1, s*.56, s*.07);
+    // head
+    c.fillStyle = "#e8b88a"; c.fillRect(-hw/2, -s*.1 - hw, hw, hw);
+    // hair
+    c.fillStyle = hair;
+    c.fillRect(-hw/2, -s*.1 - hw, hw, hw*.3);
+    if (opts.girl){ c.fillRect(-hw/2 - hw*.14, -s*.1 - hw, hw*.16, hw*1.1); c.fillRect(hw/2 - hw*.02, -s*.1 - hw, hw*.16, hw*1.1); }
+    // eyes
+    c.fillStyle = "#20242c";
+    c.fillRect(-hw*.28, -s*.1 - hw*.55, hw*.14, hw*.14);
+    c.fillRect(hw*.14,  -s*.1 - hw*.55, hw*.14, hw*.14);
+    // mouth / tongue
+    if (opts.tongue){ c.fillStyle = "#c62828"; c.fillRect(-hw*.1, -s*.1 - hw*.24, hw*.2, hw*.2); }
+    else { c.fillStyle = "#8d5524"; c.fillRect(-hw*.14, -s*.1 - hw*.26, hw*.28, hw*.08); }
+    c.restore();
+  }
+  function drawStickSwing(){
+    const swing = ply.swingT > 0 ? (1 - ply.swingT / .22) : 0;
+    const a = ply.face + (ply.swingT > 0 ? (-1.3 + swing * 2.6) : .5);
+    c.save(); c.translate(ply.x, ply.y); c.rotate(a);
+    c.fillStyle = "#8d5524"; c.fillRect(TS*.2, -3, TS*.75, 6);
+    c.fillStyle = "#ff7043"; c.fillRect(TS*.6, -4, TS*.35, 8);
+    c.restore();
+    if (ply.swingT > 0){
+      c.strokeStyle = "rgba(255,255,255,.5)"; c.lineWidth = 4;
+      c.beginPath(); c.arc(ply.x, ply.y, TS*.95, ply.face - 1.2, ply.face + 1.2 * swing); c.stroke();
+    }
+  }
+  function drawMob(m){
+    const s = TS * (m.type === "spider" ? .6 : .8);
+    c.save(); c.translate(m.x, m.y + Math.sin(m.wob) * 2);
+    const flash = m.flash > 0 || (m.type === "boomer" && m.fuse >= 0 && Math.floor(m.fuse * 10) % 2 === 0);
+    if (m.type === "spider"){
+      c.strokeStyle = "#263238"; c.lineWidth = 2;
+      for (let i = 0; i < 4; i++){
+        const lx = (i - 1.5) * s * .3;
+        c.beginPath(); c.moveTo(lx, 0); c.lineTo(lx - s*.2, s*.45); c.stroke();
+        c.beginPath(); c.moveTo(lx, 0); c.lineTo(lx + s*.2, -s*.45); c.stroke();
+      }
+      c.fillStyle = flash ? "#fff" : "#37474f"; c.fillRect(-s/2, -s*.35, s, s*.7);
+      c.fillStyle = "#ff1744"; c.fillRect(-s*.3, -s*.15, s*.14, s*.14); c.fillRect(s*.16, -s*.15, s*.14, s*.14);
+    } else if (m.type === "boomer"){
+      c.fillStyle = flash ? "#fff" : "#43a047"; c.fillRect(-s/2, -s*.65, s, s*1.3);
+      c.fillStyle = flash ? "#eee" : "#2e7d32";
+      c.fillRect(-s*.4, -s*.5, s*.25, s*.25); c.fillRect(s*.14, -s*.2, s*.25, s*.25); c.fillRect(-s*.3, s*.25, s*.25, s*.25);
+      c.fillStyle = "#1b2b17";
+      c.fillRect(-s*.3, -s*.35, s*.18, s*.18); c.fillRect(s*.12, -s*.35, s*.18, s*.18);
+      c.fillRect(-s*.12, -s*.12, s*.24, s*.3);
+      if (m.fuse >= 0){ c.font = `900 ${TS*.4}px sans-serif`; c.textAlign="center"; c.fillStyle="#ff1744"; c.fillText("!!", 0, -s*.8); }
+    } else { // zombie
+      c.fillStyle = flash ? "#fff" : "#66bb6a"; c.fillRect(-s*.32, -s*.75, s*.64, s*.64); // head
+      c.fillStyle = flash ? "#eee" : "#388e3c"; c.fillRect(-s*.36, -s*.1, s*.72, s*.5);   // body
+      c.fillStyle = flash ? "#ddd" : "#4caf50";                                            // arms forward
+      c.fillRect(-s*.5, -s*.05, s*.16, s*.34); c.fillRect(s*.34, -s*.05, s*.16, s*.34);
+      c.fillStyle = "#102313";
+      c.fillRect(-s*.2, -s*.58, s*.13, s*.13); c.fillRect(s*.07, -s*.58, s*.13, s*.13);
+      c.fillRect(-s*.1, -s*.34, s*.2, s*.07);
+    }
+    c.restore();
+  }
+  function draw(){
+    c.save();
+    if (shakeT > 0) c.translate((Math.random()-.5) * 12 * shakeT * 2.5, (Math.random()-.5) * 12 * shakeT * 2.5);
+    for (let r = 0; r < rows; r++) for (let cc = 0; cc < cols; cc++) drawTile(r, cc);
+    // loot
+    c.textAlign = "center"; c.textBaseline = "middle";
+    for (const L of loots){
+      c.font = `${TS*.55}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+      c.fillText(L.e, L.x, L.y + Math.sin(performance.now()/200 + L.x) * 3);
+    }
+    for (const m of mobs) drawMob(m);
+    if (ply){
+      drawStickSwing();
+      drawBlockyChar(ply.x, ply.y, CHARS[charId].hood, CHARS[charId].hair, { walk: ply.walk, inv: ply.inv, girl: CHARS[charId].girl, tongue: CHARS[charId].tongue });
+      // nametag + speech
+      c.font = `900 ${10 * TS/40}px -apple-system,sans-serif`; c.textAlign = "center";
+      c.fillStyle = "rgba(0,0,0,.6)";
+      const nm = CHARS[charId].name, tw = c.measureText(nm).width + 10;
+      c.fillRect(ply.x - tw/2, ply.y - TS*1.28, tw, 13);
+      c.fillStyle = "#fff"; c.fillText(nm, ply.x, ply.y - TS*1.28 + 7);
+      if (ply.msgT > 0){
+        c.font = `800 ${12 * TS/40}px -apple-system,sans-serif`;
+        const bw = c.measureText(ply.msg).width + 14;
+        c.fillStyle = "rgba(255,255,255,.95)"; c.fillRect(ply.x - bw/2, ply.y - TS*1.75, bw, 18);
+        c.fillStyle = "#1a0140"; c.fillText(ply.msg, ply.x, ply.y - TS*1.75 + 9);
+      }
+    }
+    // particles
+    for (const p of parts){
+      if (p.txt){
+        c.font = `900 ${(p.big ? 26 : 15) * TS/40}px -apple-system,sans-serif`; c.textAlign = "center";
+        c.globalAlpha = Math.min(1, p.t * 2);
+        c.strokeStyle = "#000"; c.lineWidth = 4; c.strokeText(p.txt, p.x, p.y);
+        c.fillStyle = p.c; c.fillText(p.txt, p.x, p.y);
+        c.globalAlpha = 1;
+      } else {
+        c.fillStyle = p.c; c.globalAlpha = Math.min(1, p.t * 1.6);
+        c.fillRect(p.x - p.s/2, p.y - p.s/2, p.s, p.s);
+        c.globalAlpha = 1;
+      }
+    }
+    // HUD: hearts + wave/kills
+    c.textAlign = "left"; c.textBaseline = "middle";
+    c.font = `${TS*.5}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+    if (ply) for (let i = 0; i < ply.maxhp; i++) c.fillText(i < ply.hp ? "❤️" : "🖤", 10 + i * TS * .55, 12 + TS * .3);
+    c.fillStyle = "rgba(0,0,0,.5)";
+    const hudW = 170 * TS/40;
+    c.fillRect(W/2 - hudW/2, 6, hudW, TS*.6);
+    c.fillStyle = "#fff"; c.font = `900 ${14 * TS/40}px -apple-system,sans-serif`; c.textAlign = "center";
+    c.fillText(`🌊 WAVE ${wave}   💀 ${kills}`, W/2, 6 + TS*.3);
+    if (waveMsgT > 0 && phase === "play"){
+      c.font = `900 ${44 * TS/40}px -apple-system,sans-serif`;
+      c.globalAlpha = Math.min(1, waveMsgT);
+      c.strokeStyle = "#000"; c.lineWidth = 6; c.strokeText(`WAVE ${wave}!`, W/2, H*.32);
+      c.fillStyle = "#7cff4d"; c.fillText(`WAVE ${wave}!`, W/2, H*.32);
+      c.globalAlpha = 1;
+    }
+    if (joy){
+      c.globalAlpha = .35; c.fillStyle = "#fff";
+      c.beginPath(); c.arc(joy.sx, joy.sy, TS*1.05, 0, 7); c.fill();
+      c.beginPath(); c.arc(joy.sx + joy.dx * TS*.8, joy.sy + joy.dy * TS*.8, TS*.5, 0, 7); c.fill();
+      c.globalAlpha = 1;
+    }
+    if (phase === "count"){
+      c.fillStyle = "rgba(0,0,0,.45)"; c.fillRect(0, 0, W, H);
+      const n = Math.ceil(countT - .4);
+      c.fillStyle = "#7cff4d"; c.font = `900 ${86 * TS/40}px -apple-system,sans-serif`; c.textAlign = "center";
+      c.fillText(n > 0 ? String(n) : "BASH!!", W/2, H*.4);
+      c.font = `800 ${15 * TS/40}px -apple-system,sans-serif`; c.fillStyle = "#fff";
+      c.fillText("Smash mobs. Break crates. SURVIVE THE WAVES.", W/2, H*.4 + 66 * TS/40);
+    }
+    c.restore();
+  }
+
+  function loop(ts){
+    if (!running) return;
+    const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+    update(dt); draw();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ---------- input ---------- */
+  cv.addEventListener("pointerdown", ev => {
+    ev.preventDefault();
+    const r = cv.getBoundingClientRect();
+    joy = { id: ev.pointerId, sx: ev.clientX - r.left, sy: ev.clientY - r.top, dx: 0, dy: 0 };
+  });
+  cv.addEventListener("pointermove", ev => {
+    if (!joy || ev.pointerId !== joy.id) return;
+    const r = cv.getBoundingClientRect();
+    let dx = (ev.clientX - r.left - joy.sx) / (TS * 1.1), dy = (ev.clientY - r.top - joy.sy) / (TS * 1.1);
+    const m = Math.hypot(dx, dy);
+    if (m > 1){ dx /= m; dy /= m; }
+    joy.dx = dx; joy.dy = dy;
+  });
+  const joyEnd = ev => { if (joy && ev.pointerId === joy.id) joy = null; };
+  cv.addEventListener("pointerup", joyEnd); cv.addEventListener("pointercancel", joyEnd);
+  addEventListener("keydown", ev => { keys[ev.key] = true; if (ev.key === " " && running) swing(); });
+  addEventListener("keyup", ev => { keys[ev.key] = false; });
+  addEventListener("resize", () => { if (running) resize(); });
+
+  /* ---------- wiring ---------- */
+  function open(){
+    $("title").classList.add("hidden");
+    $("mine").classList.remove("hidden");
+    $("mineSelect").classList.remove("hidden");
+    $("minePlay").classList.add("hidden");
+  }
+  function close(){
+    stop();
+    $("mine").classList.add("hidden");
+    $("title").classList.remove("hidden");
+  }
+  document.querySelectorAll("#mineSelect .bcard").forEach(card => {
+    card.onclick = () => {
+      document.querySelectorAll("#mineSelect .bcard").forEach(x => x.classList.remove("sel"));
+      card.classList.add("sel");
+      charId = card.dataset.char;
+      ensureAudio(); sHop();
+    };
+  });
+  $("btnMine").onclick = () => { ensureAudio(); open(); };
+  $("mineGo").onclick = () => {
+    ensureAudio();
+    $("mineSelect").classList.add("hidden");
+    $("minePlay").classList.remove("hidden");
+    requestAnimationFrame(() => start());
+  };
+  $("mineBack").onclick = close;
+  $("mineExit").onclick = () => { stop(); $("minePlay").classList.add("hidden"); $("mineSelect").classList.remove("hidden"); };
+  $("mineBtn").onclick = swing;
+  $("mineAgain").onclick = () => start();
+  $("minePick").onclick = () => { stop(); $("minePlay").classList.add("hidden"); $("mineSelect").classList.remove("hidden"); };
+  $("mineHome").onclick = close;
+
+  return { start, stop,
+    get state(){ return { phase, wave, kills, hp: ply ? ply.hp : 0, mobs: mobs.length, char: charId }; },
+    get ply(){ return ply; }, get mobs(){ return mobs; },
+    set hp(v){ if (ply){ ply.hp = v; if (v <= 0) gameOver(); } } };
+})();
+window.MINE = MINE;
 
 document.addEventListener("visibilitychange", () => {
   if (actx){ if (document.hidden) actx.suspend(); else actx.resume(); }
