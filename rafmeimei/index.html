@@ -180,6 +180,44 @@
   #crowd span { display:inline-block; animation:bop .6s ease-in-out infinite; }
   #crowd span:nth-child(2n){ animation-delay:.15s; } #crowd span:nth-child(3n){ animation-delay:.3s; }
 
+  /* ===== STICK BASH MINI GAME ===== */
+  .btn.orange { background:linear-gradient(135deg,#ff7043,#f7b733); box-shadow:0 6px 0 #8f4a00, 0 12px 24px rgba(0,0,0,.45); }
+  .btn.orange:active { box-shadow:0 2px 0 #8f4a00; }
+  #bash { z-index:30; }
+  #bashSelect { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; height:100%; width:100%; padding:16px; text-align:center; overflow-y:auto; }
+  #bashSelect h2 { font-size:clamp(28px,8vw,46px); font-weight:900;
+    background:linear-gradient(90deg,#ff7043,#ffd400,#ff2d95); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 3s linear infinite; }
+  #bashSelect .sub { font-size:15px; font-weight:700; opacity:.9; max-width:420px; }
+  .bash-cards { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .bcard { width:120px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); border-radius:20px; padding:12px 8px; cursor:pointer; transition:transform .15s, border-color .2s; }
+  .bcard:active { transform:scale(.93); }
+  .bcard .bface { font-size:46px; display:block; animation:bop 1.1s ease-in-out infinite; }
+  .bcard .bnick { font-weight:900; font-size:12px; margin-top:4px; line-height:1.2; }
+  .bcard .brole { font-size:10px; opacity:.75; font-weight:700; margin-top:2px; }
+  .bcard.sel { border-color:#ffd400; box-shadow:0 0 18px rgba(255,212,0,.6); background:rgba(255,212,0,.14); }
+  #pineTog { border-width:2px; font-size:15px; padding:10px 18px; }
+  #pineTog.on { background:linear-gradient(135deg,#ffd400,#f7b733); color:#4a2a00; border-color:#fff; box-shadow:0 0 22px rgba(255,212,0,.8); animation:winPulse .8s ease-in-out infinite; }
+  #bashPlay { position:absolute; inset:0; }
+  #bashCanvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+  #bashBtn {
+    position:absolute; right:16px; bottom:max(18px, env(safe-area-inset-bottom)); z-index:5;
+    width:86px; height:86px; border-radius:50%; border:3px solid #fff; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #ff9a68, #e64a19); color:#fff; font-weight:900; font-size:15px;
+    box-shadow:0 6px 0 #8f2500, 0 10px 30px rgba(0,0,0,.5); transition:transform .08s;
+  }
+  #bashBtn:active { transform:scale(.9); }
+  #bashExit { position:absolute; top:max(10px, env(safe-area-inset-top)); right:12px; z-index:5; }
+  #bashEnd {
+    position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    background:rgba(5,0,20,.8); backdrop-filter:blur(4px); text-align:center; padding:18px;
+  }
+  #bashEndTitle { font-size:clamp(30px,9vw,52px); font-weight:900;
+    background:linear-gradient(90deg,#ffd400,#ff2d95,#00e5ff); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 2.5s linear infinite; }
+  #bashEndStats { font-size:17px; font-weight:800; line-height:1.6; }
+  #bashEndRank { font-size:clamp(20px,6vw,30px); font-weight:900; color:#ffd400; animation:bop 1s ease-in-out infinite; }
+
   @media (min-height:700px){ .ans{ min-height:64px; } }
 </style>
 </head>
@@ -214,6 +252,7 @@
 
   <button class="btn" id="btnRace">⚔️ 2-PLAYER RACE!</button>
   <button class="btn cyan" id="btnRace3">🎁 3-PLAYER — ARI JOINS!</button>
+  <button class="btn orange" id="btnBash">🏏 STICK BASH! — Ari's Revenge</button>
   <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
     <button class="btn cyan small" id="btnSoloRaf">🎮 Just Raf</button>
     <button class="btn cyan small" id="btnSoloMei">🎮 Just Meimei</button>
@@ -253,6 +292,48 @@
       <button class="iconbtn" id="speakBtn" title="read aloud">📢</button>
     </div>
     <div id="answers"></div>
+  </div>
+</div>
+
+<!-- ================= STICK BASH MINI GAME ================= -->
+<div id="bash" class="screen hidden">
+  <div id="bashSelect">
+    <h2>🏏 STICK BASH!</h2>
+    <div class="sub">ARI found a foam bashing stick. NOBODY IS SAFE, BRUZ. 😱<br>Pick your fighter:</div>
+    <div class="bash-cards">
+      <div class="bcard sel" id="bcAri" data-mode="ari">
+        <span class="bface">🍉</span>
+        <div class="bnick">WATERMELON<br>ARI</div>
+        <div class="brole">🏏 BASH THE BIG KIDS!</div>
+      </div>
+      <div class="bcard" id="bcRaf" data-mode="raf">
+        <span class="bface">🍍</span>
+        <div class="bnick">PINEAPPLE<br>RAF</div>
+        <div class="brole">💨 RUN, BRUZ, RUN!</div>
+      </div>
+      <div class="bcard" id="bcMei" data-mode="mei">
+        <span class="bface">🙃</span>
+        <div class="bnick">OTHERKID<br>MEIMEI</div>
+        <div class="brole">💨 DODGE THE STICK!</div>
+      </div>
+    </div>
+    <button class="tog" id="pineTog">🍍 PINEAPPLE MODE: OFF</button>
+    <div class="sub" style="font-size:12px; opacity:.7;">Grab 🍌 to go RAFFLEBACK GORILLA · 👹 for monsterMeimei · watch for 💦 PISSPANTZ puddles!</div>
+    <button class="btn orange" id="bashGo">🚨 GO GO GO GO!</button>
+    <button class="btn cyan small" id="bashBack">⬅️ Back</button>
+  </div>
+  <div id="bashPlay" class="hidden">
+    <canvas id="bashCanvas"></canvas>
+    <button class="iconbtn" id="bashExit">✖️</button>
+    <button id="bashBtn">🏏<br>BASH!</button>
+    <div id="bashEnd" class="hidden">
+      <div id="bashEndTitle">TIME'S UP!</div>
+      <div id="bashEndRank"></div>
+      <div id="bashEndStats"></div>
+      <button class="btn orange" id="bashAgain">🔁 REMATCH, BRUZ!</button>
+      <button class="btn cyan small" id="bashPick">🔀 Change fighter</button>
+      <button class="btn cyan small" id="bashHome">🏠 Quiz Quest</button>
+    </div>
   </div>
 </div>
 
@@ -504,6 +585,11 @@ function sFanfare(){ if(!actx) return; const t = actx.currentTime;
   noise(t + .9, .8, .3, "highpass", 5000);
 }
 function sTick(){ if(!actx) return; osc("square", 1100, actx.currentTime, .04, .12); }
+function sThwack(){ if(!actx) return; const t = actx.currentTime; noise(t, .12, .7, "lowpass", 900); osc("square", 180, t, .14, .6, sfxG, 50); osc("sine", 300, t, .08, .4, sfxG, 80); }
+function sWhoosh(){ if(!actx) return; noise(actx.currentTime, .16, .3, "bandpass", 2600); }
+function sBoing(){ if(!actx) return; osc("triangle", 130, actx.currentTime, .28, .5, sfxG, 520); }
+function sWhistle(){ if(!actx) return; const t = actx.currentTime; osc("square", 2100, t, .12, .3); osc("square", 2400, t + .16, .3, .3); }
+function sSplash(){ if(!actx) return; noise(actx.currentTime, .35, .4, "lowpass", 1400); osc("sine", 240, actx.currentTime, .3, .3, sfxG, 60); }
 
 /* speech: silly announcer */
 function speak(txt){
@@ -875,6 +961,531 @@ $("togMusic").onclick = () => { ensureAudio(); setMusic(!musicOn); };
 $("togSfx").onclick   = () => { ensureAudio(); setSfx(!sfxOn); };
 $("gMusic").onclick   = () => { ensureAudio(); setMusic(!musicOn); };
 $("gSfx").onclick     = () => { ensureAudio(); setSfx(!sfxOn); };
+
+/* ============================================================
+   STICK BASH! — foam-stick chase minigame.
+   Ari hunts PINEAPPLE RAF & OTHERKID MEIMEI around a zany arena.
+   ============================================================ */
+const BASH = (() => {
+  const cv = $("bashCanvas"), c = cv.getContext("2d");
+  const ROUND = 45, STICK_LEN = 62;
+  let W = 0, H = 0, S = 1, rafId = null, last = 0, running = false;
+  let mode = "ari", pineMode = false, phase = "count";
+  let timeLeft = 0, countT = 0, bonks = 0, taken = 0, dodges = 0, gorillaBonks = 0;
+  let ents = [], pows = [], pines = [], parts = [], puddles = [], deco = [];
+  let swingT = 0, swingCool = 0, swingHit = false, swingDodged = false;
+  let shakeT = 0, powTimer = 5, tauntT = 3, endedByExit = false;
+  let joy = null; const keys = {};
+
+  const LINES = {
+    rafFlee:  ["CAN'T CATCH ME BRUZ! 😝","RUN BRUZZY RUN!","TOO SLOW BRUZ! 🐌","YO BRUZZY, OVER HERE!","EASY, BRUZ! EASY!"],
+    rafBonk:  ["OW BRUZ!! 😵","NOT THE HAIR, BRUZZY!!","MUUUM! ARI'S BASHING ME, BRUZ!","THAT'S ASSAULT, BRUZ! 🚨"],
+    meiFlee:  ["NOT TODAY, TINY! 😤","MEIMEI OUT! 💨","hehehe 😏","You run like a NOODLE!"],
+    meiBonk:  ["MUM!!! 😡","SO. FOUR. YEARS. OLD.","MY DRAMA! 🎭","RUDE!!! 💢"],
+    ariChase: ["BONK BONK BONK! 🏏","hehehehe 😈","STICKY TIME!","I AM SPEED! 💨","GET BACK HERE!"],
+    ariBonk:  ["WAAAH! 😭","NO FAIR!!","MY STICK! 😤"],
+    ariTrip:  ["oopsie 🍑💥","wobbly legs!!"],
+    ariPiss:  ["uh oh... 💦","SLIPPY MODE 💦"],
+  };
+  const pick = a => a[(Math.random() * a.length) | 0];
+
+  function mk(id, nick, emoji, color, x, y, spd){
+    return { id, nick, emoji, color, x, y, vx:0, vy:0, r:26, spd, face:0,
+             bonkT:0, invT:0, powT:0, slipT:0, tripT:0, hitCool:0, bub:"", bubT:0, wob:Math.random()*9 };
+  }
+  function say(e, txt, tts){
+    e.bub = txt; e.bubT = 2.2;
+    if (tts && Math.random() < .5) speak(txt.replace(/[^\w\s!?',.]/g, ""));
+  }
+  function nickOf(e){
+    if (e.id === "raf" && e.powT > 0) return "RAFFLEBACK GORILLA";
+    if (e.id === "mei" && e.powT > 0) return "monsterMeimei";
+    if (e.id === "ari" && e.slipT > 0) return "PISSPANTZ ARI";
+    return e.nick;
+  }
+  function faceOf(e){
+    if (e.bonkT > 0) return "😵‍💫";
+    if (e.id === "raf") return e.powT > 0 ? "🦍" : (pineMode ? "🍍" : "🍍");
+    if (e.id === "mei") return e.powT > 0 ? "👹" : (pineMode ? "🍍" : "🙃");
+    return e.slipT > 0 ? "😨" : (pineMode ? "🍍" : "🍉");
+  }
+
+  function resize(){
+    const dpr = devicePixelRatio || 1;
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.min(W, H) / 480;
+  }
+
+  function start(){
+    resize();
+    endedByExit = false;
+    phase = "count"; countT = 3.4; timeLeft = ROUND;
+    bonks = taken = dodges = gorillaBonks = 0;
+    swingT = swingCool = 0; shakeT = 0; powTimer = 5; tauntT = 2.5;
+    pows = []; pines = []; parts = []; puddles = []; joy = null;
+    const sp = 1 + (pineMode ? .3 : 0);
+    ents = [
+      mk("ari", "WATERMELON ARI", "🍉", "#2e7d32", W*.5,  H*.72, 205*sp),
+      mk("raf", "PINEAPPLE RAF",  "🍍", "#1e88e5", W*.25, H*.3,  190*sp),
+      mk("mei", "OTHERKID MEIMEI","🙃", "#7a4b2e", W*.75, H*.3,  190*sp),
+    ];
+    ents.forEach(e => e.r = 26 * S);
+    // player gets a fair speed edge
+    const me = ents.find(e => e.id === mode);
+    me.spd *= 1.08;
+    deco = [];
+    const ds = pineMode ? ["🍍","🍍","🌼","🍍","⭐","🍍"] : ["🌼","🍕","⭐","🌈","🧦","🍩","🛼","🌵"];
+    for (let i = 0; i < 14; i++) deco.push({ x:Math.random()*W, y:Math.random()*H, e:ds[i % ds.length], s:16 + Math.random()*18, a:Math.random()*6 });
+    if (pineMode) for (let i = 0; i < 8; i++) spawnPine();
+    $("bashBtn").style.display = mode === "ari" ? "" : "none";
+    $("bashEnd").classList.add("hidden");
+    sWhistle();
+    speak(pineMode ? "Pineapple mode! Go go go go!" : "Stick bash! Go go go go!");
+    running = true; last = performance.now();
+    cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop);
+  }
+  function stop(){ running = false; cancelAnimationFrame(rafId); rafId = null; }
+
+  function spawnPine(){
+    const a = Math.random() * Math.PI * 2, v = (120 + Math.random()*120) * S;
+    pines.push({ x:Math.random()*W, y:Math.random()*H, vx:Math.cos(a)*v, vy:Math.sin(a)*v, r:17*S, rot:0, vr:(Math.random()-.5)*6, t:1e9 });
+  }
+  function spawnPow(){
+    const types = ["ban","mask","zap","pine","pud"];
+    const t = types[(Math.random() * types.length) | 0];
+    if (t === "pud"){
+      puddles.push({ x:W*.15 + Math.random()*W*.7, y:H*.2 + Math.random()*H*.6, r:44*S, t:8 });
+      parts.push({ txt:"💦 PISSPANTZ PUDDLE!", x:W/2, y:H*.2, t:1.4, big:false });
+    } else {
+      pows.push({ x:W*.12 + Math.random()*W*.76, y:H*.15 + Math.random()*H*.7, t:9, type:t,
+                  e:{ban:"🍌",mask:"👹",zap:"⚡",pine:"🍍"}[t] });
+    }
+  }
+
+  function comic(txt, x, y, big){ parts.push({ txt, x, y, t:1.1, big:!!big }); }
+
+  function bonk(victim, from, tag){
+    if (victim.invT > 0) return;
+    const dx = victim.x - from.x, dy = victim.y - from.y, d = Math.hypot(dx, dy) || 1;
+    victim.vx += dx / d * 640 * S; victim.vy += dy / d * 640 * S;
+    victim.bonkT = .9; victim.invT = 1.7;
+    shakeT = .35; sThwack();
+    comic(pick(["BONK!💥","THWACK!⚡","BOP!🌟","SPLAT!💫"]), victim.x, victim.y - 40*S, true);
+    burst(victim.x * (innerWidth / W), victim.y * (innerHeight / H), 30, 7);
+    if (victim.id === "raf") say(victim, pick(LINES.rafBonk), true);
+    else if (victim.id === "mei") say(victim, pick(LINES.meiBonk), true);
+    else say(victim, pick(LINES.ariBonk), true);
+    if (tag === "stick"){ if (mode === "ari") bonks++; else if (victim.id === mode) taken++; }
+    if (tag === "power"){ gorillaBonks++; if (mode === "ari") taken++; }
+  }
+
+  /* ---------- update ---------- */
+  function update(dt){
+    if (phase === "count"){ countT -= dt; if (countT <= 0) phase = "play"; return; }
+    if (phase === "end") return;
+    timeLeft -= dt;
+    if (timeLeft <= 0){ endRound(); return; }
+
+    powTimer -= dt;
+    if (powTimer <= 0){ powTimer = 6 + Math.random()*3; spawnPow(); }
+    tauntT -= dt;
+    if (tauntT <= 0){
+      tauntT = 3.5 + Math.random()*3;
+      const ai = ents.filter(e => e.id !== mode);
+      const e = ai[(Math.random()*ai.length)|0];
+      if (e.id === "raf") say(e, pick(LINES.rafFlee));
+      else if (e.id === "mei") say(e, pick(LINES.meiFlee));
+      else say(e, pick(LINES.ariChase));
+    }
+
+    const ari = ents.find(e => e.id === "ari");
+    const sibs = ents.filter(e => e.id !== "ari");
+
+    for (const e of ents){
+      e.bonkT = Math.max(0, e.bonkT - dt); e.invT = Math.max(0, e.invT - dt);
+      e.powT = Math.max(0, e.powT - dt); e.slipT = Math.max(0, e.slipT - dt);
+      e.tripT = Math.max(0, e.tripT - dt); e.hitCool = Math.max(0, e.hitCool - dt);
+      e.bubT = Math.max(0, e.bubT - dt); e.wob += dt * 9;
+
+      let dx = 0, dy = 0;
+      const isPlayer = e.id === mode;
+      if (e.bonkT > 0 || e.tripT > 0){ /* ragdoll / tripped: no control */ }
+      else if (isPlayer){
+        if (joy){ dx = joy.dx; dy = joy.dy; }
+        if (keys.ArrowLeft || keys.a) dx -= 1; if (keys.ArrowRight || keys.d) dx += 1;
+        if (keys.ArrowUp || keys.w) dy -= 1;   if (keys.ArrowDown || keys.s) dy += 1;
+      } else if (e.id === "ari"){
+        // AI Ari: hunt nearest sibling, wobble like a 4-year-old, sometimes trip
+        let tgt = sibs[0];
+        for (const s2 of sibs) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        // run away from monsters/gorillas!
+        const scary = sibs.find(s2 => s2.powT > 0);
+        if (scary){ dx = e.x - scary.x; dy = e.y - scary.y; }
+        else { dx = tgt.x - e.x; dy = tgt.y - e.y; }
+        const wob = Math.sin(e.wob) * .55;
+        const a = Math.atan2(dy, dx) + wob;
+        dx = Math.cos(a); dy = Math.sin(a);
+        if (Math.random() < dt / 8){ e.tripT = 1.1; say(e, pick(LINES.ariTrip), true); comic("💥", e.x, e.y, false); sBoing(); }
+        if (!scary && Math.hypot(tgt.x-e.x, tgt.y-e.y) < e.r + tgt.r + STICK_LEN*S*.8 && swingCool <= 0) aiSwing();
+      } else {
+        // AI sibling: powered → hunt Ari; else grab own power-up or flee Ari
+        const myPow = pows.find(p => (p.type === "ban" && e.id === "raf") || (p.type === "mask" && e.id === "mei"));
+        if (e.powT > 0){ dx = ari.x - e.x; dy = ari.y - e.y; }
+        else if (myPow && Math.hypot(myPow.x-e.x, myPow.y-e.y) < 260*S){ dx = myPow.x - e.x; dy = myPow.y - e.y; }
+        else {
+          dx = e.x - ari.x; dy = e.y - ari.y;
+          // steer off walls
+          if (e.x < 70*S) dx += 2; if (e.x > W - 70*S) dx -= 2;
+          if (e.y < 70*S) dy += 2; if (e.y > H - 70*S) dy -= 2;
+          const a = Math.atan2(dy, dx) + Math.sin(e.wob * .7) * .5;
+          dx = Math.cos(a); dy = Math.sin(a);
+        }
+      }
+      const m = Math.hypot(dx, dy);
+      if (m > 0){ dx /= m; dy /= m; }
+      let spd = e.spd * S;
+      if (e.powT > 0) spd *= 1.45;
+      if (e.slipT > 0) spd *= .55;
+      const drag = e.slipT > 0 ? 1.2 : (e.bonkT > 0 ? 2.2 : 8);   // slippy = low grip
+      e.vx += (dx * spd - e.vx) * Math.min(1, drag * dt);
+      e.vy += (dy * spd - e.vy) * Math.min(1, drag * dt);
+      e.x += e.vx * dt; e.y += e.vy * dt;
+      // walls
+      const pad = e.r;
+      if (e.x < pad){ e.x = pad; e.vx = Math.abs(e.vx) * .6; }
+      if (e.x > W - pad){ e.x = W - pad; e.vx = -Math.abs(e.vx) * .6; }
+      if (e.y < pad){ e.y = pad; e.vy = Math.abs(e.vy) * .6; }
+      if (e.y > H - pad){ e.y = H - pad; e.vy = -Math.abs(e.vy) * .6; }
+      // face target/motion
+      if (e.id === "ari"){
+        let tgt = sibs[0];
+        for (const s2 of sibs) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        e.face = Math.atan2(tgt.y - e.y, tgt.x - e.x);
+      } else if (Math.hypot(e.vx, e.vy) > 20) e.face = Math.atan2(e.vy, e.vx);
+    }
+
+    // puddles trip up Ari (PISSPANTZ ARI!)
+    for (const pu of puddles){
+      pu.t -= dt;
+      if (ari.slipT <= 0 && Math.hypot(ari.x-pu.x, ari.y-pu.y) < pu.r){
+        ari.slipT = 4; sSplash(); say(ari, pick(LINES.ariPiss), true);
+        comic("💦 PISSPANTZ ARI! 💦", ari.x, ari.y - 46*S, true);
+        speak("Piss pants Ari!");
+      }
+    }
+    puddles = puddles.filter(p => p.t > 0);
+
+    // power-ups
+    for (const p of pows){
+      p.t -= dt;
+      for (const e of ents){
+        if (Math.hypot(e.x-p.x, e.y-p.y) > e.r + 18*S) continue;
+        if (p.type === "ban" && e.id === "raf"){
+          e.powT = 5; p.t = 0; sFanfare(); shakeT = .3;
+          comic("🦍 RAFFLEBACK GORILLA!!", e.x, e.y - 46*S, true);
+          say(e, "RAFFLEBACK GORILLA TIME, BRUZ! 🦍"); speak("Raffleback gorilla!");
+        } else if (p.type === "mask" && e.id === "mei"){
+          e.powT = 5; p.t = 0; sBoss(); shakeT = .3;
+          comic("👹 monsterMeimei!!", e.x, e.y - 46*S, true);
+          say(e, "monsterMeimei AWAKENS 👹"); speak("Monster Meimei!");
+        } else if (p.type === "zap"){
+          e.spd *= 1.25; setTimeout(() => e.spd /= 1.25, 4000);
+          p.t = 0; sCorrect(); comic("⚡ ZOOM!", e.x, e.y - 40*S, false);
+        } else if (p.type === "pine"){
+          p.t = 0; sBoing(); comic("🍍 PINEAPPLE PANIC!", e.x, e.y - 40*S, true);
+          for (let i = 0; i < 3; i++){ spawnPine(); pines[pines.length-1].t = 8; }
+        }
+      }
+    }
+    pows = pows.filter(p => p.t > 0);
+
+    // gorilla / monster body-bonk Ari
+    for (const s2 of sibs){
+      if (s2.powT > 0 && s2.hitCool <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < s2.r + ari.r + 6*S){
+        s2.hitCool = 1;
+        bonk(ari, s2, "power");
+        comic(s2.id === "raf" ? "OOK OOK BRUZ!! 🦍" : "RAWR!! 👹", s2.x, s2.y - 44*S, true);
+        if (mode === s2.id) comic("REVENGE! 💪", ari.x, ari.y - 70*S, false);
+      }
+    }
+
+    // bouncy pineapples
+    for (const b of pines){
+      b.t -= dt; b.x += b.vx * dt; b.y += b.vy * dt; b.rot += b.vr * dt;
+      if (b.x < b.r || b.x > W - b.r){ b.vx *= -1; b.x = Math.max(b.r, Math.min(W - b.r, b.x)); }
+      if (b.y < b.r || b.y > H - b.r){ b.vy *= -1; b.y = Math.max(b.r, Math.min(H - b.r, b.y)); }
+      for (const e of ents){
+        const d = Math.hypot(e.x-b.x, e.y-b.y);
+        if (d < e.r + b.r){
+          const nx = (e.x-b.x)/(d||1), ny = (e.y-b.y)/(d||1);
+          e.vx += nx * 300 * S; e.vy += ny * 300 * S;
+          b.vx -= nx * 120 * S; b.vy -= ny * 120 * S;
+          if (Math.random() < .3) sBoing();
+        }
+      }
+    }
+    pines = pines.filter(b => b.t > 0);
+
+    // stick swing (player Ari or AI Ari)
+    swingCool = Math.max(0, swingCool - dt);
+    if (swingT > 0){
+      swingT -= dt;
+      for (const s2 of sibs){
+        if (s2.invT <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < ari.r + s2.r + STICK_LEN*S*.95){
+          bonk(s2, ari, "stick"); swingHit = true;
+          if (mode === "ari") speak(pick(["Bonk!","Gotcha!","Boom!"]));
+        } else if (!swingHit && !swingDodged && Math.hypot(s2.x-ari.x, s2.y-ari.y) < ari.r + s2.r + STICK_LEN*S*1.6){
+          if (s2.id === mode){ dodges++; swingDodged = true; comic("DODGE! 🌀", s2.x, s2.y - 42*S, false); }
+        }
+      }
+    }
+
+    // particles / bubbles decay
+    for (const p of parts) p.t -= dt;
+    parts = parts.filter(p => p.t > 0);
+    shakeT = Math.max(0, shakeT - dt);
+  }
+  function aiSwing(){ swingT = .28; swingCool = 1.1; swingHit = false; swingDodged = false; sWhoosh(); }
+  function playerSwing(){
+    if (phase !== "play" || mode !== "ari" || swingCool > 0) return;
+    swingT = .28; swingCool = .75; swingHit = false; swingDodged = false; sWhoosh();
+  }
+
+  function endRound(){
+    phase = "end";
+    sWhistle(); setTimeout(sFanfare, 300);
+    let rank, stats;
+    if (mode === "ari"){
+      rank = bonks >= 12 ? "BONK LEGEND 👑" : bonks >= 8 ? "FOAM FURY 🔥" : bonks >= 4 ? "BONK APPRENTICE 🏏" : "SOGGY NOODLE 🍜";
+      stats = `🏏 Bonks landed: <b>${bonks}</b><br>😵 Times gorilla'd/monstered: <b>${taken}</b>`;
+      speak(`Time's up! ${bonks} bonks! ${rank.replace(/[^\w\s]/g,"")}!`);
+    } else {
+      rank = taken === 0 ? "UNTOUCHABLE LEGEND 👑" : taken <= 2 ? "SLIPPERY EEL 🐍" : taken <= 5 ? "BRUISED BANANA 🍌" : "HUMAN PIÑATA 🪅";
+      stats = `😵 Bonks survived: <b>${taken}</b> · 🌀 Dodges: <b>${dodges}</b><br>${mode === "raf" ? "🦍 Gorilla revenge bonks" : "👹 Monster revenge bonks"}: <b>${gorillaBonks}</b>`;
+      speak(`Time's up! ${rank.replace(/[^\w\s]/g,"")}${mode === "raf" ? ", bruz!" : "!"}`);
+    }
+    $("bashEndRank").textContent = rank;
+    $("bashEndStats").innerHTML = stats + (pineMode ? "<br>🍍 PINEAPPLE MODE SURVIVED 🍍" : "");
+    $("bashEnd").classList.remove("hidden");
+    burst(innerWidth/2, innerHeight/3, 120, 10);
+  }
+
+  /* ---------- draw ---------- */
+  function drawStick(ari){
+    const swing = swingT > 0 ? (1 - swingT / .28) : 0;
+    const base = ari.face + (swingT > 0 ? (-1.5 + swing * 3) : Math.sin(ari.wob) * .25);
+    const hx = ari.x + Math.cos(base) * ari.r * .7, hy = ari.y + Math.sin(base) * ari.r * .7;
+    const len = STICK_LEN * S * (ari.slipT > 0 ? .85 : 1);
+    c.save();
+    c.translate(hx, hy); c.rotate(base);
+    c.fillStyle = "#ff7043";
+    const w = 15 * S;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(0, -w/2, len, w, w/2); else c.rect(0, -w/2, len, w);
+    c.fill();
+    c.fillStyle = "#e64a19";
+    for (let i = 1; i <= 3; i++) c.fillRect(len * i / 4 - 3*S, -w/2, 6*S, w);
+    c.fillStyle = "#ffd54f";
+    c.beginPath(); c.arc(len, 0, w * .62, 0, 7); c.fill();
+    c.restore();
+  }
+  function drawEnt(e){
+    const squash = e.bonkT > 0 ? 1 + Math.sin(e.bonkT * 20) * .15 : 1;
+    const bob = Math.sin(e.wob * 1.4) * 3 * S;
+    c.save();
+    if (e.invT > 0 && Math.floor(e.invT * 12) % 2 === 0) c.globalAlpha = .45;
+    // shadow
+    c.fillStyle = "rgba(0,0,0,.3)";
+    c.beginPath(); c.ellipse(e.x, e.y + e.r * .95, e.r * .8, e.r * .3, 0, 0, 7); c.fill();
+    // body
+    const R = e.r * (e.powT > 0 ? 1.35 : 1);
+    c.fillStyle = e.color;
+    c.strokeStyle = "rgba(255,255,255,.75)"; c.lineWidth = 3 * S;
+    c.beginPath(); c.arc(e.x, e.y + bob, R * squash, 0, 7); c.fill(); c.stroke();
+    if (e.slipT > 0){ c.fillStyle = "rgba(80,160,255,.5)"; c.beginPath(); c.arc(e.x, e.y + bob + R*.5, R*.5, 0, 7); c.fill(); }
+    // face
+    c.font = `${R * 1.35}px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif`;
+    c.textAlign = "center"; c.textBaseline = "middle";
+    c.save();
+    c.translate(e.x, e.y + bob - R * .1);
+    if (e.bonkT > 0) c.rotate(e.bonkT * 14);
+    else if (e.powT > 0) c.rotate(Math.sin(e.wob * 2) * .2);
+    c.fillText(faceOf(e), 0, 0);
+    c.restore();
+    // name tag
+    const nick = nickOf(e);
+    c.font = `900 ${11 * S}px -apple-system,sans-serif`;
+    const tw = c.measureText(nick).width + 12 * S;
+    c.fillStyle = e.powT > 0 ? "rgba(255,212,0,.9)" : (e.slipT > 0 ? "rgba(80,160,255,.9)" : "rgba(0,0,0,.65)");
+    const ty = e.y - R - 16 * S;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(e.x - tw/2, ty - 8*S, tw, 16*S, 8*S); else c.rect(e.x - tw/2, ty - 8*S, tw, 16*S);
+    c.fill();
+    c.fillStyle = (e.powT > 0 || e.slipT > 0) ? "#201000" : "#fff";
+    c.fillText(nick, e.x, ty);
+    // speech bubble
+    if (e.bubT > 0){
+      c.font = `800 ${13 * S}px -apple-system,sans-serif`;
+      const bw = c.measureText(e.bub).width + 16 * S;
+      const by = ty - 24 * S;
+      c.fillStyle = "rgba(255,255,255,.95)";
+      c.beginPath();
+      if (c.roundRect) c.roundRect(e.x - bw/2, by - 11*S, bw, 22*S, 10*S); else c.rect(e.x - bw/2, by - 11*S, bw, 22*S);
+      c.fill();
+      c.beginPath(); c.moveTo(e.x - 5*S, by + 10*S); c.lineTo(e.x + 6*S, by + 10*S); c.lineTo(e.x, by + 18*S); c.fill();
+      c.fillStyle = "#1a0140";
+      c.fillText(e.bub, e.x, by);
+    }
+    c.restore();
+  }
+  function draw(){
+    c.save();
+    if (shakeT > 0) c.translate((Math.random()-.5) * 14 * shakeT * 3, (Math.random()-.5) * 14 * shakeT * 3);
+    // floor
+    const g = c.createLinearGradient(0, 0, 0, H);
+    if (pineMode){ g.addColorStop(0, "#7a5c00"); g.addColorStop(1, "#3d2c00"); }
+    else { g.addColorStop(0, "#26124f"); g.addColorStop(1, "#0d0526"); }
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.globalAlpha = .18;
+    c.font = `20px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+    for (const d of deco){ c.save(); c.translate(d.x, d.y); c.rotate(d.a); c.font = `${d.s}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`; c.fillText(d.e, 0, 0); c.restore(); }
+    c.globalAlpha = 1;
+    // puddles
+    for (const pu of puddles){
+      c.fillStyle = "rgba(70,150,255,.4)"; c.strokeStyle = "rgba(150,200,255,.7)"; c.lineWidth = 2;
+      c.beginPath(); c.ellipse(pu.x, pu.y, pu.r, pu.r * .6, 0, 0, 7); c.fill(); c.stroke();
+      c.font = `${20*S}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText("💦", pu.x, pu.y);
+    }
+    // power-ups
+    c.textAlign = "center"; c.textBaseline = "middle";
+    for (const p of pows){
+      const pulse = 1 + Math.sin(performance.now() / 150) * .15;
+      c.font = `${30 * S * pulse}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+      c.fillText(p.e, p.x, p.y);
+    }
+    // pineapple balls
+    for (const b of pines){
+      c.save(); c.translate(b.x, b.y); c.rotate(b.rot);
+      c.font = `${b.r * 2.1}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
+      c.fillText("🍍", 0, 0); c.restore();
+    }
+    // entities (ari last so stick is on top)
+    const ari = ents.find(e => e.id === "ari");
+    for (const e of ents) if (e !== ari) drawEnt(e);
+    if (ari){ drawStick(ari); drawEnt(ari); }
+    // comic particles
+    for (const p of parts){
+      c.font = `900 ${(p.big ? 30 : 18) * S}px -apple-system,sans-serif`;
+      c.textAlign = "center";
+      c.strokeStyle = "#000"; c.lineWidth = 4 * S; c.globalAlpha = Math.min(1, p.t * 2);
+      const yy = p.y - (1.1 - p.t) * 44 * S;
+      c.strokeText(p.txt, p.x, yy);
+      c.fillStyle = p.big ? "#ffd400" : "#fff";
+      c.fillText(p.txt, p.x, yy);
+      c.globalAlpha = 1;
+    }
+    // HUD
+    c.fillStyle = "rgba(0,0,0,.5)";
+    c.beginPath();
+    if (c.roundRect) c.roundRect(W/2 - 110*S, 8, 220*S, 34*S, 17*S); else c.rect(W/2 - 110*S, 8, 220*S, 34*S);
+    c.fill();
+    c.fillStyle = "#fff"; c.font = `900 ${16*S}px -apple-system,sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    const score = mode === "ari" ? `🏏 ${bonks}` : `🌀 ${dodges} 😵 ${taken}`;
+    c.fillText(`⏰ ${Math.ceil(Math.max(0, timeLeft))}   ${score}`, W/2, 8 + 17*S);
+    // joystick
+    if (joy){
+      c.globalAlpha = .35;
+      c.fillStyle = "#fff";
+      c.beginPath(); c.arc(joy.sx, joy.sy, 44*S, 0, 7); c.fill();
+      c.beginPath(); c.arc(joy.sx + joy.dx * 34*S, joy.sy + joy.dy * 34*S, 22*S, 0, 7); c.fill();
+      c.globalAlpha = 1;
+    }
+    // countdown
+    if (phase === "count"){
+      c.fillStyle = "rgba(0,0,0,.45)"; c.fillRect(0, 0, W, H);
+      const n = Math.ceil(countT - .4);
+      c.fillStyle = "#ffd400"; c.font = `900 ${90*S}px -apple-system,sans-serif`;
+      c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText(n > 0 ? String(n) : "BASH!!", W/2, H*.4);
+      c.font = `800 ${16*S}px -apple-system,sans-serif`; c.fillStyle = "#fff";
+      c.fillText(mode === "ari" ? "Chase them down. BONK EVERYONE." : "RUN. DODGE. SURVIVE, BRUZ.", W/2, H*.4 + 70*S);
+    }
+    c.restore();
+  }
+
+  function loop(ts){
+    if (!running) return;
+    const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+    update(dt); draw();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ---------- input ---------- */
+  cv.addEventListener("pointerdown", ev => {
+    ev.preventDefault();
+    const r = cv.getBoundingClientRect();
+    joy = { id: ev.pointerId, sx: ev.clientX - r.left, sy: ev.clientY - r.top, dx: 0, dy: 0 };
+  });
+  cv.addEventListener("pointermove", ev => {
+    if (!joy || ev.pointerId !== joy.id) return;
+    const r = cv.getBoundingClientRect();
+    let dx = (ev.clientX - r.left - joy.sx) / (46 * S), dy = (ev.clientY - r.top - joy.sy) / (46 * S);
+    const m = Math.hypot(dx, dy);
+    if (m > 1){ dx /= m; dy /= m; }
+    joy.dx = dx; joy.dy = dy;
+  });
+  const joyEnd = ev => { if (joy && ev.pointerId === joy.id) joy = null; };
+  cv.addEventListener("pointerup", joyEnd); cv.addEventListener("pointercancel", joyEnd);
+  addEventListener("keydown", ev => { keys[ev.key] = true; if (ev.key === " " && running) playerSwing(); });
+  addEventListener("keyup", ev => { keys[ev.key] = false; });
+  addEventListener("resize", () => { if (running) resize(); });
+
+  /* ---------- screen wiring ---------- */
+  function open(){
+    $("title").classList.add("hidden");
+    $("bash").classList.remove("hidden");
+    $("bashSelect").classList.remove("hidden");
+    $("bashPlay").classList.add("hidden");
+  }
+  function close(){
+    stop();
+    $("bash").classList.add("hidden");
+    $("title").classList.remove("hidden");
+  }
+  document.querySelectorAll(".bcard").forEach(card => {
+    card.onclick = () => {
+      document.querySelectorAll(".bcard").forEach(x => x.classList.remove("sel"));
+      card.classList.add("sel");
+      mode = card.dataset.mode;
+      ensureAudio(); sHop();
+    };
+  });
+  $("pineTog").onclick = () => {
+    pineMode = !pineMode;
+    $("pineTog").textContent = "🍍 PINEAPPLE MODE: " + (pineMode ? "ON!!!" : "OFF");
+    $("pineTog").classList.toggle("on", pineMode);
+    ensureAudio(); if (pineMode){ sFanfare(); speak("Pineapple mode!"); } else sHop();
+  };
+  $("bashGo").onclick = () => {
+    ensureAudio();
+    $("bashSelect").classList.add("hidden");
+    $("bashPlay").classList.remove("hidden");
+    requestAnimationFrame(() => start());   // let layout settle so canvas has size
+  };
+  $("bashBack").onclick = close;
+  $("bashExit").onclick = () => { stop(); $("bashPlay").classList.add("hidden"); $("bashSelect").classList.remove("hidden"); };
+  $("bashBtn").onclick = playerSwing;
+  $("bashAgain").onclick = () => start();
+  $("bashPick").onclick = () => { stop(); $("bashPlay").classList.add("hidden"); $("bashSelect").classList.remove("hidden"); };
+  $("bashHome").onclick = close;
+  $("btnBash").onclick = () => { ensureAudio(); open(); };
+
+  return { start, stop, get state(){ return { phase, bonks, taken, dodges, timeLeft, mode, pineMode }; }, set time(v){ timeLeft = v; }, get ents(){ return ents; } };
+})();
+window.BASH = BASH;
 
 document.addEventListener("visibilitychange", () => {
   if (actx){ if (document.hidden) actx.suspend(); else actx.resume(); }

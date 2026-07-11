@@ -12,6 +12,7 @@ Pure HTML/CSS/JS, no dependencies, with a fully synthesized K-pop soundtrack (We
 - **Boss battles** against DJ Pickle 🥒, Captain Broccoli 🥦 and the Disco Dragon 🐉 — win for a double hop, lose and get bonked back a step.
 - **~90 kid-tuned questions** (age-7 math/animals/space/words/K-pop + an age-4 pool for Ari: colors, counting, animal sounds — auto-read aloud for the non-reader).
 - **Streak bonuses 🔥**, Ari's random **Turbo Trike 🛴** extra hop, hilarious right/wrong reactions, a goofy text-to-speech announcer.
+- **🏏 STICK BASH! minigame** — WATERMELON ARI chases PINEAPPLE RAF and OTHERKID MEIMEI around a zany arena with a foam bashing stick. Play as Ari (bonk everyone) or a big kid (dodge & survive). Power-ups turn Raf into the **RAFFLEBACK GORILLA 🦍** and Meimei into **monsterMeimei 👹** for stick-turning revenge, while 💦 puddles trigger **PISSPANTZ ARI** slippy mode. Plus **🍍 PINEAPPLE MODE**: bouncing pineapples everywhere, everyone gets a pineapple head, +30% chaos. Raf calls everyone "bruz".
 - **Full production values:** animated disco background, confetti cannon, screen shake, spotlight victory stage with a dancing emoji crowd, and a synthesized 128 BPM K-pop banger (kick/snare/hats/bass/chord stabs/lead hook with echo).
 
 ## F-117A Stealth Fighter — Night Strike 🛩️ (`/f117a/`)
