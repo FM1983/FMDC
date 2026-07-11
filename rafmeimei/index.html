@@ -36,16 +36,70 @@
   .hidden { display:none !important; }
 
   /* ===== TITLE ===== */
-  #title { justify-content:center; gap:14px; padding:16px; text-align:center; }
-  .logo-mini { font-size:42px; letter-spacing:6px; animation:bop 1s ease-in-out infinite; }
+  #title { justify-content:center; gap:10px; padding:12px 16px 52px; text-align:center; overflow-y:auto; }
+
+  /* --- concert hero scene --- */
+  #hero { position:relative; width:min(92vw,430px); height:158px; flex-shrink:0; }
+  #heroLasers {
+    position:absolute; left:50%; top:50%; width:560px; height:560px; margin:-280px 0 0 -280px; border-radius:50%;
+    background:conic-gradient(from 0deg,
+      transparent 0 18deg, rgba(255,45,149,.30) 18deg 26deg, transparent 26deg 70deg,
+      rgba(0,229,255,.30) 70deg 78deg, transparent 78deg 128deg, rgba(255,212,0,.26) 128deg 136deg,
+      transparent 136deg 196deg, rgba(160,77,255,.30) 196deg 204deg, transparent 204deg 286deg,
+      rgba(0,230,118,.24) 286deg 294deg, transparent 294deg 360deg);
+    animation:laserSpin 9s linear infinite; pointer-events:none;
+  }
+  @keyframes laserSpin { to { transform:rotate(360deg); } }
+  #ball { position:absolute; top:-8px; left:50%; z-index:3; font-size:44px;
+    filter:drop-shadow(0 0 16px rgba(255,255,255,.9)); animation:ballSway 3.4s ease-in-out infinite; }
+  @keyframes ballSway { 0%,100%{transform:translateX(-50%) rotate(-14deg)} 50%{transform:translateX(-50%) rotate(14deg)} }
+  .hspot { position:absolute; top:26px; left:50%; width:74px; height:134px; margin-left:-37px; opacity:.45; z-index:1;
+    background:linear-gradient(180deg, rgba(255,255,200,.95), transparent 85%);
+    clip-path:polygon(44% 0,56% 0,100% 100%,0 100%); transform-origin:top center; }
+  .hspot.h1 { animation:sweep 2.3s ease-in-out infinite alternate; }
+  .hspot.h2 { animation:sweep 2.3s ease-in-out infinite alternate-reverse; }
+  #heroStage { position:absolute; bottom:0; left:4%; right:4%; height:38px; border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(255,45,149,.6), rgba(255,45,149,.1) 65%, transparent 75%);
+    box-shadow:0 0 34px rgba(255,45,149,.45); }
+  #dancers { position:absolute; bottom:8px; left:0; right:0; z-index:2; display:flex; justify-content:center; align-items:flex-end; gap:12px; }
+  #dancers .star { font-size:48px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,212,0,.35)); animation:danceBig .5s ease-in-out infinite alternate; }
+  #dancers .star.s2 { font-size:56px; animation-delay:.16s; }
+  #dancers .star.s3 { animation-delay:.32s; }
+  #dancers .backup { font-size:26px; opacity:.85; animation:bop .7s ease-in-out infinite; }
+  #dancers .backup.b2 { animation-delay:.35s; }
+  @keyframes danceBig { 0%{transform:translateY(0) rotate(-9deg) scale(1)} 100%{transform:translateY(-13px) rotate(9deg) scale(1.07)} }
+
+  .live-chip { background:linear-gradient(135deg,#e4003c,#8f0030); padding:4px 16px; border-radius:99px; font-weight:900; font-size:12px;
+    letter-spacing:3px; box-shadow:0 0 20px rgba(255,0,80,.9), inset 0 0 8px rgba(255,255,255,.25); animation:blinkLive 1.1s steps(2) infinite; }
+  @keyframes blinkLive { 50%{opacity:.5} }
+  #villainPeek { position:absolute; bottom:2px; right:-4px; font-size:30px; z-index:2;
+    filter:drop-shadow(0 0 8px rgba(255,60,60,.8)); animation:villainSneak 5s ease-in-out infinite; transform-origin:bottom center; }
+  @keyframes villainSneak { 0%,55%,100%{transform:translateY(34px) rotate(0)} 65%,90%{transform:translateY(0) rotate(-14deg)} 78%{transform:translateY(-4px) rotate(10deg)} }
+
   h1.logo {
-    font-size: clamp(30px, 8vw, 58px); font-weight:900; line-height:1.05;
+    font-size: clamp(32px, 8.6vw, 60px); font-weight:900; line-height:1.04;
     background: linear-gradient(90deg,#ff2d95,#ffd400,#00e5ff,#ff2d95);
     background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
-    animation: shimmer 3s linear infinite; text-shadow:0 0 30px rgba(255,45,149,.35);
+    -webkit-text-stroke:1.5px rgba(255,255,255,.16);
+    filter:drop-shadow(0 0 12px rgba(255,45,149,.65)) drop-shadow(0 0 30px rgba(0,229,255,.35));
+    animation: shimmer 3s linear infinite, logoPulse 2.2s ease-in-out infinite;
   }
   @keyframes shimmer { 0%{background-position:0 0} 100%{background-position:300% 0} }
-  .tagline { font-size:15px; opacity:.85; font-weight:600; }
+  @keyframes logoPulse { 0%,100%{transform:scale(1) rotate(-1.2deg)} 50%{transform:scale(1.045) rotate(1.2deg)} }
+  .tagline { font-size:14px; opacity:.9; font-weight:600; max-width:460px; }
+
+  /* bottom marquee ticker */
+  #ticker { position:absolute; bottom:0; left:0; right:0; padding:7px 0 max(7px, env(safe-area-inset-bottom));
+    background:rgba(0,0,0,.55); border-top:2px solid rgba(255,212,0,.65); overflow:hidden; box-shadow:0 -4px 24px rgba(255,45,149,.25); }
+  #ticker span { display:inline-block; white-space:nowrap; font-weight:900; font-size:13px; letter-spacing:2px; color:#ffd400;
+    text-shadow:0 0 10px rgba(255,212,0,.6); animation:marquee 14s linear infinite; }
+  @keyframes marquee { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+  .btn { position:relative; overflow:hidden; }
+  .btn::after { content:""; position:absolute; top:0; bottom:0; left:-80%; width:36%; pointer-events:none;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent);
+    transform:skewX(-20deg); animation:sheen 2.9s ease-in-out infinite; }
+  @keyframes sheen { 0%,55%{left:-80%} 100%{left:135%} }
 
   .picker-row { display:flex; gap:12px; margin-top:6px; }
   .picker { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); border-radius:20px; padding:10px 18px; text-align:center; cursor:pointer; transition:transform .15s; }
@@ -111,7 +165,7 @@
     animation:popIn .35s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes popIn { 0%{transform:scale(.6); opacity:0} 100%{transform:scale(1); opacity:1} }
-  #qcard.shake { animation:shakeX .5s; }
+  #qcard.shake, .shakeme { animation:shakeX .5s; }
   @keyframes shakeX { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(6px)} }
 
   #timerWrap { height:10px; background:rgba(255,255,255,.12); border-radius:99px; overflow:hidden; }
@@ -196,6 +250,8 @@
   .bcard .bnick { font-weight:900; font-size:12px; margin-top:4px; line-height:1.2; }
   .bcard .brole { font-size:10px; opacity:.75; font-weight:700; margin-top:2px; }
   .bcard.sel { border-color:#ffd400; box-shadow:0 0 18px rgba(255,212,0,.6); background:rgba(255,212,0,.14); }
+  .bcard.villain { position:relative; border-color:rgba(255,60,60,.55); background:rgba(120,0,20,.25); }
+  .bcard.villain.sel { border-color:#ff3b3b; box-shadow:0 0 22px rgba(255,60,60,.8); background:rgba(255,60,60,.16); }
   #pineTog { border-width:2px; font-size:15px; padding:10px 18px; }
   #pineTog.on { background:linear-gradient(135deg,#ffd400,#f7b733); color:#4a2a00; border-color:#fff; box-shadow:0 0 22px rgba(255,212,0,.8); animation:winPulse .8s ease-in-out infinite; }
   #bashPlay { position:absolute; inset:0; }
@@ -227,26 +283,40 @@
 
 <!-- ================= TITLE ================= -->
 <div id="title" class="screen">
-  <div class="logo-mini">🎤✨🕺</div>
+  <div id="hero">
+    <div id="heroLasers"></div>
+    <span id="ball">🪩</span>
+    <div class="hspot h1"></div><div class="hspot h2"></div>
+    <div id="heroStage"></div>
+    <div id="dancers">
+      <span class="backup b1">🕺</span>
+      <span class="star s1" id="heroRaf">😎</span>
+      <span class="star s2" id="heroAri">🐣</span>
+      <span class="star s3" id="heroMei">🦄</span>
+      <span class="backup b2">💃</span>
+    </div>
+    <span id="villainPeek" title="Meatball Monty is watching">🍝</span>
+  </div>
+  <div class="live-chip">🔴 LIVE ON STAGE</div>
   <h1 class="logo">RAF ⚡ MEIMEI<br>K-POP QUIZ QUEST!</h1>
-  <div class="tagline">Race to the Mega Concert Stage! 🏟️ Answer quizzes, defeat silly bosses, become a POP LEGEND!<br>⭐ Featuring bonus hero: little bro ARI! ⭐</div>
+  <div class="tagline">Race to the Mega Concert Stage! 🏟️ Defeat silly bosses... and survive <b>MEATBALL MONTY</b>, the 10-year-old MENACE! 🍝😈</div>
 
   <div class="picker-row">
     <div class="picker" id="pickRaf">
       <span class="face" id="faceRaf">😎</span>
       <span class="pname">RAF</span>
-      <div class="hint">tap to change hero!</div>
+      <div class="hint">🍍 PINEAPPLE RAF<br>tap to change hero!</div>
     </div>
     <div class="picker" id="pickMei">
       <span class="face" id="faceMei">🦄</span>
       <span class="pname">MEIMEI</span>
-      <div class="hint">tap to change hero!</div>
+      <div class="hint">🙃 OTHERKID MEIMEI<br>tap to change hero!</div>
     </div>
     <div class="picker" id="pickAri">
       <span class="bonus-tag">BONUS!</span>
       <span class="face" id="faceAri">🐣</span>
       <span class="pname">ARI</span>
-      <div class="hint">little bro, age 4!</div>
+      <div class="hint">🍉 WATERMELON ARI<br>little bro, age 4!</div>
     </div>
   </div>
 
@@ -262,6 +332,7 @@
     <button class="tog" id="togMusic">🎵 Music ON</button>
     <button class="tog" id="togSfx">🔊 Sounds ON</button>
   </div>
+  <div id="ticker"><span>⭐ PINEAPPLE RAF ⚡ OTHERKID MEIMEI ⚡ WATERMELON ARI ⭐ LIVE AT THE MEGA CONCERT STAGE 🏟️ ⭐ STICK BASH — NOBODY IS SAFE, BRUZ 🏏 ⭐ PINEAPPLE MODE 🍍🍍🍍 ⭐ ⚠️ WARNING: MEATBALL MONTY IS LOOSE 🍝😈 ⚠️ ⭐</span></div>
 </div>
 
 <!-- ================= GAME ================= -->
@@ -316,9 +387,15 @@
         <div class="bnick">OTHERKID<br>MEIMEI</div>
         <div class="brole">💨 DODGE THE STICK!</div>
       </div>
+      <div class="bcard villain" id="bcMonty" data-mode="monty">
+        <span class="bonus-tag" style="background:#ff3b3b; color:#fff;">VILLAIN!</span>
+        <span class="bface">😜</span>
+        <div class="bnick">MEATBALL<br>MONTY</div>
+        <div class="brole">🍝 SAUCE EVERYONE! Age 10. MENACE.</div>
+      </div>
     </div>
     <button class="tog" id="pineTog">🍍 PINEAPPLE MODE: OFF</button>
-    <div class="sub" style="font-size:12px; opacity:.7;">Grab 🍌 to go RAFFLEBACK GORILLA · 👹 for monsterMeimei · watch for 💦 PISSPANTZ puddles!</div>
+    <div class="sub" style="font-size:12px; opacity:.7;">Grab 🍌 to go RAFFLEBACK GORILLA · 👹 for monsterMeimei · watch for 💦 PISSPANTZ puddles!<br>⚠️ MEATBALL MONTY is ALWAYS in the arena. Nobody is safe. Not even Ari.</div>
     <button class="btn orange" id="bashGo">🚨 GO GO GO GO!</button>
     <button class="btn cyan small" id="bashBack">⬅️ Back</button>
   </div>
@@ -379,6 +456,10 @@ const BOSSES = {
   10: { name:"CAPTAIN BROCCOLI",emoji:"🥦", line:"He forces kids to eat... QUESTIONS!" },
   13: { name:"DISCO DRAGON",    emoji:"🐉", line:"His dance moves are FIRE. Literally." },
 };
+// FINAL BOSS: Meatball Monty guards the Mega Concert Stage itself.
+const MONTY = { name:"MEATBALL MONTY", emoji:"🍝", line:"A 10-year-old MENACE blocks the stage, armed with saucy meatballs!" };
+const MONTY_WIN  = ["MONTY DEFEATED! He slurps away crying 🍝😭","THE MENACE IS TOAST! Stage unlocked! 🎤","Monty rage-quits to eat spaghetti 🍝"];
+const MONTY_LOSE = ["MEATBALL BARRAGE!! Blown back 2 steps! 🍝🍝🍝","SAUCED!! Monty cackles: NYAHAHA! 😈"];
 function worldOf(pos){ return WORLDS.find(w => pos >= w.from && pos <= w.to) || WORLDS[3]; }
 
 // serpentine board: 4 rows x 4 cols
@@ -653,7 +734,9 @@ function drawMap(){
     if (i === FINISH){
       html += `<circle cx="${n.x}" cy="${n.y}" r="17" fill="#ffd400" opacity=".25"><animate attributeName="r" values="15;20;15" dur="1.2s" repeatCount="indefinite"/></circle>
                <circle cx="${n.x}" cy="${n.y}" r="13" fill="#2b0a52" stroke="#ffd400" stroke-width="2.5"/>
-               <text x="${n.x}" y="${n.y+5}" font-size="15" text-anchor="middle">🏟️</text>`;
+               <text x="${n.x}" y="${n.y+5}" font-size="15" text-anchor="middle">🏟️</text>
+               <text x="${n.x+17}" y="${n.y-8}" font-size="12" text-anchor="middle">🍝</text>
+               <text x="${n.x+17}" y="${n.y-18}" font-size="7" text-anchor="middle" fill="#ff6b6b" font-weight="900">MONTY!</text>`;
     } else if (boss){
       html += `<circle cx="${n.x}" cy="${n.y}" r="12.5" fill="#4a002c" stroke="#ff2d95" stroke-width="2.5"/>
                <text x="${n.x}" y="${n.y+4.5}" font-size="13" text-anchor="middle">${boss.emoji}</text>`;
@@ -674,7 +757,7 @@ let rafFace = 0, meiFace = 0, ariFace = 0;
 const TXS = { 1:["-50%"], 2:["-72%","-28%"], 3:["-88%","-50%","-12%"] };
 let players = [], cur = 0, mode = "race";
 let phase = "idle";           // idle | asking | anim
-let curQ = null, curShown = [], isBossQ = false, pendingBoss = null;
+let curQ = null, curShown = [], isBossQ = false, isFinalQ = false, pendingBoss = null;
 let timerId = null, timeLeft = 0;
 const TIME_MAX = 20;
 let poolIdx = [[],[],[],[]], bossIdx = [], ariIdx = [];
@@ -749,6 +832,7 @@ function startTurn(){
   if (phase === "over") return;
   phase = "asking";
   renderHud();
+  isFinalQ = false;
   askQuestion(false);
 }
 function askQuestion(boss){
@@ -821,9 +905,13 @@ function answer(btn, right){
     const r = btn.getBoundingClientRect();
     burst(r.left + r.width/2, r.top + r.height/2, 50, 7);
     p.stars++; p.streak++;
-    if (isBossQ){
+    if (isFinalQ){
+      toast(MONTY_WIN[(Math.random()*MONTY_WIN.length)|0]);
+      sFanfare();
+      setTimeout(() => win(cur), 1600);
+    } else if (isBossQ){
       toast(BOSS_WIN[(Math.random()*BOSS_WIN.length)|0]);
-      setTimeout(() => moveBy(2, true), 1000);
+      setTimeout(() => moveBy(2, false), 1000);
     } else {
       toast(YAY[(Math.random()*YAY.length)|0]);
       const streakBonus = p.streak > 0 && p.streak % 3 === 0;
@@ -842,14 +930,18 @@ function answer(btn, right){
     $("qcard").classList.add("shake");
     setTimeout(() => $("qcard").classList.remove("shake"), 550);
     const av = $("av" + cur); av.classList.add("sad"); setTimeout(() => av.classList.remove("sad"), 650);
-    toast(isBossQ ? BOSS_LOSE[(Math.random()*BOSS_LOSE.length)|0] : NAY[(Math.random()*NAY.length)|0]);
+    toast(isFinalQ ? MONTY_LOSE[(Math.random()*MONTY_LOSE.length)|0]
+        : isBossQ ? BOSS_LOSE[(Math.random()*BOSS_LOSE.length)|0]
+        : NAY[(Math.random()*NAY.length)|0]);
     handleWrong();
   }
   renderHud();
 }
 function handleWrong(){
   const p = players[cur];
-  if (isBossQ && p.pos > 0){
+  if (isFinalQ){
+    setTimeout(() => { p.pos = Math.max(0, p.pos - 2); sBoss(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1200);
+  } else if (isBossQ && p.pos > 0){
     setTimeout(() => { p.pos--; sHop(); hopAvatar(); placeAvatar(cur, p.pos); setTimeout(endTurn, 900); }, 1100);
   } else {
     setTimeout(endTurn, 1600);
@@ -858,6 +950,10 @@ function handleWrong(){
 function hopAvatar(){
   const av = $("av" + cur);
   av.classList.remove("hopping"); void av.offsetWidth; av.classList.add("hopping");
+}
+function shakeMap(){
+  const m = $("mapWrap");
+  m.classList.remove("shakeme"); void m.offsetWidth; m.classList.add("shakeme");
 }
 function moveBy(steps, fromBoss){
   const p = players[cur];
@@ -871,7 +967,14 @@ function moveBy(steps, fromBoss){
 }
 function afterMove(fromBoss){
   const p = players[cur];
-  if (p.pos >= FINISH){ win(cur); return; }
+  if (p.pos >= FINISH){
+    // MEATBALL MONTY guards the stage — beat the final boss to win!
+    p.pos = FINISH;
+    sBoss(); shakeMap();
+    banner(MONTY.emoji, "FINAL BOSS!", MONTY.name + " — " + MONTY.line, 2300, () => { phase = "asking"; isFinalQ = true; askQuestion(true); });
+    speak("Final boss! Meatball Monty! Nyahaha!");
+    return;
+  }
   const boss = BOSSES[p.pos];
   const w = worldOf(p.pos), prevW = worldOf(Math.max(0, p.pos - 1));
   if (boss && !fromBoss){
@@ -931,9 +1034,9 @@ function win(i){
 }
 
 /* ---------------- UI WIRES ---------------- */
-$("pickRaf").onclick = () => { rafFace = (rafFace + 1) % RAF_FACES.length; $("faceRaf").textContent = RAF_FACES[rafFace]; ensureAudio(); sHop(); };
-$("pickMei").onclick = () => { meiFace = (meiFace + 1) % MEI_FACES.length; $("faceMei").textContent = MEI_FACES[meiFace]; ensureAudio(); sHop(); };
-$("pickAri").onclick = () => { ariFace = (ariFace + 1) % ARI_FACES.length; $("faceAri").textContent = ARI_FACES[ariFace]; ensureAudio(); sHop(); };
+$("pickRaf").onclick = () => { rafFace = (rafFace + 1) % RAF_FACES.length; $("faceRaf").textContent = $("heroRaf").textContent = RAF_FACES[rafFace]; ensureAudio(); sHop(); };
+$("pickMei").onclick = () => { meiFace = (meiFace + 1) % MEI_FACES.length; $("faceMei").textContent = $("heroMei").textContent = MEI_FACES[meiFace]; ensureAudio(); sHop(); };
+$("pickAri").onclick = () => { ariFace = (ariFace + 1) % ARI_FACES.length; $("faceAri").textContent = $("heroAri").textContent = ARI_FACES[ariFace]; ensureAudio(); sHop(); };
 $("btnRace").onclick    = () => { ensureAudio(); newGame("race"); };
 $("btnRace3").onclick   = () => { ensureAudio(); newGame("race3"); };
 $("btnSoloRaf").onclick = () => { ensureAudio(); newGame("soloRaf"); };
@@ -972,7 +1075,7 @@ const BASH = (() => {
   let W = 0, H = 0, S = 1, rafId = null, last = 0, running = false;
   let mode = "ari", pineMode = false, phase = "count";
   let timeLeft = 0, countT = 0, bonks = 0, taken = 0, dodges = 0, gorillaBonks = 0;
-  let ents = [], pows = [], pines = [], parts = [], puddles = [], deco = [];
+  let ents = [], pows = [], pines = [], parts = [], puddles = [], deco = [], balls = [];
   let swingT = 0, swingCool = 0, swingHit = false, swingDodged = false;
   let shakeT = 0, powTimer = 5, tauntT = 3, endedByExit = false;
   let joy = null; const keys = {};
@@ -986,6 +1089,8 @@ const BASH = (() => {
     ariBonk:  ["WAAAH! 😭","NO FAIR!!","MY STICK! 😤"],
     ariTrip:  ["oopsie 🍑💥","wobbly legs!!"],
     ariPiss:  ["uh oh... 💦","SLIPPY MODE 💦"],
+    montyChase:["NYAHAHA! 😈","MEATBALL DELIVERY! 🍝","YOU'VE BEEN SAUCED!","FEAR THE MEAT! 💪","TEN YEARS OF MENACE!"],
+    montyBonk: ["MY MEATBALLS!! 😤","IMPOSSIBLE!!","OW!! RUDE!!","MENACE DOWN! 😵"],
   };
   const pick = a => a[(Math.random() * a.length) | 0];
 
@@ -1005,8 +1110,9 @@ const BASH = (() => {
   }
   function faceOf(e){
     if (e.bonkT > 0) return "😵‍💫";
-    if (e.id === "raf") return e.powT > 0 ? "🦍" : (pineMode ? "🍍" : "🍍");
+    if (e.id === "raf") return e.powT > 0 ? "🦍" : "🍍";
     if (e.id === "mei") return e.powT > 0 ? "👹" : (pineMode ? "🍍" : "🙃");
+    if (e.id === "monty") return pineMode ? "🍍" : "😜";
     return e.slipT > 0 ? "😨" : (pineMode ? "🍍" : "🍉");
   }
 
@@ -1024,14 +1130,17 @@ const BASH = (() => {
     phase = "count"; countT = 3.4; timeLeft = ROUND;
     bonks = taken = dodges = gorillaBonks = 0;
     swingT = swingCool = 0; shakeT = 0; powTimer = 5; tauntT = 2.5;
-    pows = []; pines = []; parts = []; puddles = []; joy = null;
+    pows = []; pines = []; parts = []; puddles = []; balls = []; joy = null;
     const sp = 1 + (pineMode ? .3 : 0);
     ents = [
       mk("ari", "WATERMELON ARI", "🍉", "#2e7d32", W*.5,  H*.72, 205*sp),
       mk("raf", "PINEAPPLE RAF",  "🍍", "#1e88e5", W*.25, H*.3,  190*sp),
       mk("mei", "OTHERKID MEIMEI","🙃", "#7a4b2e", W*.75, H*.3,  190*sp),
+      mk("monty","MEATBALL MONTY","😜", "#b71c1c", W*.5,  H*.15, 185*sp),
     ];
     ents.forEach(e => e.r = 26 * S);
+    const monty0 = ents.find(e => e.id === "monty");
+    monty0.throwT = 3; monty0.wtx = W*.5; monty0.wty = H*.5;
     // player gets a fair speed edge
     const me = ents.find(e => e.id === mode);
     me.spd *= 1.08;
@@ -1039,10 +1148,11 @@ const BASH = (() => {
     const ds = pineMode ? ["🍍","🍍","🌼","🍍","⭐","🍍"] : ["🌼","🍕","⭐","🌈","🧦","🍩","🛼","🌵"];
     for (let i = 0; i < 14; i++) deco.push({ x:Math.random()*W, y:Math.random()*H, e:ds[i % ds.length], s:16 + Math.random()*18, a:Math.random()*6 });
     if (pineMode) for (let i = 0; i < 8; i++) spawnPine();
-    $("bashBtn").style.display = mode === "ari" ? "" : "none";
+    $("bashBtn").style.display = (mode === "ari" || mode === "monty") ? "" : "none";
+    $("bashBtn").innerHTML = mode === "monty" ? "🍝<br>HURL!" : "🏏<br>BASH!";
     $("bashEnd").classList.add("hidden");
     sWhistle();
-    speak(pineMode ? "Pineapple mode! Go go go go!" : "Stick bash! Go go go go!");
+    speak(mode === "monty" ? "Meatball Monty time! Nyahaha!" : pineMode ? "Pineapple mode! Go go go go!" : "Stick bash! Go go go go!");
     running = true; last = performance.now();
     cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop);
   }
@@ -1076,6 +1186,7 @@ const BASH = (() => {
     burst(victim.x * (innerWidth / W), victim.y * (innerHeight / H), 30, 7);
     if (victim.id === "raf") say(victim, pick(LINES.rafBonk), true);
     else if (victim.id === "mei") say(victim, pick(LINES.meiBonk), true);
+    else if (victim.id === "monty") say(victim, pick(LINES.montyBonk), true);
     else say(victim, pick(LINES.ariBonk), true);
     if (tag === "stick"){ if (mode === "ari") bonks++; else if (victim.id === mode) taken++; }
     if (tag === "power"){ gorillaBonks++; if (mode === "ari") taken++; }
@@ -1097,16 +1208,19 @@ const BASH = (() => {
       const e = ai[(Math.random()*ai.length)|0];
       if (e.id === "raf") say(e, pick(LINES.rafFlee));
       else if (e.id === "mei") say(e, pick(LINES.meiFlee));
+      else if (e.id === "monty") say(e, pick(LINES.montyChase));
       else say(e, pick(LINES.ariChase));
     }
 
     const ari = ents.find(e => e.id === "ari");
-    const sibs = ents.filter(e => e.id !== "ari");
+    const monty = ents.find(e => e.id === "monty");
+    const kids = ents.filter(e => e.id === "raf" || e.id === "mei");
 
     for (const e of ents){
       e.bonkT = Math.max(0, e.bonkT - dt); e.invT = Math.max(0, e.invT - dt);
       e.powT = Math.max(0, e.powT - dt); e.slipT = Math.max(0, e.slipT - dt);
       e.tripT = Math.max(0, e.tripT - dt); e.hitCool = Math.max(0, e.hitCool - dt);
+      e.hurlCool = Math.max(0, (e.hurlCool || 0) - dt);
       e.bubT = Math.max(0, e.bubT - dt); e.wob += dt * 9;
 
       let dx = 0, dy = 0;
@@ -1117,25 +1231,39 @@ const BASH = (() => {
         if (keys.ArrowLeft || keys.a) dx -= 1; if (keys.ArrowRight || keys.d) dx += 1;
         if (keys.ArrowUp || keys.w) dy -= 1;   if (keys.ArrowDown || keys.s) dy += 1;
       } else if (e.id === "ari"){
-        // AI Ari: hunt nearest sibling, wobble like a 4-year-old, sometimes trip
-        let tgt = sibs[0];
-        for (const s2 of sibs) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
-        // run away from monsters/gorillas!
-        const scary = sibs.find(s2 => s2.powT > 0);
+        // AI Ari: hunt nearest big kid, wobble like a 4-year-old, sometimes trip
+        let tgt = kids[0];
+        for (const s2 of kids) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        // run away from monsters, gorillas... and Monty!
+        const scary = kids.find(s2 => s2.powT > 0);
         if (scary){ dx = e.x - scary.x; dy = e.y - scary.y; }
+        else if (Math.hypot(monty.x-e.x, monty.y-e.y) < 130*S){ dx = e.x - monty.x; dy = e.y - monty.y; }
         else { dx = tgt.x - e.x; dy = tgt.y - e.y; }
         const wob = Math.sin(e.wob) * .55;
         const a = Math.atan2(dy, dx) + wob;
         dx = Math.cos(a); dy = Math.sin(a);
         if (Math.random() < dt / 8){ e.tripT = 1.1; say(e, pick(LINES.ariTrip), true); comic("💥", e.x, e.y, false); sBoing(); }
         if (!scary && Math.hypot(tgt.x-e.x, tgt.y-e.y) < e.r + tgt.r + STICK_LEN*S*.8 && swingCool <= 0) aiSwing();
+      } else if (e.id === "monty"){
+        // AI MEATBALL MONTY: stalks the whole arena, lobbing meatballs at EVERYONE
+        const scary = kids.find(s2 => s2.powT > 0);
+        if (!e.wtx || Math.hypot(e.wtx-e.x, e.wty-e.y) < 40*S || Math.random() < dt/3){
+          e.wtx = W*.12 + Math.random()*W*.76; e.wty = H*.12 + Math.random()*H*.76;
+        }
+        let tgt = ents[0] === e ? ents[1] : ents[0];
+        for (const s2 of ents) if (s2 !== e && Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        if (scary){ dx = e.x - scary.x; dy = e.y - scary.y; }
+        else { dx = (e.wtx - e.x)*.6 + (tgt.x - e.x)*.4; dy = (e.wty - e.y)*.6 + (tgt.y - e.y)*.4; }
+        e.throwT -= dt;
+        if (e.throwT <= 0 && phase === "play"){ e.throwT = 2.4 + Math.random()*2; hurl(e); }
       } else {
-        // AI sibling: powered → hunt Ari; else grab own power-up or flee Ari
+        // AI kid: powered → hunt Ari; else grab own power-up or flee the nearest menace
         const myPow = pows.find(p => (p.type === "ban" && e.id === "raf") || (p.type === "mask" && e.id === "mei"));
         if (e.powT > 0){ dx = ari.x - e.x; dy = ari.y - e.y; }
         else if (myPow && Math.hypot(myPow.x-e.x, myPow.y-e.y) < 260*S){ dx = myPow.x - e.x; dy = myPow.y - e.y; }
         else {
-          dx = e.x - ari.x; dy = e.y - ari.y;
+          const threat = Math.hypot(ari.x-e.x, ari.y-e.y) < Math.hypot(monty.x-e.x, monty.y-e.y) ? ari : monty;
+          dx = e.x - threat.x; dy = e.y - threat.y;
           // steer off walls
           if (e.x < 70*S) dx += 2; if (e.x > W - 70*S) dx -= 2;
           if (e.y < 70*S) dy += 2; if (e.y > H - 70*S) dy -= 2;
@@ -1160,8 +1288,8 @@ const BASH = (() => {
       if (e.y > H - pad){ e.y = H - pad; e.vy = -Math.abs(e.vy) * .6; }
       // face target/motion
       if (e.id === "ari"){
-        let tgt = sibs[0];
-        for (const s2 of sibs) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
+        let tgt = kids[0];
+        for (const s2 of kids) if (Math.hypot(s2.x-e.x, s2.y-e.y) < Math.hypot(tgt.x-e.x, tgt.y-e.y)) tgt = s2;
         e.face = Math.atan2(tgt.y - e.y, tgt.x - e.x);
       } else if (Math.hypot(e.vx, e.vy) > 20) e.face = Math.atan2(e.vy, e.vx);
     }
@@ -1201,8 +1329,27 @@ const BASH = (() => {
     }
     pows = pows.filter(p => p.t > 0);
 
+    // meatballs fly, splat, and SAUCE people
+    for (const b of balls){
+      b.t -= dt; b.x += b.vx * dt; b.y += b.vy * dt;
+      if (b.x < 0 || b.x > W || b.y < 0 || b.y > H){ b.t = 0; comic("splat 🍝", b.x, b.y, false); continue; }
+      for (const e of ents){
+        if (e.id === b.by || e.invT > 0 || b.t <= 0) continue;
+        if (Math.hypot(e.x-b.x, e.y-b.y) < e.r + b.r){
+          b.t = 0;
+          const thrower = ents.find(x => x.id === b.by) || monty;
+          bonk(e, { x: b.x - b.vx*.01, y: b.y - b.vy*.01 }, "meat");
+          comic("SAUCED!! 🍝", e.x, e.y - 60*S, true);
+          if (b.by === mode){ bonks++; if (thrower) say(thrower, pick(LINES.montyChase)); }
+          if (e.id === mode) taken++;
+          break;
+        }
+      }
+    }
+    balls = balls.filter(b => b.t > 0);
+
     // gorilla / monster body-bonk Ari
-    for (const s2 of sibs){
+    for (const s2 of kids){
       if (s2.powT > 0 && s2.hitCool <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < s2.r + ari.r + 6*S){
         s2.hitCool = 1;
         bonk(ari, s2, "power");
@@ -1228,11 +1375,12 @@ const BASH = (() => {
     }
     pines = pines.filter(b => b.t > 0);
 
-    // stick swing (player Ari or AI Ari)
+    // stick swing (player Ari or AI Ari) — Monty is bonkable too!
     swingCool = Math.max(0, swingCool - dt);
     if (swingT > 0){
       swingT -= dt;
-      for (const s2 of sibs){
+      for (const s2 of ents){
+        if (s2 === ari) continue;
         if (s2.invT <= 0 && Math.hypot(s2.x-ari.x, s2.y-ari.y) < ari.r + s2.r + STICK_LEN*S*.95){
           bonk(s2, ari, "stick"); swingHit = true;
           if (mode === "ari") speak(pick(["Bonk!","Gotcha!","Boom!"]));
@@ -1249,8 +1397,30 @@ const BASH = (() => {
   }
   function aiSwing(){ swingT = .28; swingCool = 1.1; swingHit = false; swingDodged = false; sWhoosh(); }
   function playerSwing(){
-    if (phase !== "play" || mode !== "ari" || swingCool > 0) return;
+    if (phase !== "play") return;
+    if (mode === "monty"){
+      const me = ents.find(e => e.id === "monty");
+      if (me && me.hurlCool > 0) return;
+      if (me){ me.hurlCool = .8; hurl(me); }
+      return;
+    }
+    if (mode !== "ari" || swingCool > 0) return;
     swingT = .28; swingCool = .75; swingHit = false; swingDodged = false; sWhoosh();
+  }
+  function hurl(from){
+    // auto-aim at the nearest victim (kid-friendly!)
+    let tgt = null, best = 1e9;
+    for (const e of ents){
+      if (e === from) continue;
+      const d = Math.hypot(e.x-from.x, e.y-from.y);
+      if (d < best){ best = d; tgt = e; }
+    }
+    if (!tgt) return;
+    const a = Math.atan2(tgt.y-from.y, tgt.x-from.x);
+    const v = 380 * S;
+    balls.push({ x:from.x + Math.cos(a)*from.r, y:from.y + Math.sin(a)*from.r,
+                 vx:Math.cos(a)*v, vy:Math.sin(a)*v, r:11*S, t:1.8, by:from.id });
+    sWhoosh(); comic("🍝!", from.x, from.y - 44*S, false);
   }
 
   function endRound(){
@@ -1259,8 +1429,12 @@ const BASH = (() => {
     let rank, stats;
     if (mode === "ari"){
       rank = bonks >= 12 ? "BONK LEGEND 👑" : bonks >= 8 ? "FOAM FURY 🔥" : bonks >= 4 ? "BONK APPRENTICE 🏏" : "SOGGY NOODLE 🍜";
-      stats = `🏏 Bonks landed: <b>${bonks}</b><br>😵 Times gorilla'd/monstered: <b>${taken}</b>`;
+      stats = `🏏 Bonks landed: <b>${bonks}</b><br>😵 Times bonked back: <b>${taken}</b>`;
       speak(`Time's up! ${bonks} bonks! ${rank.replace(/[^\w\s]/g,"")}!`);
+    } else if (mode === "monty"){
+      rank = bonks >= 12 ? "MENACE SUPREME 👑" : bonks >= 8 ? "SAUCE LORD 🍝" : bonks >= 4 ? "SAUCY RASCAL 😈" : "SOGGY SPAGHETTI 🍜";
+      stats = `🍝 Kids sauced: <b>${bonks}</b><br>😵 Times bonked: <b>${taken}</b>`;
+      speak(`Time's up! ${bonks} splats! ${rank.replace(/[^\w\s]/g,"")}! Nyahaha!`);
     } else {
       rank = taken === 0 ? "UNTOUCHABLE LEGEND 👑" : taken <= 2 ? "SLIPPERY EEL 🐍" : taken <= 5 ? "BRUISED BANANA 🍌" : "HUMAN PIÑATA 🪅";
       stats = `😵 Bonks survived: <b>${taken}</b> · 🌀 Dodges: <b>${dodges}</b><br>${mode === "raf" ? "🦍 Gorilla revenge bonks" : "👹 Monster revenge bonks"}: <b>${gorillaBonks}</b>`;
@@ -1372,6 +1546,15 @@ const BASH = (() => {
       c.font = `${b.r * 2.1}px 'Apple Color Emoji','Segoe UI Emoji',sans-serif`;
       c.fillText("🍍", 0, 0); c.restore();
     }
+    // flying meatballs (with saucy trail)
+    for (const b of balls){
+      c.strokeStyle = "rgba(211,47,47,.5)"; c.lineWidth = b.r * 1.1; c.lineCap = "round";
+      c.beginPath(); c.moveTo(b.x - b.vx*.06, b.y - b.vy*.06); c.lineTo(b.x, b.y); c.stroke();
+      c.fillStyle = "#6d2016";
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, 7); c.fill();
+      c.fillStyle = "#a5442c";
+      c.beginPath(); c.arc(b.x - b.r*.3, b.y - b.r*.3, b.r*.4, 0, 7); c.fill();
+    }
     // entities (ari last so stick is on top)
     const ari = ents.find(e => e.id === "ari");
     for (const e of ents) if (e !== ari) drawEnt(e);
@@ -1393,7 +1576,7 @@ const BASH = (() => {
     if (c.roundRect) c.roundRect(W/2 - 110*S, 8, 220*S, 34*S, 17*S); else c.rect(W/2 - 110*S, 8, 220*S, 34*S);
     c.fill();
     c.fillStyle = "#fff"; c.font = `900 ${16*S}px -apple-system,sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
-    const score = mode === "ari" ? `🏏 ${bonks}` : `🌀 ${dodges} 😵 ${taken}`;
+    const score = mode === "ari" ? `🏏 ${bonks}` : mode === "monty" ? `🍝 ${bonks}` : `🌀 ${dodges} 😵 ${taken}`;
     c.fillText(`⏰ ${Math.ceil(Math.max(0, timeLeft))}   ${score}`, W/2, 8 + 17*S);
     // joystick
     if (joy){
@@ -1409,9 +1592,11 @@ const BASH = (() => {
       const n = Math.ceil(countT - .4);
       c.fillStyle = "#ffd400"; c.font = `900 ${90*S}px -apple-system,sans-serif`;
       c.textAlign = "center"; c.textBaseline = "middle";
-      c.fillText(n > 0 ? String(n) : "BASH!!", W/2, H*.4);
+      c.fillText(n > 0 ? String(n) : (mode === "monty" ? "SAUCE!!" : "BASH!!"), W/2, H*.4);
       c.font = `800 ${16*S}px -apple-system,sans-serif`; c.fillStyle = "#fff";
-      c.fillText(mode === "ari" ? "Chase them down. BONK EVERYONE." : "RUN. DODGE. SURVIVE, BRUZ.", W/2, H*.4 + 70*S);
+      c.fillText(mode === "ari" ? "Chase them down. BONK EVERYONE."
+               : mode === "monty" ? "SAUCE THEM ALL. NYAHAHA. 😈"
+               : "RUN. DODGE. SURVIVE, BRUZ.", W/2, H*.4 + 70*S);
     }
     c.restore();
   }
