@@ -1,0 +1,416 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>LIGHTSPEED — Implementation Plan · From AMBER to 5× · MMXXVI</title><style>
+__CSS__
+</style></head><body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <div class="top">
+    <div class="brand">LIGHTSPEED</div>
+    <div class="meta">Citadel · Implementation plan</div>
+  </div>
+  <div class="axis">
+    <div class="small">From AMBER to 5× · 16 July – 30 September MMXXVI</div>
+    <div class="big">A programme to turn the audit's findings into an operating layer that measures itself, runs from a register instead of a memory, and reaches the doctrine's 5× leverage — built control-plane first, in four phases, with an owner and a done-when on every line.</div>
+  </div>
+  <div class="bot">
+    <div class="label">Confidential — internal · Working document</div>
+    <div class="vol">PLAN</div>
+  </div>
+</section>
+
+<!-- ============================== EXECUTIVE SUMMARY ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Executive summary</div></div>
+  <div style="margin-top: 8mm; max-width: 155mm;">
+    <h1 class="disp lg">Build the control plane first.</h1>
+    <div class="body" style="margin-top: 18pt;">
+      <p class="lead">
+        Three volumes of Lightspeed reached the same verdict: <strong>AMBER</strong>. The daily briefing machine is
+        dependable and, in July, prolific — 362 artifacts in a fortnight. But it is a cockpit, not a control plane. It
+        cannot run a weekly operating review from data, it stopped measuring itself after 3 July, and the one operator
+        it exists to relieve is still the hidden integrator. The Operating Doctrine's standing instruction is
+        unambiguous: <em>"Build the control plane first. Without it, every other layer turns into clever chaos."</em>
+        This plan follows that instruction to the letter.
+      </p>
+      <p>
+        The work is organised into <strong>four phases across eleven weeks</strong>, from 16 July to the doctrine's
+        <strong>30 September</strong> leverage deadline. Phase 0 makes the machine tell the truth about itself. Phase 1
+        builds the canonical matter registry — the single load-bearing artefact everything else hangs from. Phase 2 adds
+        routing, the first playbooks and the governance the Stella incidents demand. Phase 3 deploys the six monitors,
+        un-freezes Notion, and measures the move from <strong>2.8× to 5×</strong>. Each phase has an exit gate; nothing
+        advances until the gate is met.
+      </p>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top: 8mm;">
+    <div class="stat"><div class="v">4</div><div class="l">Phases · 11 weeks</div><div class="d">Stabilise · Control plane · Routing &amp; playbooks · Monitors &amp; scale.</div></div>
+    <div class="stat"><div class="v">8</div><div class="l">Findings → fixes</div><div class="d">Every AMBER gap mapped to an owned, dated remedy.</div></div>
+    <div class="stat"><div class="v">2.8→5×</div><div class="l">Leverage target</div><div class="d">Machine multiplier by 30 Sep, per Doctrine v1.0.</div></div>
+    <div class="stat"><div class="v">30 Sep</div><div class="l">GREEN by</div><div class="d">The scorecard crosses from AMBER to GREEN on every line.</div></div>
+  </div>
+  <div class="callout" style="margin-top: 8mm;">
+    <h4>The one-sentence thesis</h4>
+    <p>Stop adding briefings. Build the register, make the telemetry honest, wire routing and monitors on top of it, and hold the whole thing to a scorecard — so the firm can be run from a system instead of from one person's memory.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">01</div><div>Executive summary</div></div>
+</section>
+
+<!-- ============================== FINDINGS → FIXES ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Findings → fixes</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The eight findings, the eight fixes.</h1>
+    <div class="location">Every AMBER gap from the audit, mapped to a remedy, a phase and an owner.</div>
+  </div>
+  <table class="tbl" style="margin-top: 8mm;">
+    <thead><tr><th style="width:31%">Finding (audit)</th><th style="width:38%">Fix</th><th>Phase</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td><strong>No control plane</strong> — no matter registry; 02-index / 06-governance are empty shells.</td><td>Build the canonical matter registry (11 fields), taxonomy and risk/value matrix; stamp matter IDs on every output.</td><td>1</td><td>Farhad · Brandon</td></tr>
+      <tr><td><strong>Telemetry went dark</strong> — flat 0.0/min then nothing after 3 Jul; <code>errors_today</code> hard-coded 0; no token/cost.</td><td>Restore the pipeline counter; compute errors from the log; add per-service health; add token &amp; dollar usage.</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Notion frozen</strong> — zero structured-state writes since 5 May; Project Pulse monitor not deployed.</td><td>Re-establish write-back from the registry to Notion, or formally retire the claim; deploy Project Pulse.</td><td>3</td><td>Farhad · Zach</td></tr>
+      <tr><td><strong>Audit substrate regressed</strong> — event sidecars counts-only since 28 Apr; scorecard uncomputable.</td><td>Restore the rich <code>events.json</code> schema (fact / risk / monitor / opportunity registries).</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Inference fragile</strong> — Ollama timeouts (79 conn / 27 t/o); gemma fallback noise; sheba has no endpoint; port 8787 collides with Octogent.</td><td>Harden Ollama (retry/queue); give sheba a real endpoint or retire it; resolve the port collision; suppress fallback noise.</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Runtime EOL</strong> — Python 3.9.6 past support; 2 failing date-fixture tests.</td><td>Migrate to Python 3.12; fix the date-fixture tests; green the suite in CI.</td><td>0→1</td><td>Infra</td></tr>
+      <tr><td><strong>Trust &amp; governance</strong> — briefed Hyperion wrong; Stella disclosed data to a third party; "over-caffeinated AI."</td><td>Confirmation gates on external actions; Stella data-handling guardrails; IPP 3A review; human-sets-strategy rule.</td><td>2</td><td>Farhad · Counsel</td></tr>
+      <tr><td><strong>Surge shallow</strong> — no new research brief after 11 Jun; renders asserted, not filed.</td><td>Restore research-desk cadence with cost caps; make claimed deliverables land as files, or stop claiming them.</td><td>3</td><td>Zach</td></tr>
+    </tbody>
+  </table>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">02</div><div>Findings → fixes</div></div>
+</section>
+
+<!-- ============================== ROADMAP + GANTT ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Roadmap</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The roadmap.</h1>
+    <div class="location">Four phases, eleven weeks, one deadline — 30 September.</div>
+  </div>
+  <div class="gantt">
+    <div class="g-head">
+      <div class="wk"></div>
+      <div class="wk mo">Jul</div><div class="wk">21</div><div class="wk">28</div>
+      <div class="wk mo">Aug</div><div class="wk">11</div><div class="wk">18</div><div class="wk">25</div>
+      <div class="wk mo">Sep</div><div class="wk">8</div><div class="wk">15</div><div class="wk">22</div>
+    </div>
+    <div class="g-row"><div class="g-lab">Phase 0 · Stabilise</div>
+      <div class="g-cell" style="grid-column: 2 / 4;"><div class="bar p0" style="left:0; right:0;"><span class="lab">telemetry · health · runtime</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 1 · Control plane</div>
+      <div class="g-cell" style="grid-column: 3 / 6;"><div class="bar p1" style="left:0; right:0;"><span class="lab">matter registry · taxonomy · rollup</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 2 · Routing &amp; playbooks</div>
+      <div class="g-cell" style="grid-column: 5 / 9;"><div class="bar p2" style="left:0; right:0;"><span class="lab">routing · Tranche-1 playbooks · governance</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 3 · Monitors &amp; scale</div>
+      <div class="g-cell" style="grid-column: 8 / 13;"><div class="bar p3" style="left:0; right:0;"><span class="lab">6 monitors · Notion · research desk · 5×</span></div></div></div>
+    <div class="g-row" style="border-bottom:none;"><div class="g-lab" style="font-size:7.5pt; color:var(--ink-3);">Milestones</div>
+      <div class="g-cell" style="grid-column: 3 / 4;"><div class="milestone" title="Telemetry honest"></div></div>
+      <div class="g-cell" style="grid-column: 5 / 6;"><div class="milestone" title="Registry live"></div></div>
+      <div class="g-cell" style="grid-column: 8 / 9;"><div class="milestone" title="Routing + playbooks"></div></div>
+      <div class="g-cell" style="grid-column: 12 / 13;"><div class="milestone" title="GREEN / 5×"></div></div>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top: 9mm;">
+    <div><div class="phase-tag p0">Phase 0</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Stabilise &amp; tell the truth.</strong> Wk 1. The machine must measure itself before it scales. Exit: telemetry honest, suite green.</p></div></div>
+    <div><div class="phase-tag p1">Phase 1</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>The control plane.</strong> Wk 2–4. One canonical registry, populated. Exit: every live matter has a row and an ID.</p></div></div>
+    <div><div class="phase-tag p2">Phase 2</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Routing, playbooks, governance.</strong> Wk 4–8. Decisions get routed; the risky ones escalate. Exit: 3 playbooks live.</p></div></div>
+    <div><div class="phase-tag p3">Phase 3</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Monitors &amp; scale.</strong> Wk 8–11. Six monitors, Notion live, 5× measured. Exit: scorecard GREEN.</p></div></div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">03</div><div>Roadmap</div></div>
+</section>
+
+<!-- ============================== PHASE 0 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 0</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p0">Phase 0 · Week 1 · 16–25 July</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Stabilise &amp; tell the truth.</h1>
+    <div class="location">A machine that cannot see itself cannot be scaled. Fix the instruments first.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>0.1 · Honest telemetry</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Restore the pipeline counter that went silent after 3 July. Replace the hard-coded <code>errors_today = 0</code> with a real count off <code>daily/_errors</code>. Add per-service health (citadel-intel, Ollama primary + fallback, Gmail, Calendar, note-router, sheba) and per-run token &amp; dollar usage.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every digest carries a live telemetry block with real error counts, per-service status, and token/$ for the day.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>0.2 · Harden inference</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Wrap Ollama calls in retry-with-backoff and a small queue so a timeout degrades gracefully instead of dropping to gemma noise. Resolve the port-8787 collision with the Octogent SSH listener. Give <em>sheba</em> a real health endpoint or formally retire the node.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a week passes with zero unhandled Ollama timeouts and no "sheba unreachable" phantom.</p>
+      </div>
+    </div>
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>0.3 · Restore the audit substrate</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Bring back the rich <code>events.json</code> schema retired on 28 April — the fact, risk, monitor-hit and opportunity registries — so the forensic scorecard can be computed from data rather than re-read from prose.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a day's scorecard can be generated from sidecar data with no manual reading.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>0.4 · Runtime &amp; CI</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Migrate off end-of-life Python 3.9.6 to 3.12; clear the Google-library and urllib3 deprecations; fix the two date-fixture tests so the Briefing-Room suite is green in CI.</p>
+        <p class="ws-dod"><strong>Done when:</strong> 3.12 in production and the test suite passes 145 / 0 / 0.</p>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:8mm;">
+    <h4>Exit gate · Phase 0</h4>
+    <p>The dashboard reports true error counts, real per-service health and token/dollar usage; inference no longer silently falls back; the runtime is supported and the suite is green. Only then does Phase 1 begin.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 0</div><div class="n">04</div><div>Stabilise</div></div>
+</section>
+
+<!-- ============================== PHASE 1 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 1</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p1">Phase 1 · Weeks 2–4 · 26 Jul – 15 Aug</div>
+    <h1 class="disp lg" style="margin-top:8pt;">The control plane.</h1>
+    <div class="location">One canonical matter registry — the artefact everything else hangs from.</div>
+  </div>
+  <div class="split-23" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>1.1 · The matter registry</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">Build the single source of truth the doctrine mandates: one row per live matter, eleven fields — Matter ID, category, stage, risk tier, value tier, deadline (NZT), next action, routing rule, source-of-truth link, human owner, automation coverage. It is a file (and its Notion twin), not a briefing.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every live matter across all projects and fronts has a row; nothing lives only in an inbox or a head.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.2 · Taxonomy &amp; risk/value matrix</h5><div class="ws-own">Farhad</div></div>
+        <p class="ws-body">A fixed category taxonomy (project / tax / litigation / finance / regulatory / entity / acquisition) and a risk×value matrix so triage is rule-based, not vibe-based. This is what lets the routing engine in Phase 2 decide anything.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every registry row carries a taxonomy tag and a risk/value cell.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.3 · Matter IDs on every output</h5><div class="ws-own">Infra · Zach</div></div>
+        <p class="ws-body">Stamp the registry's matter IDs onto daily briefings, event sidecars and captures, so a line in a digest links back to a canonical matter — the end of "which McLean's thing is this?"</p>
+        <p class="ws-dod"><strong>Done when:</strong> briefing line items resolve to a matter ID and back to the registry.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.4 · The weekly rollup</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">A Monday operating review generated <em>from the registry</em> — what moved, what is overdue, what is at risk, what needs a decision — replacing the memory-based Monday.</p>
+        <p class="ws-dod"><strong>Done when:</strong> the first registry-driven weekly rollup runs and is used to run the week.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout">
+        <h4>The eleven fields</h4>
+        <ul style="font-size:9pt; padding-left:14pt; margin:0; line-height:1.6;">
+          <li>Matter ID</li><li>Category (taxonomy)</li><li>Stage</li><li>Risk tier</li><li>Value tier</li>
+          <li>Deadline (NZT)</li><li>Next action</li><li>Routing rule</li><li>Source-of-truth link</li>
+          <li>Human owner</li><li>Automation coverage</li>
+        </ul>
+        <h4 style="margin-top:12pt;">Seed set · day one</h4>
+        <p style="font-size:9pt;">Backfill from what the reports already surfaced: Hyperion DOCA, the NOPA entities, ERA 3407924, Police v Moinfar, McLeans, RYU Albany, Babich Rise, 126 Featherston, Castra suite, the SPV register, the acquisition pipeline. ~40 live matters exist today — none are in a registry.</p>
+      </div>
+      <div class="callout" style="margin-top:9pt;">
+        <h4>Why this is load-bearing</h4>
+        <p style="font-size:9pt;">Without it the machine can brief and remind but cannot run a review, route a decision, or catch a slipping matter. It is the difference between a cockpit and a control plane — and the doctrine's first instruction.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 1</div><div class="n">05</div><div>Control plane</div></div>
+</section>
+
+<!-- ============================== PHASE 2 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 2</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p2">Phase 2 · Weeks 4–8 · 11 Aug – 5 Sep</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Routing, playbooks &amp; governance.</h1>
+    <div class="location">Decisions get routed; the risky ones escalate to a human; the machine gets guardrails.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>2.1 · The routing engine</h5><div class="ws-own">Infra · Farhad</div></div>
+        <p class="ws-body">Four hard paths on every registry item — <em>auto-execute · draft-for-review · escalate-to-human · route-external</em> — with mandatory escalation triggers (see facing page). The machine stops deciding what only a human should.</p>
+        <p class="ws-dod"><strong>Done when:</strong> each registry row resolves to one of four routes, and every escalation trigger fires a human review.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>2.2 · Tranche-1 playbooks</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">The three highest-frequency six-component playbooks the doctrine names: <strong>IRD / Authority</strong>, <strong>Property Transaction</strong>, and <strong>Finance Application</strong> — each a repeatable sequence the machine can drive and a human can sign.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a live matter in each class is run end-to-end through its playbook.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>2.3 · Stella guardrails &amp; privacy</h5><div class="ws-own">Farhad · Counsel</div></div>
+        <p class="ws-body">Confirmation gates before any external send or disclosure; a deny-list on financial/calendar detail after the June data-disclosure incident; the IPP 3A / Privacy Act review the three production agents still need.</p>
+        <p class="ws-dod"><strong>Done when:</strong> no agent can send or disclose externally without a gate, and the privacy review is signed off.</p>
+      </div>
+    </div>
+    <div>
+      <h4 class="tag">Mandatory escalation triggers</h4>
+      <div class="ladder" style="margin-top:4pt;">
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any contact with a regulator (IRD, ERA, Police, Councils, Commissioners).</div></div>
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any exposure or commitment over <strong>$100k</strong>.</div></div>
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any police, court or statutory-demand matter.</div></div>
+        <div class="lvl"><div class="sev high">Escalate</div><div class="txt">Any settlement or admission of liability.</div></div>
+        <div class="lvl"><div class="sev high">External</div><div class="txt">Any indemnity over <strong>$50k</strong> → external counsel review.</div></div>
+      </div>
+      <div class="callout" style="margin-top:10pt;">
+        <h4>The trust rule, written down</h4>
+        <p style="font-size:9pt;">The machine surfaces; counsel and the operator decide. After the "over-caffeinated AI" episode and the Hyperion mis-brief, this is doctrine, not preference: <strong>no AI-set strategy on any live legal or financial matter.</strong></p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 2</div><div class="n">06</div><div>Routing &amp; playbooks</div></div>
+</section>
+
+<!-- ============================== PHASE 3 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 3</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p3">Phase 3 · Weeks 8–11 · 1 – 30 September</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Monitors, Notion &amp; scale to 5×.</h1>
+    <div class="location">Autonomous watchers on top of the registry; structured state live; leverage measured.</div>
+  </div>
+  <div class="split-23" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>3.1 · The six monitors</h5><div class="ws-own">Infra · Zach</div></div>
+        <p class="ws-body">Deploy the doctrine's six autonomous monitors against the registry — <strong>Project Pulse first</strong>, because it is the one that would have caught seven weeks of Trojan slippage. Then Deal Flow, Gazette/Regulatory, Counterparty, Obligation and Inbox Sentiment.</p>
+        <p class="ws-dod"><strong>Done when:</strong> all six emit daily to the dashboard, and Project Pulse flags any matter unmoved past its SLA.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>3.2 · Un-freeze Notion</h5><div class="ws-own">Farhad · Zach</div></div>
+        <p class="ws-body">Wire the registry to write structured state back into Notion so the Trojan databases stop being a pristine 5-May fossil — or, if that can't be kept live, formally retire the "structured state → Notion wins" claim. A database nobody writes to is worse than none.</p>
+        <p class="ws-dod"><strong>Done when:</strong> Notion reflects registry state within a day, continuously — or the claim is retired in writing.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>3.3 · Research desk, back on cadence</h5><div class="ws-own">Zach</div></div>
+        <p class="ws-body">Restart the Perplexity → reviewer pipeline that went quiet after 11 June, with a per-brief cost cap and the reviewer's ship/revise/reject gate intact. Make claimed deliverables (render sets, packs) land as files, or stop claiming them in digests.</p>
+        <p class="ws-dod"><strong>Done when:</strong> briefs resume on a set cadence with logged cost, and every claimed artifact is a file on the drive.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout">
+        <h4>The 5× arithmetic</h4>
+        <p style="font-size:9pt;">Baseline (March audit): ~2.8× multiplier, ~15% automation coverage. Target: <strong>5.0×</strong>, 65%+ coverage. The lever is not more briefings — it is routing (auto-execute the safe, draft the routine) and playbooks (repeat the known). Coverage is measured off the registry's <em>automation coverage</em> field.</p>
+      </div>
+      <div class="callout" style="margin-top:9pt;">
+        <h4>Monitors, in priority order</h4>
+        <ol style="font-size:9pt; padding-left:14pt; margin:0; line-height:1.55;">
+          <li><strong>Project Pulse</strong> — slippage</li>
+          <li>Obligation — deadlines &amp; payments</li>
+          <li>Gazette / Regulatory</li>
+          <li>Counterparty intelligence</li>
+          <li>Deal Flow</li>
+          <li>Inbox Sentiment</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:7mm;">
+    <h4>Exit gate · Phase 3 — GREEN</h4>
+    <p>Six monitors live, Notion reflecting the registry, research desk on cadence with cost telemetry, and the scorecard on the next page reading GREEN across every line. Leverage measured at or above 5×.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 3</div><div class="n">07</div><div>Monitors &amp; scale</div></div>
+</section>
+
+<!-- ============================== SCORECARD ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Scorecard</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The scorecard · AMBER → GREEN.</h1>
+    <div class="location">The definition of done, area by area. The plan is finished when every line is green.</div>
+  </div>
+  <div class="score" style="margin-top: 8mm;">
+    <div class="s-row" style="border-bottom:0.5pt solid var(--ink-3);"><div class="k" style="font-weight:600; color:var(--ink);">Area</div><div class="pill" style="background:none; color:var(--ink-3);">Now</div><div class="pill" style="background:none; color:var(--ink-3);">Target</div><div class="why" style="color:var(--ink-2);">Green means</div></div>
+    <div class="s-row"><div class="k">Daily cadence</div><div class="pill green">Green</div><div class="pill green">Green</div><div class="why">Already dependable; keep the streak, add matter IDs.</div></div>
+    <div class="s-row"><div class="k">Telemetry integrity</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Live counter, real errors, per-service health, token/$.</div></div>
+    <div class="s-row"><div class="k">Control plane</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Registry populated; every matter has a row and ID.</div></div>
+    <div class="s-row"><div class="k">Routing &amp; playbooks</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">4 routes live; 3 Tranche-1 playbooks run end-to-end.</div></div>
+    <div class="s-row"><div class="k">Monitors</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">All six deployed; Project Pulse catching slippage.</div></div>
+    <div class="s-row"><div class="k">Structured state (Notion)</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Reflects the registry within a day — or claim retired.</div></div>
+    <div class="s-row"><div class="k">Governance &amp; privacy</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Confirmation gates live; IPP 3A review signed.</div></div>
+    <div class="s-row"><div class="k">Runtime &amp; CI</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Python 3.12; suite 145 / 0 / 0.</div></div>
+    <div class="s-row"><div class="k">Leverage</div><div class="pill amber">2.8×</div><div class="pill green">5.0×</div><div class="why">Measured off automation-coverage; 65%+ coverage.</div></div>
+  </div>
+  <div class="callout" style="margin-top:8mm;">
+    <h4>The four north-star metrics</h4>
+    <p>Machine multiplier (→ 5×) · automation coverage (→ 65%+) · matters-on-registry (→ 100%) · escalations-honoured (→ 100% of triggers routed to a human). Reported weekly, off the registry, from Phase 1 onward.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">08</div><div>Scorecard</div></div>
+</section>
+
+<!-- ============================== OWNERS + RISKS ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Owners &amp; risks</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">Who owns what — and what could derail it.</h1>
+    <div class="location">Accountability on every workstream; an honest read on the risks to the plan itself.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <h4 class="tag">Ownership · RACI</h4>
+      <table class="raci" style="margin-top:4pt;">
+        <thead><tr><th class="k" style="text-align:left;">Workstream</th><th>Farhad</th><th>Brandon</th><th>Zach</th><th>Infra</th><th>Counsel</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Telemetry &amp; runtime</td><td>A</td><td>·</td><td>·</td><td class="r">R</td><td>·</td></tr>
+          <tr><td class="k">Matter registry</td><td class="r">R</td><td>A</td><td>C</td><td>C</td><td>·</td></tr>
+          <tr><td class="k">Taxonomy / risk matrix</td><td class="r">R</td><td>C</td><td>·</td><td>·</td><td>C</td></tr>
+          <tr><td class="k">Routing engine</td><td>A</td><td>C</td><td>·</td><td class="r">R</td><td>·</td></tr>
+          <tr><td class="k">Playbooks (Tranche 1)</td><td>A</td><td class="r">R</td><td>C</td><td>C</td><td>C</td></tr>
+          <tr><td class="k">Governance &amp; privacy</td><td class="r">R</td><td>·</td><td>·</td><td>C</td><td>A</td></tr>
+          <tr><td class="k">Monitors</td><td>A</td><td>·</td><td class="r">R</td><td>R</td><td>·</td></tr>
+          <tr><td class="k">Notion / structured state</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
+          <tr><td class="k">Research desk</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:7.5pt; color:var(--ink-3); margin-top:5pt;">R responsible · A accountable · C consulted. "Infra" is the technical build owner (internal or contracted).</p>
+    </div>
+    <div>
+      <h4 class="tag">Risks to the plan</h4>
+      <div class="ladder" style="margin-top:4pt;">
+        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Operator bandwidth.</strong> The same person runs the deals and the build. If deal-tempo spikes, the registry slips. <em>Mitigant: time-box Phase 1 to the registry only; defer everything else.</em></div></div>
+        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Registry rot.</strong> A registry no one updates is Notion all over again. <em>Mitigant: the weekly rollup reads from it, so it must be current to be useful.</em></div></div>
+        <div class="lvl"><div class="sev high">Med</div><div class="txt"><strong>Infra capacity.</strong> Phase 0 needs real engineering. <em>Mitigant: scope it to one week; contract if internal capacity is short.</em></div></div>
+        <div class="lvl"><div class="sev med">Med</div><div class="txt"><strong>Scope creep into "more AI."</strong> <em>Mitigant: the exit gates — nothing new until the gate is met.</em></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">09</div><div>Owners &amp; risks</div></div>
+</section>
+
+<!-- ============================== THIS WEEK ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>This week</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">This week — the first ten actions.</h1>
+    <div class="location">The plan is only real if it starts. Ten things to do in the next seven days.</div>
+  </div>
+  <div class="actions" style="margin-top: 8mm;">
+    <div class="act"><div class="no">01</div><div class="t"><b>Un-hard-code the error count.</b> Compute <code>errors_today</code> from <code>daily/_errors</code>; ship it in tonight's digest.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">02</div><div class="t"><b>Restore the pipeline counter</b> so telemetry stops reading "unavailable." Back to a live reading every evening.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">03</div><div class="t"><b>Resolve the port-8787 collision</b> with Octogent; confirm the dashboard serves cleanly on the tailnet.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">04</div><div class="t"><b>Create the registry file</b> — the eleven columns, empty — in Dropbox and its Notion twin. Just the skeleton.</div><div class="own">Farhad</div></div>
+    <div class="act"><div class="no">05</div><div class="t"><b>Seed the ~40 live matters</b> from the last three volumes into the registry — Hyperion, NOPA, ERA, Police, the four projects, Castra, the SPVs, the pipeline.</div><div class="own">Farhad · Brandon</div></div>
+    <div class="act"><div class="no">06</div><div class="t"><b>Assign an owner and a next-action</b> to every seeded row. No orphans.</div><div class="own">Farhad</div></div>
+    <div class="act"><div class="no">07</div><div class="t"><b>Write the five escalation triggers</b> into a one-page policy and circulate — regulator, &gt;$100k, police/court, settlement, &gt;$50k indemnity.</div><div class="own">Farhad · Counsel</div></div>
+    <div class="act"><div class="no">08</div><div class="t"><b>Put a confirmation gate on Stella's external sends</b> after the disclosure incident — no external send or disclosure without a human OK.</div><div class="own">Infra · Farhad</div></div>
+    <div class="act"><div class="no">09</div><div class="t"><b>Kick off the Python 3.12 migration</b> and fix the two failing date-fixture tests.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">10</div><div class="t"><b>Run the first registry-driven Monday rollup</b> next Monday — what moved, what's overdue, what's at risk.</div><div class="own">Farhad · Brandon</div></div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">10</div><div>This week</div></div>
+</section>
+
+<!-- ============================== COLOPHON ============================== -->
+<section class="colophon">
+  <div class="pad">
+    <div style="font-family: var(--sans); font-weight: 500; font-size: 7pt; letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-4);">Colophon · Working document</div>
+    <div class="mast">LIGHTSPEED</div>
+    <div style="font-family: var(--serif); font-style: italic; font-size: 16pt; color: var(--paper-3); margin-top: 18pt; max-width: 150mm;">Implementation Plan — From AMBER to 5×. A four-phase programme, 16 July to 30 September 2026, to build the control plane the doctrine asked for first.</div>
+    <div class="text">
+      Derived from the recommendations and gaps in Lightspeed Volumes One to Three and the Citadel Operating Doctrine
+      v1.0 (effective 31 March 2026). Every finding is traceable to the audit; every fix to a phase, an owner and a
+      done-when. This is a working document — revise it as the registry teaches you what the real matters are.
+    </div>
+    <div class="grid-c">
+      <div><div class="k">Document</div><div class="v">Implementation plan</div></div>
+      <div><div class="k">Horizon</div><div class="v">16 Jul — 30 Sep 2026</div></div>
+      <div><div class="k">Owner</div><div class="v">Farhad Moinfar</div></div>
+      <div><div class="k">Imprint</div><div class="v">Citadel · Lightspeed</div></div>
+    </div>
+  </div>
+  <div class="stamp">
+    <div>Confidential — internal · Working document</div>
+    <div>16 July 2026 NZT · Auckland</div>
+  </div>
+</section>
+</body></html>

@@ -1,0 +1,1008 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>LIGHTSPEED — Implementation Plan · From AMBER to 5× · MMXXVI</title><style>
+@page { size: A4; margin: 0; }
+:root {
+  --paper:    #B5AC9A;
+  --paper-2:  #C4BBAA;
+  --paper-3:  #A89F8C;
+  --ink:      #3A2F22;
+  --ink-2:    #5C5040;
+  --ink-3:    #8C8579;
+  --ink-4:    #ADA38F;
+  --accent:   #4F5A48;
+  --rule:     rgba(58,47,34,0.14);
+  --sans:     -apple-system, "Helvetica Neue", "SF Pro Text", Inter, system-ui, "Segoe UI", Arial, sans-serif;
+  --serif:    "Big Caslon", "Cormorant Garamond", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --num:      "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-weight: 400;
+}
+
+/* PAGE PRIMITIVES */
+.page {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 22mm 18mm;
+  background: var(--paper);
+  page-break-after: always;
+  overflow: visible;
+}
+.page.tight { padding-top: 16mm; }
+.page.deep  { padding-top: 56mm; }
+
+.divider, .cover, .colophon {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  padding: 0;
+  background: var(--ink);
+  color: var(--paper);
+  page-break-after: always;
+  overflow: hidden;
+}
+
+/* TYPE */
+.eyebrow {
+  font-family: var(--sans); font-size: 7pt; font-weight: 600;
+  letter-spacing: 0.30em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.eyebrow-ink { color: var(--ink-2); }
+h1.disp {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 32pt; line-height: 1.04; letter-spacing: -0.012em;
+  margin: 0; color: var(--ink);
+}
+h1.disp.lg { font-size: 40pt; line-height: 1.02; }
+h2.head {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 19pt; line-height: 1.18; letter-spacing: -0.005em;
+  margin: 0 0 8pt; color: var(--ink);
+}
+h3.sub {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 13pt; line-height: 1.25; letter-spacing: 0.01em;
+  margin: 14pt 0 6pt; color: var(--ink);
+}
+h4.tag {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 9pt; letter-spacing: 0.18em; text-transform: uppercase;
+  margin: 0 0 6pt; color: var(--ink-2);
+}
+.location {
+  font-family: var(--sans); font-weight: 400;
+  font-size: 12pt; color: var(--ink-3);
+  margin-top: 4pt; letter-spacing: 0.01em;
+}
+.deck {
+  font-family: var(--sans); font-weight: 400;
+  font-size: 12pt; line-height: 1.45; color: var(--ink);
+  letter-spacing: 0.005em;
+  margin: 12pt 0;
+  max-width: 150mm;
+}
+.body p, .body li {
+  font-family: var(--sans); font-weight: 400;
+  font-size: 10pt; line-height: 1.55;
+  color: var(--ink); margin: 0 0 8pt;
+  letter-spacing: 0.005em;
+}
+.body p {
+  text-align: justify;
+  hyphens: auto; -webkit-hyphens: auto;
+  text-justify: inter-word;
+}
+.body p.aside-q, .body p.lead { text-align: left; }
+.callout p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.body p strong { font-weight: 600; color: var(--ink); }
+.body p em { font-style: italic; color: var(--ink-2); }
+.body ul, .body ol { padding-left: 18pt; margin: 0 0 10pt; }
+.body li { margin: 0 0 4pt; }
+.body p.lead {
+  font-size: 11.5pt; line-height: 1.5;
+  color: var(--ink); margin-bottom: 12pt;
+}
+.body p.aside-q {
+  font-family: var(--serif); font-style: italic;
+  font-size: 13pt; line-height: 1.4; color: var(--ink-2);
+  border-left: 1.2pt solid var(--ink-3);
+  padding: 2pt 0 2pt 12pt;
+  margin: 10pt 0;
+}
+.cap {
+  font-family: var(--sans); font-size: 9pt; line-height: 1.45;
+  color: var(--ink-3); margin-top: 8pt; max-width: 145mm;
+}
+.cap strong { color: var(--ink-2); font-weight: 600; }
+.foot {
+  font-family: var(--sans); font-size: 8pt; line-height: 1.45;
+  color: var(--ink-3); letter-spacing: 0.01em;
+}
+.num { font-family: var(--num); font-feature-settings: "tnum" 1; }
+
+/* PAGE FURNITURE */
+.folio-top {
+  position: absolute; top: 14mm; left: 22mm; right: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--sans); font-size: 7pt; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3);
+}
+.folio-bot {
+  position: absolute; bottom: 12mm; left: 22mm; right: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--sans); font-size: 7pt; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3);
+}
+.folio-bot .n { font-feature-settings: "tnum" 1; letter-spacing: 0.05em; }
+
+/* FIGURE / PHOTO TREATMENT — stone matte, no bleed */
+.figure {
+  display: block; margin: 0 auto;
+  background: var(--paper);
+  padding: 0;
+}
+.figure img {
+  display: block; width: 100%; height: auto;
+}
+.figure.hero img { max-height: 175mm; object-fit: cover; }
+.figure.bound { padding: 0; }
+.plate-pair {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+}
+.plate-pair-3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 6mm;
+}
+
+/* COVER */
+.cover {
+  background:
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 3px),
+    var(--ink);
+}
+.cover .top {
+  position: absolute; top: 22mm; left: 22mm; right: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.cover .top .brand {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 21pt; letter-spacing: 0.04em;
+  color: var(--paper-2);
+}
+.cover .top .meta {
+  font-family: var(--sans); font-weight: 500; font-size: 8pt;
+  letter-spacing: 0.30em; text-transform: uppercase;
+  color: var(--ink-4);
+  text-align: right;
+}
+.cover .bot {
+  position: absolute; bottom: 22mm; left: 22mm; right: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.cover .bot .label {
+  font-family: var(--sans); font-weight: 500; font-size: 8pt;
+  letter-spacing: 0.30em; text-transform: uppercase;
+  color: var(--ink-4);
+}
+.cover .bot .vol {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 12pt; letter-spacing: 0.06em;
+  color: var(--paper-2);
+}
+.cover .axis {
+  position: absolute; top: 50%; left: 22mm; right: 22mm;
+  transform: translateY(-50%);
+}
+.cover .axis .small {
+  font-family: var(--sans); font-weight: 500; font-size: 7pt;
+  letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--ink-4); margin-bottom: 12pt;
+}
+.cover .axis .big {
+  font-family: var(--serif); font-style: italic;
+  font-size: 22pt; line-height: 1.3; letter-spacing: 0.01em;
+  color: var(--paper-2); max-width: 130mm;
+}
+
+/* CHAPTER DIVIDERS */
+.divider .word {
+  position: absolute; top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  text-align: center;
+  font-family: var(--serif); font-style: italic;
+  font-size: 56pt; letter-spacing: 0.005em;
+  color: var(--paper-3);
+}
+.divider .small {
+  position: absolute; bottom: 28mm; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--sans); font-weight: 500;
+  font-size: 7pt; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--ink-4);
+}
+.divider .top-l {
+  position: absolute; top: 24mm; left: 22mm;
+  font-family: var(--sans); font-weight: 500; font-size: 7pt;
+  letter-spacing: 0.30em; text-transform: uppercase; color: var(--ink-4);
+}
+.divider .top-r {
+  position: absolute; top: 24mm; right: 22mm;
+  font-family: var(--sans); font-weight: 500; font-size: 7pt;
+  letter-spacing: 0.30em; text-transform: uppercase; color: var(--ink-4);
+}
+
+/* OPENER PAGES (per Softer Volumes "Patina Maldives" pattern) */
+.opener-block {
+  margin-top: 8mm;
+}
+.opener-num {
+  font-family: var(--num); font-feature-settings: "tnum" 1;
+  font-size: 11pt; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500; margin-bottom: 14pt;
+}
+
+/* TABLES (lightweight, no rules) */
+.tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--sans); font-size: 10pt; color: var(--ink);
+}
+.tbl th {
+  text-align: left; font-weight: 600; padding: 6pt 8pt 6pt 0;
+  font-size: 8pt; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-3); border-bottom: 0.5pt solid var(--ink-3);
+}
+.tbl td {
+  padding: 6pt 8pt 6pt 0; vertical-align: top;
+  border-bottom: 0.3pt solid var(--rule); line-height: 1.5;
+}
+.tbl td.r { text-align: right; font-feature-settings: "tnum" 1; white-space: nowrap; }
+.tbl td.k { color: var(--ink-3); width: 40%; }
+
+/* STATS GRID */
+.grid {
+  display: grid; gap: 10mm;
+  margin-top: 4mm;
+}
+.grid.g3 { grid-template-columns: repeat(3, 1fr); }
+.grid.g2 { grid-template-columns: 1fr 1fr; gap: 12mm; }
+.grid.g4 { grid-template-columns: repeat(4, 1fr); gap: 8mm; }
+
+.stat {
+  border-top: 0.5pt solid var(--ink-3);
+  padding-top: 8pt;
+}
+.stat .v {
+  font-family: var(--num); font-feature-settings: "tnum" 1;
+  font-size: 26pt; line-height: 1; font-weight: 500;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+.stat .l {
+  font-family: var(--sans); font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-2); margin-top: 8pt;
+}
+.stat .d {
+  font-family: var(--sans); font-size: 9.5pt; line-height: 1.5;
+  color: var(--ink-3); margin-top: 4pt;
+}
+
+/* TWO-COL BODY */
+.cols2 { column-count: 2; column-gap: 8mm; column-rule: 0.3pt solid var(--rule); }
+.cols2 p { break-inside: avoid; }
+
+/* SIDE STACK on opener / body pages */
+.split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12mm;
+}
+.split-23 {
+  display: grid; grid-template-columns: 0.95fr 1.05fr;
+  gap: 12mm;
+}
+.split-32 {
+  display: grid; grid-template-columns: 1.15fr 0.85fr;
+  gap: 12mm;
+}
+
+/* CALLOUT BOX */
+.callout {
+  background: var(--paper-2);
+  padding: 10mm 10mm;
+  border-top: 0.6pt solid var(--ink-3);
+}
+.callout h4 {
+  font-family: var(--sans); font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.20em; text-transform: uppercase;
+  color: var(--ink-2); margin: 0 0 8pt;
+}
+.callout p, .callout li {
+  font-family: var(--sans); font-size: 10pt; line-height: 1.55;
+  color: var(--ink); margin: 0 0 6pt;
+}
+
+/* TIMELINE list */
+.tl { font-family: var(--sans); font-size: 10pt; line-height: 1.55; color: var(--ink); }
+.tl .ev { display: grid; grid-template-columns: 28mm 1fr; gap: 4mm; padding: 5pt 0; border-bottom: 0.3pt solid var(--rule); }
+.tl .ev .d { color: var(--ink-3); font-size: 8.5pt; letter-spacing: 0.04em; }
+.tl .ev .t { color: var(--ink); }
+
+/* COLOPHON */
+.colophon { background: var(--ink); color: var(--paper); }
+.colophon .pad { position: absolute; top: 38mm; left: 22mm; right: 22mm; }
+.colophon .mast {
+  font-family: var(--sans); font-weight: 600;
+  font-size: 30pt; letter-spacing: 0.04em; color: var(--paper-2);
+}
+.colophon .text {
+  font-family: var(--sans); font-weight: 400;
+  font-size: 11pt; line-height: 1.6; color: var(--ink-4); max-width: 145mm;
+  margin-top: 18pt;
+}
+.colophon .grid-c {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10mm; margin-top: 28pt; max-width: 165mm;
+}
+.colophon .grid-c .k {
+  font-family: var(--sans); font-weight: 600; font-size: 7pt;
+  letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-4);
+}
+.colophon .grid-c .v {
+  font-family: var(--sans); font-weight: 500; font-size: 11pt;
+  margin-top: 4pt; color: var(--paper-2);
+}
+.colophon .stamp {
+  position: absolute; bottom: 22mm; left: 22mm; right: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--sans); font-weight: 500; font-size: 7pt;
+  letter-spacing: 0.30em; text-transform: uppercase; color: var(--ink-4);
+}
+
+/* PHOTO PLATE PAGE — full-size single image with stone matte */
+.plate-page {
+  padding: 26mm 22mm 22mm;
+}
+.plate-page .figure { margin: 6mm 0 0; }
+
+/* DOSSIER (compact-front pages — IRD/NBR/Castra etc) */
+.dossier {
+  border-top: 0.5pt solid var(--ink-3);
+  padding-top: 10pt;
+  margin-top: 10pt;
+}
+.dossier h5 {
+  font-family: var(--sans); font-weight: 600; font-size: 11pt;
+  margin: 0 0 6pt; color: var(--ink); letter-spacing: 0.005em;
+}
+.dossier .meta {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6mm; margin: 6pt 0 8pt;
+}
+.dossier .meta .k {
+  font-family: var(--sans); font-size: 7pt; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3);
+}
+.dossier .meta .v {
+  font-family: var(--sans); font-size: 10pt;
+  margin-top: 2pt; color: var(--ink);
+}
+.dossier p {
+  font-family: var(--sans); font-size: 10pt; line-height: 1.55;
+  color: var(--ink); margin: 0;
+}
+/* ============================================================
+   VOL.02 ADDITIONS — data-visualisation in the stone palette
+   (extends the Softer Volumes base; same tokens)
+   ============================================================ */
+
+/* Horizontal signal bars (matter activity) */
+.bars { margin-top: 6mm; }
+.bars .row {
+  display: grid; grid-template-columns: 42mm 1fr 16mm;
+  align-items: center; gap: 4mm; padding: 3.2pt 0;
+  border-bottom: 0.3pt solid var(--rule);
+}
+.bars .row .lab {
+  font-family: var(--sans); font-size: 8.5pt; color: var(--ink-2);
+  letter-spacing: 0.01em; text-align: right;
+}
+.bars .row .track { position: relative; height: 9pt; }
+.bars .row .fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--accent); opacity: 0.78;
+}
+.bars .row .fill.alt { background: var(--ink-2); opacity: 0.62; }
+.bars .row .val {
+  font-family: var(--num); font-feature-settings: "tnum" 1;
+  font-size: 8.5pt; color: var(--ink-3); text-align: right;
+}
+
+/* Cadence heatmap — the daily machine */
+.heat { margin-top: 6mm; }
+.heat .wk { display: grid; grid-template-columns: 20mm repeat(7, 1fr); gap: 2mm; margin-bottom: 2mm; }
+.heat .wk .wlab { font-family: var(--sans); font-size: 7pt; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); align-self: center; }
+.heat .cell {
+  height: 11mm; border: 0.3pt solid var(--rule);
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: var(--paper-2);
+}
+.heat .cell.l0 { background: var(--paper-3); }
+.heat .cell.l1 { background: #9a9382; }
+.heat .cell.l2 { background: var(--accent); opacity: 0.55; }
+.heat .cell.l3 { background: var(--accent); opacity: 0.85; }
+.heat .cell.miss { background: repeating-linear-gradient(45deg, var(--paper-3) 0 2px, var(--paper) 2px 5px); }
+.heat .cell .dn { font-family: var(--num); font-size: 7.5pt; color: var(--ink); font-feature-settings:"tnum" 1; }
+.heat .cell.l3 .dn, .heat .cell.l2 .dn { color: var(--paper); }
+.heat .key { display: flex; gap: 8mm; margin-top: 4mm; font-size: 7.5pt; color: var(--ink-3); align-items:center; }
+.heat .key .sw { display:inline-block; width: 7pt; height: 7pt; margin-right: 3pt; vertical-align: middle; border: 0.3pt solid var(--rule); }
+
+/* Corpus growth — area/line proxy with CSS columns */
+.spark { display: grid; grid-template-columns: repeat(var(--n, 30), 1fr); align-items: end;
+  gap: 1.5px; height: 38mm; margin-top: 6mm; border-bottom: 0.5pt solid var(--ink-3); }
+.spark .b { background: var(--accent); opacity: 0.55; }
+.spark .b:last-child { opacity: 0.9; }
+
+/* Risk ladder */
+.ladder .lvl { display: grid; grid-template-columns: 22mm 1fr; gap: 4mm; align-items: baseline;
+  padding: 5pt 0; border-bottom: 0.3pt solid var(--rule); }
+.ladder .lvl .sev { font-family: var(--sans); font-size: 8pt; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; }
+.ladder .sev.crit { color: #7a3b2e; }
+.ladder .sev.high { color: #8a5a2b; }
+.ladder .sev.med  { color: var(--ink-2); }
+.ladder .lvl .txt { font-size: 9.5pt; color: var(--ink); line-height: 1.5; }
+
+/* Ledger table tweak for dense money tables */
+.tbl td.money { text-align: right; font-feature-settings:"tnum" 1; white-space: nowrap; font-family: var(--num); }
+.tbl tr.tot td { border-top: 0.6pt solid var(--ink-3); font-weight: 600; }
+
+/* Pull figure / big number inline */
+.bignum { font-family: var(--num); font-weight: 500; font-feature-settings:"tnum" 1;
+  letter-spacing: -0.01em; }
+
+/* Gap card — for the 'gaps identified' spread */
+.gap { border-left: 1.5pt solid #7a3b2e; padding: 2pt 0 2pt 10pt; margin: 0 0 9pt; }
+.gap h5 { font-family: var(--sans); font-size: 9.5pt; font-weight: 600; margin: 0 0 2pt; color: var(--ink); }
+.gap p { font-family: var(--sans); font-size: 9pt; line-height: 1.5; color: var(--ink-2); margin: 0; }
+
+/* Surface provenance chips */
+.chips { display: flex; flex-wrap: wrap; gap: 4pt; margin-top: 6pt; }
+.chips .chip { font-family: var(--sans); font-size: 7pt; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-2); border: 0.4pt solid var(--ink-3); padding: 2pt 6pt; border-radius: 1pt; }
+
+/* Index / contents */
+.toc .row { display: grid; grid-template-columns: 10mm 1fr 12mm; gap: 4mm; align-items: baseline;
+  padding: 5pt 0; border-bottom: 0.3pt solid var(--rule); }
+.toc .row .s { font-family: var(--num); font-size: 9pt; color: var(--ink-3); }
+.toc .row .t { font-family: var(--sans); font-size: 11pt; color: var(--ink); }
+.toc .row .t .sub2 { color: var(--ink-3); font-size: 9pt; }
+.toc .row .pg { font-family: var(--num); font-size: 9pt; color: var(--ink-3); text-align: right; }
+/* ===== VOL.02 fit overrides — buy vertical room, keep the look ===== */
+.page { padding: 13mm 20mm 8mm; }
+.page.plate-page { padding: 18mm 20mm 11mm; }
+.folio-top { top: 7.5mm; left: 20mm; right: 20mm; }
+.folio-bot { bottom: 5.5mm; left: 20mm; right: 20mm; }
+.body p, .body li { font-size: 9.7pt; line-height: 1.44; margin: 0 0 4.5pt; }
+.body p.lead { font-size: 11pt; line-height: 1.45; margin-bottom: 10pt; }
+.body p.aside-q { font-size: 12pt; margin: 8pt 0; }
+.cols2 .body p, .cols2 p { font-size: 9.6pt; line-height: 1.46; margin: 0 0 6pt; }
+h2.head { font-size: 17.5pt; line-height: 1.16; margin: 0 0 6pt; }
+h3.sub { margin: 10pt 0 4pt; }
+.deck { margin: 10pt 0; }
+.grid { gap: 8mm; margin-top: 4mm; }
+.grid.g3 { gap: 7mm 9mm; }
+.grid.g4 { gap: 6mm; }
+.stat { padding-top: 6pt; }
+.stat .v { font-size: 22pt; }
+.stat .l { margin-top: 6pt; }
+.stat .d { font-size: 9pt; line-height: 1.42; margin-top: 3pt; }
+.callout { padding: 7mm 8mm; }
+.callout p, .callout li { font-size: 9.4pt; line-height: 1.42; margin: 0 0 4.5pt; }
+.tbl { font-size: 9.3pt; }
+.tbl td, .tbl th { padding: 4pt 8pt 4pt 0; }
+.split, .split-23, .split-32 { gap: 10mm; }
+.tl .ev { padding: 4pt 0; }
+.bars .row { padding: 2.6pt 0; }
+.gap { margin: 0 0 7pt; }
+.gap p { font-size: 8.7pt; line-height: 1.45; }
+.toc .row { padding: 4.5pt 0; }
+/* section opener top margins a touch tighter */
+.page > div[style*="margin-top: 8mm"] { margin-top: 5mm !important; }
+.page > div[style*="margin-top: 6mm"] { margin-top: 4mm !important; }
+/* ===== IMPLEMENTATION PLAN — additional components (stone palette) ===== */
+
+/* Phase chip */
+.phase-tag { display:inline-block; font-family:var(--sans); font-size:7.5pt; font-weight:600;
+  letter-spacing:0.2em; text-transform:uppercase; color:var(--paper);
+  background:var(--accent); padding:3pt 8pt; border-radius:1pt; }
+.phase-tag.p0 { background:#6b5d47; }
+.phase-tag.p1 { background:var(--accent); }
+.phase-tag.p2 { background:#5c5040; }
+.phase-tag.p3 { background:#3A2F22; }
+
+/* Gantt */
+.gantt { margin-top:6mm; }
+.gantt .g-head { display:grid; grid-template-columns: 46mm repeat(11, 1fr); gap:0;
+  border-bottom:0.5pt solid var(--ink-3); }
+.gantt .g-head .wk { font-family:var(--sans); font-size:6.5pt; letter-spacing:0.06em;
+  color:var(--ink-3); text-align:center; padding-bottom:3pt; }
+.gantt .g-head .wk.mo { color:var(--ink-2); font-weight:600; }
+.gantt .g-row { display:grid; grid-template-columns: 46mm repeat(11, 1fr);
+  align-items:center; border-bottom:0.3pt solid var(--rule); min-height:9mm; }
+.gantt .g-row .g-lab { font-family:var(--sans); font-size:8.5pt; color:var(--ink-2);
+  padding-right:4mm; line-height:1.2; }
+.gantt .g-cell { position:relative; height:9mm; }
+.gantt .bar { position:absolute; top:2.6mm; height:3.8mm; border-radius:1pt; opacity:0.9;
+  display:flex; align-items:center; }
+.gantt .bar.p0 { background:#6b5d47; }
+.gantt .bar.p1 { background:var(--accent); }
+.gantt .bar.p2 { background:#5c5040; }
+.gantt .bar.p3 { background:#3A2F22; }
+.gantt .bar .lab { font-family:var(--sans); font-size:6.5pt; color:var(--paper-2);
+  padding:0 4pt; white-space:nowrap; }
+.gantt .milestone { position:absolute; top:1.6mm; width:0; height:0;
+  border-left:3pt solid transparent; border-right:3pt solid transparent;
+  border-bottom:5pt solid #7a3b2e; }
+
+/* Workstream card */
+.ws { border-top:0.6pt solid var(--ink-3); padding-top:8pt; margin-top:0; }
+.ws .ws-h { display:flex; justify-content:space-between; align-items:baseline; }
+.ws h5 { font-family:var(--sans); font-weight:600; font-size:11pt; margin:0; color:var(--ink); }
+.ws .ws-own { font-family:var(--sans); font-size:8pt; color:var(--ink-3); letter-spacing:0.04em; }
+.ws .ws-body { font-family:var(--sans); font-size:9pt; line-height:1.5; color:var(--ink-2); margin:4pt 0 0; }
+.ws .ws-dod { font-family:var(--sans); font-size:8.5pt; line-height:1.45; color:var(--ink); margin-top:4pt; }
+.ws .ws-dod strong { color:var(--accent); font-weight:600; letter-spacing:0.02em; }
+
+/* Scorecard */
+.score .s-row { display:grid; grid-template-columns: 40mm 20mm 20mm 1fr; gap:4mm; align-items:baseline;
+  padding:5pt 0; border-bottom:0.3pt solid var(--rule); }
+.score .s-row .k { font-family:var(--sans); font-size:9pt; color:var(--ink-2); }
+.score .pill { font-family:var(--sans); font-size:7pt; font-weight:600; letter-spacing:0.12em;
+  text-transform:uppercase; padding:2pt 5pt; border-radius:1pt; text-align:center; }
+.pill.amber { background:#a8792f; color:var(--paper); }
+.pill.green { background:#4F5A48; color:var(--paper); }
+.pill.red { background:#7a3b2e; color:var(--paper); }
+.score .s-row .why { font-family:var(--sans); font-size:8.5pt; color:var(--ink-3); line-height:1.4; }
+
+/* RACI */
+.raci { width:100%; border-collapse:collapse; font-family:var(--sans); font-size:8.5pt; }
+.raci th { text-align:center; font-size:7.5pt; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--ink-3); border-bottom:0.5pt solid var(--ink-3); padding:4pt 3pt; font-weight:600; }
+.raci td { padding:4pt 3pt; border-bottom:0.3pt solid var(--rule); text-align:center; color:var(--ink-2); }
+.raci td.k { text-align:left; color:var(--ink); }
+.raci td .r { font-weight:600; color:var(--accent); }
+
+/* Numbered action list */
+.actions { counter-reset: act; }
+.actions .act { display:grid; grid-template-columns: 8mm 1fr 26mm; gap:4mm; align-items:baseline;
+  padding:5pt 0; border-bottom:0.3pt solid var(--rule); }
+.actions .act .no { font-family:var(--num); font-size:12pt; color:var(--ink-3); font-weight:500; }
+.actions .act .t { font-family:var(--sans); font-size:9.5pt; line-height:1.45; color:var(--ink); }
+.actions .act .t b { font-weight:600; }
+.actions .act .own { font-family:var(--sans); font-size:8pt; color:var(--ink-3); text-align:right; letter-spacing:0.03em; }
+
+</style></head><body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <div class="top">
+    <div class="brand">LIGHTSPEED</div>
+    <div class="meta">Citadel · Implementation plan</div>
+  </div>
+  <div class="axis">
+    <div class="small">From AMBER to 5× · 16 July – 30 September MMXXVI</div>
+    <div class="big">A programme to turn the audit's findings into an operating layer that measures itself, runs from a register instead of a memory, and reaches the doctrine's 5× leverage — built control-plane first, in four phases, with an owner and a done-when on every line.</div>
+  </div>
+  <div class="bot">
+    <div class="label">Confidential — internal · Working document</div>
+    <div class="vol">PLAN</div>
+  </div>
+</section>
+
+<!-- ============================== EXECUTIVE SUMMARY ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Executive summary</div></div>
+  <div style="margin-top: 8mm; max-width: 155mm;">
+    <h1 class="disp lg">Build the control plane first.</h1>
+    <div class="body" style="margin-top: 18pt;">
+      <p class="lead">
+        Three volumes of Lightspeed reached the same verdict: <strong>AMBER</strong>. The daily briefing machine is
+        dependable and, in July, prolific — 362 artifacts in a fortnight. But it is a cockpit, not a control plane. It
+        cannot run a weekly operating review from data, it stopped measuring itself after 3 July, and the one operator
+        it exists to relieve is still the hidden integrator. The Operating Doctrine's standing instruction is
+        unambiguous: <em>"Build the control plane first. Without it, every other layer turns into clever chaos."</em>
+        This plan follows that instruction to the letter.
+      </p>
+      <p>
+        The work is organised into <strong>four phases across eleven weeks</strong>, from 16 July to the doctrine's
+        <strong>30 September</strong> leverage deadline. Phase 0 makes the machine tell the truth about itself. Phase 1
+        builds the canonical matter registry — the single load-bearing artefact everything else hangs from. Phase 2 adds
+        routing, the first playbooks and the governance the Stella incidents demand. Phase 3 deploys the six monitors,
+        un-freezes Notion, and measures the move from <strong>2.8× to 5×</strong>. Each phase has an exit gate; nothing
+        advances until the gate is met.
+      </p>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top: 8mm;">
+    <div class="stat"><div class="v">4</div><div class="l">Phases · 11 weeks</div><div class="d">Stabilise · Control plane · Routing &amp; playbooks · Monitors &amp; scale.</div></div>
+    <div class="stat"><div class="v">8</div><div class="l">Findings → fixes</div><div class="d">Every AMBER gap mapped to an owned, dated remedy.</div></div>
+    <div class="stat"><div class="v">2.8→5×</div><div class="l">Leverage target</div><div class="d">Machine multiplier by 30 Sep, per Doctrine v1.0.</div></div>
+    <div class="stat"><div class="v">30 Sep</div><div class="l">GREEN by</div><div class="d">The scorecard crosses from AMBER to GREEN on every line.</div></div>
+  </div>
+  <div class="callout" style="margin-top: 8mm;">
+    <h4>The one-sentence thesis</h4>
+    <p>Stop adding briefings. Build the register, make the telemetry honest, wire routing and monitors on top of it, and hold the whole thing to a scorecard — so the firm can be run from a system instead of from one person's memory.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">01</div><div>Executive summary</div></div>
+</section>
+
+<!-- ============================== FINDINGS → FIXES ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Findings → fixes</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The eight findings, the eight fixes.</h1>
+    <div class="location">Every AMBER gap from the audit, mapped to a remedy, a phase and an owner.</div>
+  </div>
+  <table class="tbl" style="margin-top: 8mm;">
+    <thead><tr><th style="width:31%">Finding (audit)</th><th style="width:38%">Fix</th><th>Phase</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td><strong>No control plane</strong> — no matter registry; 02-index / 06-governance are empty shells.</td><td>Build the canonical matter registry (11 fields), taxonomy and risk/value matrix; stamp matter IDs on every output.</td><td>1</td><td>Farhad · Brandon</td></tr>
+      <tr><td><strong>Telemetry went dark</strong> — flat 0.0/min then nothing after 3 Jul; <code>errors_today</code> hard-coded 0; no token/cost.</td><td>Restore the pipeline counter; compute errors from the log; add per-service health; add token &amp; dollar usage.</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Notion frozen</strong> — zero structured-state writes since 5 May; Project Pulse monitor not deployed.</td><td>Re-establish write-back from the registry to Notion, or formally retire the claim; deploy Project Pulse.</td><td>3</td><td>Farhad · Zach</td></tr>
+      <tr><td><strong>Audit substrate regressed</strong> — event sidecars counts-only since 28 Apr; scorecard uncomputable.</td><td>Restore the rich <code>events.json</code> schema (fact / risk / monitor / opportunity registries).</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Inference fragile</strong> — Ollama timeouts (79 conn / 27 t/o); gemma fallback noise; sheba has no endpoint; port 8787 collides with Octogent.</td><td>Harden Ollama (retry/queue); give sheba a real endpoint or retire it; resolve the port collision; suppress fallback noise.</td><td>0</td><td>Infra</td></tr>
+      <tr><td><strong>Runtime EOL</strong> — Python 3.9.6 past support; 2 failing date-fixture tests.</td><td>Migrate to Python 3.12; fix the date-fixture tests; green the suite in CI.</td><td>0→1</td><td>Infra</td></tr>
+      <tr><td><strong>Trust &amp; governance</strong> — briefed Hyperion wrong; Stella disclosed data to a third party; "over-caffeinated AI."</td><td>Confirmation gates on external actions; Stella data-handling guardrails; IPP 3A review; human-sets-strategy rule.</td><td>2</td><td>Farhad · Counsel</td></tr>
+      <tr><td><strong>Surge shallow</strong> — no new research brief after 11 Jun; renders asserted, not filed.</td><td>Restore research-desk cadence with cost caps; make claimed deliverables land as files, or stop claiming them.</td><td>3</td><td>Zach</td></tr>
+    </tbody>
+  </table>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">02</div><div>Findings → fixes</div></div>
+</section>
+
+<!-- ============================== ROADMAP + GANTT ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Roadmap</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The roadmap.</h1>
+    <div class="location">Four phases, eleven weeks, one deadline — 30 September.</div>
+  </div>
+  <div class="gantt">
+    <div class="g-head">
+      <div class="wk"></div>
+      <div class="wk mo">Jul</div><div class="wk">21</div><div class="wk">28</div>
+      <div class="wk mo">Aug</div><div class="wk">11</div><div class="wk">18</div><div class="wk">25</div>
+      <div class="wk mo">Sep</div><div class="wk">8</div><div class="wk">15</div><div class="wk">22</div>
+    </div>
+    <div class="g-row"><div class="g-lab">Phase 0 · Stabilise</div>
+      <div class="g-cell" style="grid-column: 2 / 4;"><div class="bar p0" style="left:0; right:0;"><span class="lab">telemetry · health · runtime</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 1 · Control plane</div>
+      <div class="g-cell" style="grid-column: 3 / 6;"><div class="bar p1" style="left:0; right:0;"><span class="lab">matter registry · taxonomy · rollup</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 2 · Routing &amp; playbooks</div>
+      <div class="g-cell" style="grid-column: 5 / 9;"><div class="bar p2" style="left:0; right:0;"><span class="lab">routing · Tranche-1 playbooks · governance</span></div></div></div>
+    <div class="g-row"><div class="g-lab">Phase 3 · Monitors &amp; scale</div>
+      <div class="g-cell" style="grid-column: 8 / 13;"><div class="bar p3" style="left:0; right:0;"><span class="lab">6 monitors · Notion · research desk · 5×</span></div></div></div>
+    <div class="g-row" style="border-bottom:none;"><div class="g-lab" style="font-size:7.5pt; color:var(--ink-3);">Milestones</div>
+      <div class="g-cell" style="grid-column: 3 / 4;"><div class="milestone" title="Telemetry honest"></div></div>
+      <div class="g-cell" style="grid-column: 5 / 6;"><div class="milestone" title="Registry live"></div></div>
+      <div class="g-cell" style="grid-column: 8 / 9;"><div class="milestone" title="Routing + playbooks"></div></div>
+      <div class="g-cell" style="grid-column: 12 / 13;"><div class="milestone" title="GREEN / 5×"></div></div>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top: 9mm;">
+    <div><div class="phase-tag p0">Phase 0</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Stabilise &amp; tell the truth.</strong> Wk 1. The machine must measure itself before it scales. Exit: telemetry honest, suite green.</p></div></div>
+    <div><div class="phase-tag p1">Phase 1</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>The control plane.</strong> Wk 2–4. One canonical registry, populated. Exit: every live matter has a row and an ID.</p></div></div>
+    <div><div class="phase-tag p2">Phase 2</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Routing, playbooks, governance.</strong> Wk 4–8. Decisions get routed; the risky ones escalate. Exit: 3 playbooks live.</p></div></div>
+    <div><div class="phase-tag p3">Phase 3</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Monitors &amp; scale.</strong> Wk 8–11. Six monitors, Notion live, 5× measured. Exit: scorecard GREEN.</p></div></div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">03</div><div>Roadmap</div></div>
+</section>
+
+<!-- ============================== PHASE 0 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 0</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p0">Phase 0 · Week 1 · 16–25 July</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Stabilise &amp; tell the truth.</h1>
+    <div class="location">A machine that cannot see itself cannot be scaled. Fix the instruments first.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>0.1 · Honest telemetry</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Restore the pipeline counter that went silent after 3 July. Replace the hard-coded <code>errors_today = 0</code> with a real count off <code>daily/_errors</code>. Add per-service health (citadel-intel, Ollama primary + fallback, Gmail, Calendar, note-router, sheba) and per-run token &amp; dollar usage.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every digest carries a live telemetry block with real error counts, per-service status, and token/$ for the day.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>0.2 · Harden inference</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Wrap Ollama calls in retry-with-backoff and a small queue so a timeout degrades gracefully instead of dropping to gemma noise. Resolve the port-8787 collision with the Octogent SSH listener. Give <em>sheba</em> a real health endpoint or formally retire the node.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a week passes with zero unhandled Ollama timeouts and no "sheba unreachable" phantom.</p>
+      </div>
+    </div>
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>0.3 · Restore the audit substrate</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Bring back the rich <code>events.json</code> schema retired on 28 April — the fact, risk, monitor-hit and opportunity registries — so the forensic scorecard can be computed from data rather than re-read from prose.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a day's scorecard can be generated from sidecar data with no manual reading.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>0.4 · Runtime &amp; CI</h5><div class="ws-own">Infra</div></div>
+        <p class="ws-body">Migrate off end-of-life Python 3.9.6 to 3.12; clear the Google-library and urllib3 deprecations; fix the two date-fixture tests so the Briefing-Room suite is green in CI.</p>
+        <p class="ws-dod"><strong>Done when:</strong> 3.12 in production and the test suite passes 145 / 0 / 0.</p>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:8mm;">
+    <h4>Exit gate · Phase 0</h4>
+    <p>The dashboard reports true error counts, real per-service health and token/dollar usage; inference no longer silently falls back; the runtime is supported and the suite is green. Only then does Phase 1 begin.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 0</div><div class="n">04</div><div>Stabilise</div></div>
+</section>
+
+<!-- ============================== PHASE 1 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 1</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p1">Phase 1 · Weeks 2–4 · 26 Jul – 15 Aug</div>
+    <h1 class="disp lg" style="margin-top:8pt;">The control plane.</h1>
+    <div class="location">One canonical matter registry — the artefact everything else hangs from.</div>
+  </div>
+  <div class="split-23" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>1.1 · The matter registry</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">Build the single source of truth the doctrine mandates: one row per live matter, eleven fields — Matter ID, category, stage, risk tier, value tier, deadline (NZT), next action, routing rule, source-of-truth link, human owner, automation coverage. It is a file (and its Notion twin), not a briefing.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every live matter across all projects and fronts has a row; nothing lives only in an inbox or a head.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.2 · Taxonomy &amp; risk/value matrix</h5><div class="ws-own">Farhad</div></div>
+        <p class="ws-body">A fixed category taxonomy (project / tax / litigation / finance / regulatory / entity / acquisition) and a risk×value matrix so triage is rule-based, not vibe-based. This is what lets the routing engine in Phase 2 decide anything.</p>
+        <p class="ws-dod"><strong>Done when:</strong> every registry row carries a taxonomy tag and a risk/value cell.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.3 · Matter IDs on every output</h5><div class="ws-own">Infra · Zach</div></div>
+        <p class="ws-body">Stamp the registry's matter IDs onto daily briefings, event sidecars and captures, so a line in a digest links back to a canonical matter — the end of "which McLean's thing is this?"</p>
+        <p class="ws-dod"><strong>Done when:</strong> briefing line items resolve to a matter ID and back to the registry.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>1.4 · The weekly rollup</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">A Monday operating review generated <em>from the registry</em> — what moved, what is overdue, what is at risk, what needs a decision — replacing the memory-based Monday.</p>
+        <p class="ws-dod"><strong>Done when:</strong> the first registry-driven weekly rollup runs and is used to run the week.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout">
+        <h4>The eleven fields</h4>
+        <ul style="font-size:9pt; padding-left:14pt; margin:0; line-height:1.6;">
+          <li>Matter ID</li><li>Category (taxonomy)</li><li>Stage</li><li>Risk tier</li><li>Value tier</li>
+          <li>Deadline (NZT)</li><li>Next action</li><li>Routing rule</li><li>Source-of-truth link</li>
+          <li>Human owner</li><li>Automation coverage</li>
+        </ul>
+        <h4 style="margin-top:12pt;">Seed set · day one</h4>
+        <p style="font-size:9pt;">Backfill from what the reports already surfaced: Hyperion DOCA, the NOPA entities, ERA 3407924, Police v Moinfar, McLeans, RYU Albany, Babich Rise, 126 Featherston, Castra suite, the SPV register, the acquisition pipeline. ~40 live matters exist today — none are in a registry.</p>
+      </div>
+      <div class="callout" style="margin-top:9pt;">
+        <h4>Why this is load-bearing</h4>
+        <p style="font-size:9pt;">Without it the machine can brief and remind but cannot run a review, route a decision, or catch a slipping matter. It is the difference between a cockpit and a control plane — and the doctrine's first instruction.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 1</div><div class="n">05</div><div>Control plane</div></div>
+</section>
+
+<!-- ============================== PHASE 2 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 2</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p2">Phase 2 · Weeks 4–8 · 11 Aug – 5 Sep</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Routing, playbooks &amp; governance.</h1>
+    <div class="location">Decisions get routed; the risky ones escalate to a human; the machine gets guardrails.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>2.1 · The routing engine</h5><div class="ws-own">Infra · Farhad</div></div>
+        <p class="ws-body">Four hard paths on every registry item — <em>auto-execute · draft-for-review · escalate-to-human · route-external</em> — with mandatory escalation triggers (see facing page). The machine stops deciding what only a human should.</p>
+        <p class="ws-dod"><strong>Done when:</strong> each registry row resolves to one of four routes, and every escalation trigger fires a human review.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>2.2 · Tranche-1 playbooks</h5><div class="ws-own">Farhad · Brandon</div></div>
+        <p class="ws-body">The three highest-frequency six-component playbooks the doctrine names: <strong>IRD / Authority</strong>, <strong>Property Transaction</strong>, and <strong>Finance Application</strong> — each a repeatable sequence the machine can drive and a human can sign.</p>
+        <p class="ws-dod"><strong>Done when:</strong> a live matter in each class is run end-to-end through its playbook.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>2.3 · Stella guardrails &amp; privacy</h5><div class="ws-own">Farhad · Counsel</div></div>
+        <p class="ws-body">Confirmation gates before any external send or disclosure; a deny-list on financial/calendar detail after the June data-disclosure incident; the IPP 3A / Privacy Act review the three production agents still need.</p>
+        <p class="ws-dod"><strong>Done when:</strong> no agent can send or disclose externally without a gate, and the privacy review is signed off.</p>
+      </div>
+    </div>
+    <div>
+      <h4 class="tag">Mandatory escalation triggers</h4>
+      <div class="ladder" style="margin-top:4pt;">
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any contact with a regulator (IRD, ERA, Police, Councils, Commissioners).</div></div>
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any exposure or commitment over <strong>$100k</strong>.</div></div>
+        <div class="lvl"><div class="sev crit">Escalate</div><div class="txt">Any police, court or statutory-demand matter.</div></div>
+        <div class="lvl"><div class="sev high">Escalate</div><div class="txt">Any settlement or admission of liability.</div></div>
+        <div class="lvl"><div class="sev high">External</div><div class="txt">Any indemnity over <strong>$50k</strong> → external counsel review.</div></div>
+      </div>
+      <div class="callout" style="margin-top:10pt;">
+        <h4>The trust rule, written down</h4>
+        <p style="font-size:9pt;">The machine surfaces; counsel and the operator decide. After the "over-caffeinated AI" episode and the Hyperion mis-brief, this is doctrine, not preference: <strong>no AI-set strategy on any live legal or financial matter.</strong></p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 2</div><div class="n">06</div><div>Routing &amp; playbooks</div></div>
+</section>
+
+<!-- ============================== PHASE 3 ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 3</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="phase-tag p3">Phase 3 · Weeks 8–11 · 1 – 30 September</div>
+    <h1 class="disp lg" style="margin-top:8pt;">Monitors, Notion &amp; scale to 5×.</h1>
+    <div class="location">Autonomous watchers on top of the registry; structured state live; leverage measured.</div>
+  </div>
+  <div class="split-23" style="margin-top: 8mm;">
+    <div>
+      <div class="ws">
+        <div class="ws-h"><h5>3.1 · The six monitors</h5><div class="ws-own">Infra · Zach</div></div>
+        <p class="ws-body">Deploy the doctrine's six autonomous monitors against the registry — <strong>Project Pulse first</strong>, because it is the one that would have caught seven weeks of Trojan slippage. Then Deal Flow, Gazette/Regulatory, Counterparty, Obligation and Inbox Sentiment.</p>
+        <p class="ws-dod"><strong>Done when:</strong> all six emit daily to the dashboard, and Project Pulse flags any matter unmoved past its SLA.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>3.2 · Un-freeze Notion</h5><div class="ws-own">Farhad · Zach</div></div>
+        <p class="ws-body">Wire the registry to write structured state back into Notion so the Trojan databases stop being a pristine 5-May fossil — or, if that can't be kept live, formally retire the "structured state → Notion wins" claim. A database nobody writes to is worse than none.</p>
+        <p class="ws-dod"><strong>Done when:</strong> Notion reflects registry state within a day, continuously — or the claim is retired in writing.</p>
+      </div>
+      <div class="ws" style="margin-top:9pt;">
+        <div class="ws-h"><h5>3.3 · Research desk, back on cadence</h5><div class="ws-own">Zach</div></div>
+        <p class="ws-body">Restart the Perplexity → reviewer pipeline that went quiet after 11 June, with a per-brief cost cap and the reviewer's ship/revise/reject gate intact. Make claimed deliverables (render sets, packs) land as files, or stop claiming them in digests.</p>
+        <p class="ws-dod"><strong>Done when:</strong> briefs resume on a set cadence with logged cost, and every claimed artifact is a file on the drive.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout">
+        <h4>The 5× arithmetic</h4>
+        <p style="font-size:9pt;">Baseline (March audit): ~2.8× multiplier, ~15% automation coverage. Target: <strong>5.0×</strong>, 65%+ coverage. The lever is not more briefings — it is routing (auto-execute the safe, draft the routine) and playbooks (repeat the known). Coverage is measured off the registry's <em>automation coverage</em> field.</p>
+      </div>
+      <div class="callout" style="margin-top:9pt;">
+        <h4>Monitors, in priority order</h4>
+        <ol style="font-size:9pt; padding-left:14pt; margin:0; line-height:1.55;">
+          <li><strong>Project Pulse</strong> — slippage</li>
+          <li>Obligation — deadlines &amp; payments</li>
+          <li>Gazette / Regulatory</li>
+          <li>Counterparty intelligence</li>
+          <li>Deal Flow</li>
+          <li>Inbox Sentiment</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:7mm;">
+    <h4>Exit gate · Phase 3 — GREEN</h4>
+    <p>Six monitors live, Notion reflecting the registry, research desk on cadence with cost telemetry, and the scorecard on the next page reading GREEN across every line. Leverage measured at or above 5×.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan · Phase 3</div><div class="n">07</div><div>Monitors &amp; scale</div></div>
+</section>
+
+<!-- ============================== SCORECARD ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Scorecard</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">The scorecard · AMBER → GREEN.</h1>
+    <div class="location">The definition of done, area by area. The plan is finished when every line is green.</div>
+  </div>
+  <div class="score" style="margin-top: 8mm;">
+    <div class="s-row" style="border-bottom:0.5pt solid var(--ink-3);"><div class="k" style="font-weight:600; color:var(--ink);">Area</div><div class="pill" style="background:none; color:var(--ink-3);">Now</div><div class="pill" style="background:none; color:var(--ink-3);">Target</div><div class="why" style="color:var(--ink-2);">Green means</div></div>
+    <div class="s-row"><div class="k">Daily cadence</div><div class="pill green">Green</div><div class="pill green">Green</div><div class="why">Already dependable; keep the streak, add matter IDs.</div></div>
+    <div class="s-row"><div class="k">Telemetry integrity</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Live counter, real errors, per-service health, token/$.</div></div>
+    <div class="s-row"><div class="k">Control plane</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Registry populated; every matter has a row and ID.</div></div>
+    <div class="s-row"><div class="k">Routing &amp; playbooks</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">4 routes live; 3 Tranche-1 playbooks run end-to-end.</div></div>
+    <div class="s-row"><div class="k">Monitors</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">All six deployed; Project Pulse catching slippage.</div></div>
+    <div class="s-row"><div class="k">Structured state (Notion)</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Reflects the registry within a day — or claim retired.</div></div>
+    <div class="s-row"><div class="k">Governance &amp; privacy</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Confirmation gates live; IPP 3A review signed.</div></div>
+    <div class="s-row"><div class="k">Runtime &amp; CI</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Python 3.12; suite 145 / 0 / 0.</div></div>
+    <div class="s-row"><div class="k">Leverage</div><div class="pill amber">2.8×</div><div class="pill green">5.0×</div><div class="why">Measured off automation-coverage; 65%+ coverage.</div></div>
+  </div>
+  <div class="callout" style="margin-top:8mm;">
+    <h4>The four north-star metrics</h4>
+    <p>Machine multiplier (→ 5×) · automation coverage (→ 65%+) · matters-on-registry (→ 100%) · escalations-honoured (→ 100% of triggers routed to a human). Reported weekly, off the registry, from Phase 1 onward.</p>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">08</div><div>Scorecard</div></div>
+</section>
+
+<!-- ============================== OWNERS + RISKS ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Owners &amp; risks</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">Who owns what — and what could derail it.</h1>
+    <div class="location">Accountability on every workstream; an honest read on the risks to the plan itself.</div>
+  </div>
+  <div class="split" style="margin-top: 8mm;">
+    <div>
+      <h4 class="tag">Ownership · RACI</h4>
+      <table class="raci" style="margin-top:4pt;">
+        <thead><tr><th class="k" style="text-align:left;">Workstream</th><th>Farhad</th><th>Brandon</th><th>Zach</th><th>Infra</th><th>Counsel</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Telemetry &amp; runtime</td><td>A</td><td>·</td><td>·</td><td class="r">R</td><td>·</td></tr>
+          <tr><td class="k">Matter registry</td><td class="r">R</td><td>A</td><td>C</td><td>C</td><td>·</td></tr>
+          <tr><td class="k">Taxonomy / risk matrix</td><td class="r">R</td><td>C</td><td>·</td><td>·</td><td>C</td></tr>
+          <tr><td class="k">Routing engine</td><td>A</td><td>C</td><td>·</td><td class="r">R</td><td>·</td></tr>
+          <tr><td class="k">Playbooks (Tranche 1)</td><td>A</td><td class="r">R</td><td>C</td><td>C</td><td>C</td></tr>
+          <tr><td class="k">Governance &amp; privacy</td><td class="r">R</td><td>·</td><td>·</td><td>C</td><td>A</td></tr>
+          <tr><td class="k">Monitors</td><td>A</td><td>·</td><td class="r">R</td><td>R</td><td>·</td></tr>
+          <tr><td class="k">Notion / structured state</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
+          <tr><td class="k">Research desk</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:7.5pt; color:var(--ink-3); margin-top:5pt;">R responsible · A accountable · C consulted. "Infra" is the technical build owner (internal or contracted).</p>
+    </div>
+    <div>
+      <h4 class="tag">Risks to the plan</h4>
+      <div class="ladder" style="margin-top:4pt;">
+        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Operator bandwidth.</strong> The same person runs the deals and the build. If deal-tempo spikes, the registry slips. <em>Mitigant: time-box Phase 1 to the registry only; defer everything else.</em></div></div>
+        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Registry rot.</strong> A registry no one updates is Notion all over again. <em>Mitigant: the weekly rollup reads from it, so it must be current to be useful.</em></div></div>
+        <div class="lvl"><div class="sev high">Med</div><div class="txt"><strong>Infra capacity.</strong> Phase 0 needs real engineering. <em>Mitigant: scope it to one week; contract if internal capacity is short.</em></div></div>
+        <div class="lvl"><div class="sev med">Med</div><div class="txt"><strong>Scope creep into "more AI."</strong> <em>Mitigant: the exit gates — nothing new until the gate is met.</em></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">09</div><div>Owners &amp; risks</div></div>
+</section>
+
+<!-- ============================== THIS WEEK ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>This week</div></div>
+  <div style="margin-top: 8mm; max-width: 158mm;">
+    <h1 class="disp">This week — the first ten actions.</h1>
+    <div class="location">The plan is only real if it starts. Ten things to do in the next seven days.</div>
+  </div>
+  <div class="actions" style="margin-top: 8mm;">
+    <div class="act"><div class="no">01</div><div class="t"><b>Un-hard-code the error count.</b> Compute <code>errors_today</code> from <code>daily/_errors</code>; ship it in tonight's digest.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">02</div><div class="t"><b>Restore the pipeline counter</b> so telemetry stops reading "unavailable." Back to a live reading every evening.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">03</div><div class="t"><b>Resolve the port-8787 collision</b> with Octogent; confirm the dashboard serves cleanly on the tailnet.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">04</div><div class="t"><b>Create the registry file</b> — the eleven columns, empty — in Dropbox and its Notion twin. Just the skeleton.</div><div class="own">Farhad</div></div>
+    <div class="act"><div class="no">05</div><div class="t"><b>Seed the ~40 live matters</b> from the last three volumes into the registry — Hyperion, NOPA, ERA, Police, the four projects, Castra, the SPVs, the pipeline.</div><div class="own">Farhad · Brandon</div></div>
+    <div class="act"><div class="no">06</div><div class="t"><b>Assign an owner and a next-action</b> to every seeded row. No orphans.</div><div class="own">Farhad</div></div>
+    <div class="act"><div class="no">07</div><div class="t"><b>Write the five escalation triggers</b> into a one-page policy and circulate — regulator, &gt;$100k, police/court, settlement, &gt;$50k indemnity.</div><div class="own">Farhad · Counsel</div></div>
+    <div class="act"><div class="no">08</div><div class="t"><b>Put a confirmation gate on Stella's external sends</b> after the disclosure incident — no external send or disclosure without a human OK.</div><div class="own">Infra · Farhad</div></div>
+    <div class="act"><div class="no">09</div><div class="t"><b>Kick off the Python 3.12 migration</b> and fix the two failing date-fixture tests.</div><div class="own">Infra</div></div>
+    <div class="act"><div class="no">10</div><div class="t"><b>Run the first registry-driven Monday rollup</b> next Monday — what moved, what's overdue, what's at risk.</div><div class="own">Farhad · Brandon</div></div>
+  </div>
+  <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">10</div><div>This week</div></div>
+</section>
+
+<!-- ============================== COLOPHON ============================== -->
+<section class="colophon">
+  <div class="pad">
+    <div style="font-family: var(--sans); font-weight: 500; font-size: 7pt; letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-4);">Colophon · Working document</div>
+    <div class="mast">LIGHTSPEED</div>
+    <div style="font-family: var(--serif); font-style: italic; font-size: 16pt; color: var(--paper-3); margin-top: 18pt; max-width: 150mm;">Implementation Plan — From AMBER to 5×. A four-phase programme, 16 July to 30 September 2026, to build the control plane the doctrine asked for first.</div>
+    <div class="text">
+      Derived from the recommendations and gaps in Lightspeed Volumes One to Three and the Citadel Operating Doctrine
+      v1.0 (effective 31 March 2026). Every finding is traceable to the audit; every fix to a phase, an owner and a
+      done-when. This is a working document — revise it as the registry teaches you what the real matters are.
+    </div>
+    <div class="grid-c">
+      <div><div class="k">Document</div><div class="v">Implementation plan</div></div>
+      <div><div class="k">Horizon</div><div class="v">16 Jul — 30 Sep 2026</div></div>
+      <div><div class="k">Owner</div><div class="v">Farhad Moinfar</div></div>
+      <div><div class="k">Imprint</div><div class="v">Citadel · Lightspeed</div></div>
+    </div>
+  </div>
+  <div class="stamp">
+    <div>Confidential — internal · Working document</div>
+    <div>16 July 2026 NZT · Auckland</div>
+  </div>
+</section>
+</body></html>
