@@ -37,7 +37,7 @@ __CSS__
         <strong>30 September</strong> leverage deadline. Phase 0 makes the machine tell the truth about itself. Phase 1
         builds the canonical matter registry — the single load-bearing artefact everything else hangs from. Phase 2 adds
         routing, the first playbooks and the governance the Stella incidents demand. Phase 3 deploys the six monitors,
-        un-freezes Notion, and measures the move from <strong>2.8× to 5×</strong>. Each phase has an exit gate; nothing
+        renders the registry live on the dashboard the team already uses — <strong>Notion is retired; you don't use it</strong> — and measures the move from <strong>2.8× to 5×</strong>. Each phase has an exit gate; nothing
         advances until the gate is met.
       </p>
     </div>
@@ -67,7 +67,7 @@ __CSS__
     <tbody>
       <tr><td><strong>No control plane</strong> — no matter registry; 02-index / 06-governance are empty shells.</td><td>Build the canonical matter registry (11 fields), taxonomy and risk/value matrix; stamp matter IDs on every output.</td><td>1</td><td>Farhad · Brandon</td></tr>
       <tr><td><strong>Telemetry went dark</strong> — flat 0.0/min then nothing after 3 Jul; <code>errors_today</code> hard-coded 0; no token/cost.</td><td>Restore the pipeline counter; compute errors from the log; add per-service health; add token &amp; dollar usage.</td><td>0</td><td>Infra</td></tr>
-      <tr><td><strong>Notion frozen</strong> — zero structured-state writes since 5 May; Project Pulse monitor not deployed.</td><td>Re-establish write-back from the registry to Notion, or formally retire the claim; deploy Project Pulse.</td><td>3</td><td>Farhad · Zach</td></tr>
+      <tr><td><strong>No home for structured state</strong> — the Notion migration was abandoned and is unused; nothing renders live state.</td><td>Retire Notion. The file-based registry in Dropbox is the single source of truth, rendered live on the dashboard.</td><td>1→3</td><td>Farhad · Zach</td></tr>
       <tr><td><strong>Audit substrate regressed</strong> — event sidecars counts-only since 28 Apr; scorecard uncomputable.</td><td>Restore the rich <code>events.json</code> schema (fact / risk / monitor / opportunity registries).</td><td>0</td><td>Infra</td></tr>
       <tr><td><strong>Inference fragile</strong> — Ollama timeouts (79 conn / 27 t/o); gemma fallback noise; sheba has no endpoint; port 8787 collides with Octogent.</td><td>Harden Ollama (retry/queue); give sheba a real endpoint or retire it; resolve the port collision; suppress fallback noise.</td><td>0</td><td>Infra</td></tr>
       <tr><td><strong>Runtime EOL</strong> — Python 3.9.6 past support; 2 failing date-fixture tests.</td><td>Migrate to Python 3.12; fix the date-fixture tests; green the suite in CI.</td><td>0→1</td><td>Infra</td></tr>
@@ -99,7 +99,7 @@ __CSS__
     <div class="g-row"><div class="g-lab">Phase 2 · Routing &amp; playbooks</div>
       <div class="g-cell" style="grid-column: 5 / 9;"><div class="bar p2" style="left:0; right:0;"><span class="lab">routing · Tranche-1 playbooks · governance</span></div></div></div>
     <div class="g-row"><div class="g-lab">Phase 3 · Monitors &amp; scale</div>
-      <div class="g-cell" style="grid-column: 8 / 13;"><div class="bar p3" style="left:0; right:0;"><span class="lab">6 monitors · Notion · research desk · 5×</span></div></div></div>
+      <div class="g-cell" style="grid-column: 8 / 13;"><div class="bar p3" style="left:0; right:0;"><span class="lab">6 monitors · dashboard · research desk · 5×</span></div></div></div>
     <div class="g-row" style="border-bottom:none;"><div class="g-lab" style="font-size:7.5pt; color:var(--ink-3);">Milestones</div>
       <div class="g-cell" style="grid-column: 3 / 4;"><div class="milestone" title="Telemetry honest"></div></div>
       <div class="g-cell" style="grid-column: 5 / 6;"><div class="milestone" title="Registry live"></div></div>
@@ -111,7 +111,7 @@ __CSS__
     <div><div class="phase-tag p0">Phase 0</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Stabilise &amp; tell the truth.</strong> Wk 1. The machine must measure itself before it scales. Exit: telemetry honest, suite green.</p></div></div>
     <div><div class="phase-tag p1">Phase 1</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>The control plane.</strong> Wk 2–4. One canonical registry, populated. Exit: every live matter has a row and an ID.</p></div></div>
     <div><div class="phase-tag p2">Phase 2</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Routing, playbooks, governance.</strong> Wk 4–8. Decisions get routed; the risky ones escalate. Exit: 3 playbooks live.</p></div></div>
-    <div><div class="phase-tag p3">Phase 3</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Monitors &amp; scale.</strong> Wk 8–11. Six monitors, Notion live, 5× measured. Exit: scorecard GREEN.</p></div></div>
+    <div><div class="phase-tag p3">Phase 3</div><div class="body" style="margin-top:6pt;"><p style="font-size:9pt;"><strong>Monitors &amp; scale.</strong> Wk 8–11. Six monitors, dashboard live, 5× measured. Exit: scorecard GREEN.</p></div></div>
   </div>
   <div class="folio-bot"><div>Lightspeed · Plan</div><div class="n">03</div><div>Roadmap</div></div>
 </section>
@@ -169,7 +169,7 @@ __CSS__
     <div>
       <div class="ws">
         <div class="ws-h"><h5>1.1 · The matter registry</h5><div class="ws-own">Farhad · Brandon</div></div>
-        <p class="ws-body">Build the single source of truth the doctrine mandates: one row per live matter, eleven fields — Matter ID, category, stage, risk tier, value tier, deadline (NZT), next action, routing rule, source-of-truth link, human owner, automation coverage. It is a file (and its Notion twin), not a briefing.</p>
+        <p class="ws-body">Build the single source of truth the doctrine mandates: one row per live matter, eleven fields — Matter ID, category, stage, risk tier, value tier, deadline (NZT), next action, routing rule, source-of-truth link, human owner, automation coverage. It is a versioned file in Dropbox — the surface the whole system already runs on — not a briefing, and not Notion.</p>
         <p class="ws-dod"><strong>Done when:</strong> every live matter across all projects and fronts has a row; nothing lives only in an inbox or a head.</p>
       </div>
       <div class="ws" style="margin-top:9pt;">
@@ -223,12 +223,12 @@ __CSS__
         <p class="ws-body">Four hard paths on every registry item — <em>auto-execute · draft-for-review · escalate-to-human · route-external</em> — with mandatory escalation triggers (see facing page). The machine stops deciding what only a human should.</p>
         <p class="ws-dod"><strong>Done when:</strong> each registry row resolves to one of four routes, and every escalation trigger fires a human review.</p>
       </div>
-      <div class="ws" style="margin-top:9pt;">
+      <div class="ws" style="margin-top:6pt;">
         <div class="ws-h"><h5>2.2 · Tranche-1 playbooks</h5><div class="ws-own">Farhad · Brandon</div></div>
         <p class="ws-body">The three highest-frequency six-component playbooks the doctrine names: <strong>IRD / Authority</strong>, <strong>Property Transaction</strong>, and <strong>Finance Application</strong> — each a repeatable sequence the machine can drive and a human can sign.</p>
         <p class="ws-dod"><strong>Done when:</strong> a live matter in each class is run end-to-end through its playbook.</p>
       </div>
-      <div class="ws" style="margin-top:9pt;">
+      <div class="ws" style="margin-top:6pt;">
         <div class="ws-h"><h5>2.3 · Stella guardrails &amp; privacy</h5><div class="ws-own">Farhad · Counsel</div></div>
         <p class="ws-body">Confirmation gates before any external send or disclosure; a deny-list on financial/calendar detail after the June data-disclosure incident; the IPP 3A / Privacy Act review the three production agents still need.</p>
         <p class="ws-dod"><strong>Done when:</strong> no agent can send or disclose externally without a gate, and the privacy review is signed off.</p>
@@ -257,24 +257,24 @@ __CSS__
   <div class="folio-top"><div>Lightspeed · Implementation plan</div><div>Phase 3</div></div>
   <div style="margin-top: 6mm;">
     <div class="phase-tag p3">Phase 3 · Weeks 8–11 · 1 – 30 September</div>
-    <h1 class="disp lg" style="margin-top:8pt;">Monitors, Notion &amp; scale to 5×.</h1>
+    <h1 class="disp lg" style="margin-top:8pt;">Monitors &amp; scale to 5×.</h1>
     <div class="location">Autonomous watchers on top of the registry; structured state live; leverage measured.</div>
   </div>
   <div class="split-23" style="margin-top: 8mm;">
     <div>
       <div class="ws">
         <div class="ws-h"><h5>3.1 · The six monitors</h5><div class="ws-own">Infra · Zach</div></div>
-        <p class="ws-body">Deploy the doctrine's six autonomous monitors against the registry — <strong>Project Pulse first</strong>, because it is the one that would have caught seven weeks of Trojan slippage. Then Deal Flow, Gazette/Regulatory, Counterparty, Obligation and Inbox Sentiment.</p>
+        <p class="ws-body">Deploy the doctrine's six autonomous monitors against the registry — <strong>Project Pulse first</strong>, the one that would have caught seven weeks of Trojan slippage. Then Deal Flow, Gazette, Counterparty, Obligation and Inbox Sentiment.</p>
         <p class="ws-dod"><strong>Done when:</strong> all six emit daily to the dashboard, and Project Pulse flags any matter unmoved past its SLA.</p>
       </div>
       <div class="ws" style="margin-top:9pt;">
-        <div class="ws-h"><h5>3.2 · Un-freeze Notion</h5><div class="ws-own">Farhad · Zach</div></div>
-        <p class="ws-body">Wire the registry to write structured state back into Notion so the Trojan databases stop being a pristine 5-May fossil — or, if that can't be kept live, formally retire the "structured state → Notion wins" claim. A database nobody writes to is worse than none.</p>
-        <p class="ws-dod"><strong>Done when:</strong> Notion reflects registry state within a day, continuously — or the claim is retired in writing.</p>
+        <div class="ws-h"><h5>3.2 · Structured state — on the dashboard</h5><div class="ws-own">Farhad · Zach</div></div>
+        <p class="ws-body">Notion is retired — the team doesn't use it, and the doctrine's "structured state → Notion wins" rule is struck. Structured state lives as files in Dropbox and <strong>renders live on the tailnet dashboard</strong> already in production (8787): matters, deadlines, risk, owner and next action on one screen.</p>
+        <p class="ws-dod"><strong>Done when:</strong> the dashboard shows current registry state end-to-end, with no dependency on Notion.</p>
       </div>
       <div class="ws" style="margin-top:9pt;">
         <div class="ws-h"><h5>3.3 · Research desk, back on cadence</h5><div class="ws-own">Zach</div></div>
-        <p class="ws-body">Restart the Perplexity → reviewer pipeline that went quiet after 11 June, with a per-brief cost cap and the reviewer's ship/revise/reject gate intact. Make claimed deliverables (render sets, packs) land as files, or stop claiming them in digests.</p>
+        <p class="ws-body">Restart the Perplexity → reviewer pipeline that went quiet after 11 June, with a per-brief cost cap and the ship/revise/reject gate intact. Make claimed deliverables land as files, or stop claiming them in digests.</p>
         <p class="ws-dod"><strong>Done when:</strong> briefs resume on a set cadence with logged cost, and every claimed artifact is a file on the drive.</p>
       </div>
     </div>
@@ -296,9 +296,9 @@ __CSS__
       </div>
     </div>
   </div>
-  <div class="callout" style="margin-top:7mm;">
+  <div class="callout" style="margin-top:5mm;">
     <h4>Exit gate · Phase 3 — GREEN</h4>
-    <p>Six monitors live, Notion reflecting the registry, research desk on cadence with cost telemetry, and the scorecard on the next page reading GREEN across every line. Leverage measured at or above 5×.</p>
+    <p>Six monitors live, the registry on the dashboard, research desk on cadence with cost telemetry, and the scorecard reading GREEN across every line. Leverage at or above 5×.</p>
   </div>
   <div class="folio-bot"><div>Lightspeed · Plan · Phase 3</div><div class="n">07</div><div>Monitors &amp; scale</div></div>
 </section>
@@ -317,7 +317,7 @@ __CSS__
     <div class="s-row"><div class="k">Control plane</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Registry populated; every matter has a row and ID.</div></div>
     <div class="s-row"><div class="k">Routing &amp; playbooks</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">4 routes live; 3 Tranche-1 playbooks run end-to-end.</div></div>
     <div class="s-row"><div class="k">Monitors</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">All six deployed; Project Pulse catching slippage.</div></div>
-    <div class="s-row"><div class="k">Structured state (Notion)</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Reflects the registry within a day — or claim retired.</div></div>
+    <div class="s-row"><div class="k">Structured state &amp; dashboard</div><div class="pill red">Red</div><div class="pill green">Green</div><div class="why">Registry renders live on the dashboard; Notion retired.</div></div>
     <div class="s-row"><div class="k">Governance &amp; privacy</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Confirmation gates live; IPP 3A review signed.</div></div>
     <div class="s-row"><div class="k">Runtime &amp; CI</div><div class="pill amber">Amber</div><div class="pill green">Green</div><div class="why">Python 3.12; suite 145 / 0 / 0.</div></div>
     <div class="s-row"><div class="k">Leverage</div><div class="pill amber">2.8×</div><div class="pill green">5.0×</div><div class="why">Measured off automation-coverage; 65%+ coverage.</div></div>
@@ -349,7 +349,7 @@ __CSS__
           <tr><td class="k">Playbooks (Tranche 1)</td><td>A</td><td class="r">R</td><td>C</td><td>C</td><td>C</td></tr>
           <tr><td class="k">Governance &amp; privacy</td><td class="r">R</td><td>·</td><td>·</td><td>C</td><td>A</td></tr>
           <tr><td class="k">Monitors</td><td>A</td><td>·</td><td class="r">R</td><td>R</td><td>·</td></tr>
-          <tr><td class="k">Notion / structured state</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
+          <tr><td class="k">Dashboard / structured state</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
           <tr><td class="k">Research desk</td><td>A</td><td>·</td><td class="r">R</td><td>C</td><td>·</td></tr>
         </tbody>
       </table>
@@ -359,7 +359,7 @@ __CSS__
       <h4 class="tag">Risks to the plan</h4>
       <div class="ladder" style="margin-top:4pt;">
         <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Operator bandwidth.</strong> The same person runs the deals and the build. If deal-tempo spikes, the registry slips. <em>Mitigant: time-box Phase 1 to the registry only; defer everything else.</em></div></div>
-        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Registry rot.</strong> A registry no one updates is Notion all over again. <em>Mitigant: the weekly rollup reads from it, so it must be current to be useful.</em></div></div>
+        <div class="lvl"><div class="sev crit">High</div><div class="txt"><strong>Registry rot.</strong> A registry no one updates is a dead database all over again. <em>Mitigant: the weekly rollup reads from it, so it must be current to be useful.</em></div></div>
         <div class="lvl"><div class="sev high">Med</div><div class="txt"><strong>Infra capacity.</strong> Phase 0 needs real engineering. <em>Mitigant: scope it to one week; contract if internal capacity is short.</em></div></div>
         <div class="lvl"><div class="sev med">Med</div><div class="txt"><strong>Scope creep into "more AI."</strong> <em>Mitigant: the exit gates — nothing new until the gate is met.</em></div></div>
       </div>
@@ -379,7 +379,7 @@ __CSS__
     <div class="act"><div class="no">01</div><div class="t"><b>Un-hard-code the error count.</b> Compute <code>errors_today</code> from <code>daily/_errors</code>; ship it in tonight's digest.</div><div class="own">Infra</div></div>
     <div class="act"><div class="no">02</div><div class="t"><b>Restore the pipeline counter</b> so telemetry stops reading "unavailable." Back to a live reading every evening.</div><div class="own">Infra</div></div>
     <div class="act"><div class="no">03</div><div class="t"><b>Resolve the port-8787 collision</b> with Octogent; confirm the dashboard serves cleanly on the tailnet.</div><div class="own">Infra</div></div>
-    <div class="act"><div class="no">04</div><div class="t"><b>Create the registry file</b> — the eleven columns, empty — in Dropbox and its Notion twin. Just the skeleton.</div><div class="own">Farhad</div></div>
+    <div class="act"><div class="no">04</div><div class="t"><b>Create the registry file</b> — the eleven columns, empty — in Dropbox (Markdown + JSON). Just the skeleton. No Notion.</div><div class="own">Farhad</div></div>
     <div class="act"><div class="no">05</div><div class="t"><b>Seed the ~40 live matters</b> from the last three volumes into the registry — Hyperion, NOPA, ERA, Police, the four projects, Castra, the SPVs, the pipeline.</div><div class="own">Farhad · Brandon</div></div>
     <div class="act"><div class="no">06</div><div class="t"><b>Assign an owner and a next-action</b> to every seeded row. No orphans.</div><div class="own">Farhad</div></div>
     <div class="act"><div class="no">07</div><div class="t"><b>Write the five escalation triggers</b> into a one-page policy and circulate — regulator, &gt;$100k, police/court, settlement, &gt;$50k indemnity.</div><div class="own">Farhad · Counsel</div></div>
