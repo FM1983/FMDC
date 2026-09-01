@@ -143,7 +143,7 @@ APNs payloads carry zero content beyond counts and generic labels. On-device cac
 
 ## 9. Open items (none block Phase 0)
 
-1. Apple Developer account for `capital.citadel` — status unknown; the Phase 0 enrolment check answers it on day one, and enrolment (if needed) starts the same day. Everything server-side proceeds regardless; only push and TestFlight wait on it.
+1. Apple Developer account — **likely under FM's personal Apple ID, `farhad.moinfar@gmail.com`**: the enrolment check looks there first (sign in at developer.apple.com / App Store Connect with that ID, list teams). An individual enrolment is sufficient for v2 — TestFlight internal testing and the `capital.citadel.rook` bundle id both work under it; migrating to an organisation team is a later, optional move. If that ID holds no membership, enrolment starts day one. Everything server-side proceeds regardless; only push and TestFlight wait on it.
 2. Kimi K3 vs MiniMax M3 as the *default* voice brain — ship Kimi, keep the switch server-side.
 3. Whether Zach/Brandon get voice in v2 or v2.1 (default: FM-only first).
 4. SwiftUI shell rewrite — revisit only after the parallel run passes.
