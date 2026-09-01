@@ -62,6 +62,27 @@ alwaysApply: true
   tailnet-streamed preview, 8787 mailbox excerpt, or iOS Calendar. The importer
   resolves every path it ingests into a context_ref automatically; an
   unresolvable path renders flagged, never silent. No dead references.
+- Item brief is mandatory (P17): every item carries brief_md — two to four plain
+  sentences: the matter, what changed, what is asked, by when. No screen may
+  render an item as a bare title; a brief older than the item's last event
+  renders STALE; a missing brief is itself a visible flag.
+- Traffic-light priority (P18): light (red|amber|green) is DERIVED by testable
+  rules, never set by an agent or model. RED = decision/release required and
+  dated (due <=72h, staged >48h, escalated, blown gate) and is the only colour
+  that pushes; AMBER goes to the 07:00 summary; GREEN never pushes. The light
+  drives sort and push policy everywhere; recolouring is a logged event with
+  the rule that fired.
+- Coverage is tested, not hoped for (P19): the importer's reconciler diffs the
+  board against lane CHANGELOG/_CONTEXT records and raises candidate items for
+  anything missing; a nightly grunt-tier net stages decision-shaped content it
+  cannot match to an item; quiet sources become AMBER items; Pulse counts
+  Caught-late. Dismissing a candidate is one tick and is logged.
+- Draft discipline (P20): agents NEVER write to the Gmail drafts folder. An
+  outbound message exists only as a staged dispatch with provenance (item,
+  ruling/request, author); the gmail_sa draft is created at release time, on
+  the human tap. Aging staged drafts nag once daily then auto-supersede
+  (default 7 days); rook-syncd flags orphan Gmail drafts it did not create for
+  one-tap deletion. No draft without a ruling behind it.
 - Offline-first mobile: expo-sqlite mirror + action queue with sync_state,
   lossless replay on reconnect. No privileged bodies cached on-device — refs
   and streamed previews only; purge on lock.
