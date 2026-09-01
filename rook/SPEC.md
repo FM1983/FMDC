@@ -1,168 +1,125 @@
-# ROOK — the Citadel board console
-**Build specification v1.0 · 2 September 2026 NZT · Confidential — internal**
+# ROOK — the Citadel command app
+**Build specification v2.0 · 2 September 2026 NZT · Confidential — internal · supersedes v1.0**
 
-A mobile-first web app that replaces reading `BOARD.md` with operating it: review board items, call up their context, record decisions and amendment notes at the moment they happen, and stage instructions to machine agents and to people — with release as an explicit, logged, one-tap act. Two-way live sync with the machine fleet over the existing Dropbox + tailnet architecture. Named for the Citadel rook.
+A **native iPhone app** — one app to rule them all — that turns the GODS-EYE board into an operable queue: review categorised items, call up context, **decide by ticking options in tabular checkbox cards (with free-text always available)**, make amendment notes, stage instructions to machine agents and to people, release with one logged tap, and **talk to the board hands-free** through a voice assistant plumbed into the group's model fleet. Two-way live sync with the machines over the existing Dropbox + tailnet architecture; **push notifications** for criticals and escalations.
+
+v2 changes from v1: native iOS (not PWA-first) · APNs push · decision **option cards** (categorised checkbox tables + text entry) as the universal ruling pattern · a **voice chat** layer · an **LLM gateway** (v1's "no LLM inside Rook" rule is superseded, with hard data boundaries) · consolidation roadmap ("one app").
 
 ---
 
 ## 0. Why this exists (requirements with provenance)
 
-Every requirement below is motivated by a named failure already on the record. This table is the contract; if a feature doesn't serve one of these, cut it.
-
 | # | Incident on the record | Requirement it creates |
 |---|---|---|
-| P1 | `BOARD.md` at 688KB, re-ballooned after the 13 Aug split; "one file eating a third of a context window" | Items live in a **database**, not a file. Markdown becomes a *generated view*, never the store. |
-| P2 | Codex audit R013: "**no stable decision object**"; confidence "What did Farhad decide?" 3/5 | A typed, versioned **Item** with append-only history is the core entity. |
-| P3 | "No genuine FM decision recorded since 13 Aug (auto-replies masquerading as FM)" — later shown to be **state-lag**: decisions made, recorded late or never | Decisions are captured **on the phone at the moment of decision**, not reconstructed by a sweep afterwards. Signed by identity, not inferred from mailbox tone. |
-| P4 | Terra C9: "the machine drafted the form… rang the bell twice. The decision never came. **An alert is not an action**" | Deadline items *require* a decision transition. Undecided criticals escalate: push at T-48h, T-24h, T-3h, each logged. |
-| P5 | The standing failure mode: "**a completed document waiting on a release decision**" (insurer letter unreleased since 23 Aug; Connal instruction promised, never sent; s357B "four drafts of the filing email sat unsent") | A **Dispatch Review** screen: everything staged, one tap to release, release tokens logged. Staged-but-unreleased items age visibly and nag. |
-| P6 | "Whether it was actually sent is NOT recorded" (s357B); "machine sends nothing; FM sends" | Release is a first-class event with actor, timestamp, token (`ROK20260902A` style), and a proof pointer to the sent artifact. |
-| P7 | The 34-hour launchd outage, "root cause… not further diagnosed"; silence looked like health | A **freshness banner** on every screen: "last sweep seen N min ago." Staleness > 45 min turns the app amber and pushes once. The watchdog is independent of the thing it watches. |
-| P8 | Audit: "Move Farhad from default integration layer to **explicit material-decision gate**"; "Velocity is visible. Closure is not." | The app *is* the gate. Metrics measure the interval the audit named: raised→decided→released→**verified**. |
-| P9 | "Phone calls are invisible to this machine" (Connal caveat); Otter meeting: "ten of the thirteen action items are uncaptured" | **Quick capture**: 10-second voice/dictation note attaches an outcome to an item; meeting-link capture spawns staged items from a transcript. |
-| P10 | Privileged matters (Duncan LitSim, Police file) and the local-only doctrine ("no cloud host holds the corpus") | **Tailnet-only. No cloud hosting.** Role-scoped visibility; privileged matters FM-only by default. |
-| P11 | Five-field proof pilot mandated by the audit: *timestamp / actor / transition / proof / verifier* | The event ledger stores exactly these five fields on every state change. Rook **is** the proof pilot. |
-| P12 | Google Workspace single-instrument fragility (3 Sep suspension risk) | Rook must run with Google down: Dropbox-file transport for machine instructions; Gmail used only as an optional channel for people. |
+| P1 | `BOARD.md` at 688KB, re-ballooned after the 13 Aug split | Items live in a **database**; markdown is a generated view. |
+| P2 | Audit R013: "**no stable decision object**" | A typed, versioned **Item** with append-only history. |
+| P3 | "No genuine FM decision recorded since 13 Aug" — state-lag: decisions made, recorded late or never | Decisions captured **on the phone at the moment of decision**, signed by identity. |
+| P4 | Terra C9: "an alert is not an action" | Deadline items *require* a decision transition; undecided criticals **push-escalate** at T-48h/T-24h/T-3h. |
+| P5 | "A completed document waiting on a release decision" (insurer letter, Connal instruction, s357B drafts) | **Dispatch Review** screen; staged items age visibly and nag; one-tap release. |
+| P6 | "Whether it was actually sent is NOT recorded" · "machine sends nothing; FM sends" | Release = first-class event: actor, timestamp, token (`ROK…`), proof pointer. Rook stages; a human releases. |
+| P7 | The 34-hour launchd outage; silence looked like health | Freshness banner everywhere; independent cross-alarming watchdogs; staleness pushes once. |
+| P8 | "Velocity is visible. Closure is not." | Metrics on the audited interval: raised → decided → released → **verified**. |
+| P9 | "Phone calls are invisible" · 10 of 13 meeting actions lost | 10-second voice capture; meeting-link ingestion spawns staged items. |
+| P10 | Privileged matters + "no cloud host holds the corpus" | Tailnet-only data plane; role scoping at the query layer; privileged = FM-only. |
+| P11 | The audit's five-field proof pilot | Every state change stores timestamp / actor / transition / proof / verifier. |
+| P12 | One failed payment instrument nearly took Workspace + Anthropic + Notion at once | Runs with Google down; file transport for machines; channel redundancy for pushes. |
+| **P13** | **FM already rules by option paper and checkbox** — B005 was "a five-option paper for FM's ruling"; the 13 Aug burn-priorities went out as "FM checkbox, executed"; agents write options, FM ticks | **Option Cards**: categorised, tabular checkbox choices on any item, single- or multi-select, consequence column, free-text "in your own words" always present. Agents author cards as files; the app renders them natively. |
+| **P14** | 8 Sep: a court appearance at 2:15pm and a 16:10 flight in one afternoon; decisions happen in cars, lifts and corridors | **Native app + push + voice.** Hands-free review and ruling; notifications that arrive without the app open; offline queue everywhere. |
+| **P15** | A routing doctrine already exists and works: "the scarce resource is Claude context"; Kimi/OpenRouter routes carry confidentiality gates; "force Kimi to do the heavy lift… Don't hold back"; Opus drafts, detached | Rook's LLM layer **reuses the fleet doctrine**: an efficient OpenRouter-sourced Chinese frontier model as the conversational brain; **Opus 5 for the grunt work**, detached; privileged content never leaves the Anthropic/local boundary. |
 
 ## 1. Product definition
 
-**One sentence.** Rook turns the GODS-EYE board from a document Farhad reads into a queue Farhad clears — from a phone, in gaps between meetings, with every decision, note and dispatch landing back in the canonical record within a minute.
+**One sentence.** Rook is the one Citadel app: the board in your pocket — categorised queues you clear with checkboxes, context on tap, dispatches you release with a thumb, a voice you can talk to on the motorway, and notifications that find you before deadlines do.
 
-**Users & roles.**
-- **FM (owner):** sees everything incl. privileged; the only role that can *release* dispatches and close criticals.
-- **Brandon / Zach / Nicki (operators):** scoped to their lanes; can review, comment/amend, stage instructions, mark their own tasks done; cannot release on FM-gated items; privileged matters hidden unless granted per-matter.
-- **Machine agents (non-human):** GODS-EYE sweeps, workstream orchestrators, Nimbalyst sessions. They write board state in and consume instruction files out. No UI login; they speak files and one ingest API.
+**Roles.** FM (everything, sole releaser of FM-gated items, privileged visibility) · Brandon/Zach/Nicki (scoped lanes, can review/amend/stage/complete, per-matter privileged grants) · machine agents (no UI — files in, files out) · the assistant (a tool-using session inside the gateway; may query and stage; may **never** release, send, or see privileged matter content unless running on the privileged tier).
 
-**Explicit non-goals (v1).** Not a chat client; not a document editor; not a Gantt tool; not a replacement for the daily briefings, the Reference Library app, or the 8787 briefing room (Rook links into them). No public internet exposure. No autonomous sending — Rook *stages*; humans release. "The next phase is not more reports, more dashboards or more agents" — Rook is none of those; it is the gate.
+**One app to rule them all — consolidation roadmap.** v2 ships the board, dispatch, capture and voice. The same app then absorbs, as read surfaces: the daily briefing/digest (v2.1), matter context packs and the 8787 mailbox excerpts (v2.1), Pulse metrics (v2.0 already), agenda PDFs (v2.2), Reference-Library lookup (v2.2, links into the 4317 app). Rule: Rook *renders* other systems; it does not re-implement them. Nothing else gets built as a separate surface for FM once Rook is live.
 
-## 2. Architecture
+**Non-goals (v2).** Not a document editor; not a CRM; no public exposure; no autonomous sending; no privileged *documents* stored on-device (references + excerpts only, purge on lock); no Android (revisit later); CarPlay deferred (Siri Shortcut "Ask Rook" covers the car).
+
+## 2. Platform decision — native iPhone
+
+**Expo (React Native) with a custom dev client, TypeScript end-to-end.** Reasons, honestly weighed against pure SwiftUI: shared zod schemas and API types with the server (one brain, two runtimes); Cursor productivity is highest in TS; EAS builds + **TestFlight internal distribution** (no App Store review friction for a private app); native modules available where it matters (speech, push, keychain). SwiftUI would feel marginally nicer and remains a licensed future rewrite of the *shell* — the server contract below is UI-agnostic, so nothing is lost by starting in Expo.
+
+- **Distribution:** TestFlight internal testing (FM + 3). Bundle id `capital.citadel.rook`.
+- **Push:** **direct APNs from argonaut** (`node-apn`, token-based .p8 auth) — no Expo push gateway, no Firebase, no third-party transit. **Payloads are generic** ("Rook: 2 criticals await" / "Dispatch aged 48h") — never matter names, never privileged content; tapping opens the app, which pulls detail over the tailnet. Channels: critical escalations (T-48/24/3, P4), staged-item nags (P5), freshness alarms (P7), ack/verify events, morning queue summary (07:00, configurable). Redundancy: Telegram mirror via the existing bot (P12).
+- **Tailnet on phone:** Tailscale iOS with on-demand VPN. Push arrives regardless of VPN state; content loads once the tunnel is up (automatic on app open).
+- **Offline:** SQLite (expo-sqlite) mirror of the visible queue + full offline action queue (decisions, ticks, notes, stages) with `sync_state`, replayed on reconnect (P3).
+- **Web companion:** the v1 Next.js screens survive as the laptop view — same API, no extra logic.
+
+## 3. Decision Option Cards — the core interaction (P13)
+
+The universal ruling pattern, everywhere an item needs a decision:
+
+**Structure.** An `OptionCard` belongs to an item and contains **categories** (named groups, e.g. *Funding · Legal · Timing*), each holding **option rows** rendered as a table: `[☐] label · consequence/cost · (note icon)`. Card-level config: `select: single | multi | per-category`, `requires_text: bool`, `allow_custom: bool`. A **free-text field is always present** — "or in your own words" — and a per-row note lets FM qualify any tick ("yes, but capped at…"). Submitting = a `decided` event whose proof captures the exact ticks + text verbatim, and emits the ruling to `_ROOK/decisions/` with the selections as structured YAML *and* prose.
+
+**Authoring.** Three sources: (1) **machine agents** write `_ROOK/cards/ROK-xxx.card.md` — YAML frontmatter defining categories/rows, body giving context (this is exactly the B005 five-option-paper pattern, now machine-renderable); (2) **the assistant** drafts a card from an item's context on request ("give me options on Connal") — grunt-tier model authors it, card is marked `assistant-drafted` and shows its sources; (3) **humans** compose quick cards in-app (add rows, pick category). The daily 07:00 push summarises: "6 cards await ticks."
+
+**Tabular everywhere.** The Queue itself is categorised (matter → lane → severity) with **bulk checkbox mode**: select many, act once (defer/close/supersede) — the month-old "done, drop next sweep" rows die in one gesture.
+
+**Seamlessness bar (acceptance, not aspiration):** open push → card rendered < 2s on tailnet; tick + submit ≤ 3 taps; offline ticks replay losslessly; every tick visible in the Dropbox ledger < 60s after reconnect.
+
+## 4. Voice + the models (P14, P15)
+
+**Voice chat ("Ask Rook").** Push-to-talk button on every screen + hands-free session mode + Siri Shortcut. Pipeline: **on-device STT** (iOS speech recognition) → text over the tailnet to the gateway → streamed model reply → **on-device TTS** (AVSpeechSynthesizer), sentence-chunked with barge-in. **Audio never leaves the phone**; only text transits, and only to the tier the matter allows. Voice can: read the queue ("what's critical today?"), open and summarise an item, take an amendment note, draft a dispatch or option card (staged), defer/tick with confirmation ("Tick option two on the Connal card — confirm?" → "Confirm"). Voice **cannot** release dispatches or close criticals — those stay on-glass taps (P6).
+
+**The LLM gateway (server-side, on argonaut; keys in keychain, never in Dropbox, never on the phone):**
+
+| Tier | Model | Used for | Boundary |
+|---|---|---|---|
+| **Conversation** | **Kimi K3 via OpenRouter** (`moonshotai/kimi-k3`) — the efficient Chinese frontier model the fleet already trusts as "the eyes", with confidentiality gates in standing doctrine; fallback **MiniMax M3** (1M ctx) for very long context Q&A | Voice chat, queue Q&A, item summaries, meeting-transcript triage | **Non-privileged matters only.** Receives sanitised item text + excerpts; never raw privileged docs; "nothing Kimi says is citable" — its answers cite item ids, and load-bearing claims are marked for verification. |
+| **Grunt** | **Opus 5** (Anthropic API), detached jobs | Drafting dispatch bodies and option cards from raw context, nightly board synthesis, meeting-link → staged items, long adjudications | Full context allowed incl. privileged (Anthropic already processes the privileged corpus in the existing workflow). Privileged outputs render only to privileged-cleared roles. |
+| **Router** | deterministic rules, not a model | privileged→Opus only · voice/chat→Kimi · >200k ctx→MiniMax · draft/author→Opus · cost ledger per call | The gateway writes a **spend ledger** (`_ROOK/ledger/llm.jsonl`: ts, tier, model, tokens, NZD) — the AI spend ledger the audit said doesn't exist, started here. |
+
+**Assistant tool-use** (function-calling against the Rook API): `query_items`, `get_item`, `add_amendment`, `stage_dispatch`, `draft_card`, `defer_item`, `tick_option(confirm)`. Allow-listed, logged as events with `actor: assistant(model)`; anything beyond the list is refused by the server, not the prompt.
+
+## 5. Architecture (v2)
 
 ```
-                    ┌────────────────────── tailnet (Tailscale) ─────────────────────┐
- iPhone (PWA) ──────►  rook.<tailnet>.ts.net  ──► Next.js app (argonaut, :8791)      │
- Laptop browser ────►                              │  SQLite (rook.db) + event log   │
-                                                   │  SSE stream to clients          │
-                                                   ▼                                 │
-                                        rook-syncd (daemon, argonaut)                │
-                                        │ ingest: fs.watch on local Dropbox —        │
-                                        │   GODS-EYE/board.json, registers, digests, │
-                                        │   agendas, run-log tail, agent ACK files   │
-                                        │ egest: write canonical .md artifacts into  │
-                                        │   Dropbox _ROOK/ tree (ledger, dispatches) │
-                                        ▼                                            │
-   Dropbox (team folder, source of truth) ◄──── sweeps / orchestrators / Nimbalyst   │
-                                                on argonaut, citadel-intel, laptops  │
+ iPhone (native Rook app) ◄─APNs (generic payloads)── rook-syncd ──┐
+   │ on-device STT/TTS · offline SQLite · Tailscale on-demand      │
+   ▼ tailnet (no public exposure)                                  │
+ rook-server (argonaut :8791) ── SQLite + append-only ledger ── SSE/WS
+   │            │                                                  │
+   │      llm-gateway ──► OpenRouter (Kimi K3 / MiniMax M3)        │
+   │            └───────► Anthropic (Opus 5, detached)             │
+   ▼                                                               ▼
+ rook-syncd  ◄── fs.watch ──  Dropbox team folder  ◄── sweeps · orchestrators · people
+                (board.json, digests, cards, acks | _ROOK/ decisions, dispatches, ledger)
 ```
 
-**Key decisions, made:**
-1. **Host on argonaut** (it already runs the sweeps and has the team Dropbox locally synced). Bind to localhost; expose via `tailscale serve` → `https://rook.<tailnet>.ts.net` with automatic TLS. Phone access = Tailscale iOS app with on-demand VPN → the PWA is indistinguishable from a normal app. **Funnel stays off** (P10). 
-2. **Dropbox remains the canonical archive; SQLite is the operating store.** The daemon ingests machine output from the local Dropbox folder (no Dropbox API, no webhooks — the folder *is* the bus, same as the rest of the fleet) and egests Rook's own record as markdown+JSONL into `Misc-Working/A-PRIORITY/GODS-EYE/_ROOK/`. Any machine, and any future audit, can read Rook's record with `cat`.
-3. **Authority migrates in two stages.** Stage 1 (launch → +30 days): board.json remains authoritative; Rook mirrors it and appends its own decisions/dispatches; sweeps ingest `_ROOK/` and reconcile. Stage 2 (after a clean 30-day parallel run — the audit's own pilot standard): inversion — Rook's DB becomes the writer of record and `BOARD.md`/`board.json` become *generated* views produced by rook-syncd. Do not flip early.
-4. **Identity = Tailscale.** The app reads the tailnet identity headers (`tailscale serve` passes them; fall back to `tailscale whois` on the socket). Device ↔ person map is 6 rows in config. No passwords, no OAuth, nothing to phish, works offline-first on the phone.
-5. **Reuse, don't rebuild:** mailbox context comes from the existing briefing-room API on argonaut:8787 (thread excerpts by Gmail id); Telegram pings reuse the existing GODS-EYE console bot; `gmail_sa` (drafts-only) prepares people-directed emails. Rook adds no new external surface.
+Unchanged from v1: Dropbox canonical / SQLite operating; two-stage authority migration with a 30-day parallel run; Tailscale identity + six-row device map; reuse of 8787 mailbox context, the Telegram bot and `gmail_sa` drafts; events append-only with the five proof fields; `_ROOK/` file contract for agents (now plus `cards/`).
 
-## 3. Data model (Drizzle/SQLite; zod-mirrored)
+## 6. Data model — v2 additions
 
 ```ts
-// The stable decision object (P2). Series ids preserved on import: R-, D-, DL-, G-.
-items {
-  id           text pk          // "ROK-000123"; legacy_id nullable ("D80","R45")
-  kind         enum             // decision | red_flag | gate | deadline | front | instruction | note
-  matter       text             // "terra", "babich", "126fs", "police", "mcleans", "ryu", "armada", "machine", ...
-  lane         enum             // litigation | commercial | machine | governance | personal
-  title        text
-  body_md      text             // current statement of the item (superseded versions live in events)
-  severity     enum             // crit | high | med | low
-  status       enum             // open | decided | staged | dispatched | acknowledged | done | verified | closed | superseded
-  owner        text             // person or agent slug
-  due_at       datetime?
-  raised_at    datetime
-  source       enum             // sweep | import | human | meeting | capture
-  source_ref   text?            // dropbox path#anchor, gmail id, calendar id
-  privileged   bool             // FM-only unless per-matter grant
-}
-context_refs { id, item_id fk, type/*dropbox|gmail|calendar|url|quote*/, ref, excerpt, pinned, added_by, added_at }
-amendments   { id, item_id fk, author, kind/*note|correction|question*/, body_md, created_at, sync_state }
-dispatches   { id, item_id fk?, to_type/*agent|person*/, to_slug, body_md,
-               channel/*inbox_file|gmail_draft|telegram|manual*/,
-               state/*staged|released|acknowledged|done|verified|recalled*/,
-               staged_by, staged_at, released_by?, released_at?, token?/*ROK20260902A*/,
-               ack_at?, proof_ref?, verified_by?, verified_at? }
-events       { id, item_id fk, ts, actor, transition, proof, verifier }   // exactly the five fields (P11)
-health       { source pk /*sweep|syncd|telemetry|workspace*/, last_seen_at, status, note }
+option_cards { id, item_id fk, title, select/*single|multi|per_category*/, requires_text, allow_custom,
+               authored_by/*agent|assistant|human*/, source_ref, state/*open|submitted|superseded*/ }
+option_groups{ id, card_id fk, name, sort }          // the categories
+option_rows  { id, group_id fk, label, consequence, sort, selected bool, note_md?, custom bool }
+card_responses{ id, card_id fk, actor, ts, selections_json, free_text_md, event_id fk }
+assistant_log{ id, ts, tier, model, tool_calls_json, tokens_in, tokens_out, cost_nzd, item_refs }
+devices      { id, person, apns_token, platform, last_seen, push_prefs_json }
 ```
 
-Rules: **events are append-only** ("supersede, never overwrite"); every status change writes an event; `body_md` edits write a `superseded-text` event carrying the prior text; deleting is `status=superseded`, never a row delete. Nightly: `rook.db` snapshot + continuous `events.jsonl` mirror into `_ROOK/ledger/` (survives the laptop, satisfies any future audit from flat files).
+## 7. Security annex (v2 deltas)
 
-## 4. The two-way machine contract
+APNs payloads carry zero content beyond counts and generic labels. On-device cache excludes privileged bodies (refs only; Face ID app lock; purge on role change). Gateway keys server-side only. Privileged matters: **never** to OpenRouter, ever — enforced in the router by matter flag, tested in CI with a canary item. The assistant cannot release, send, or widen its own tool list. Voice transcripts are stored as amendments only when explicitly saved. Everything else per v1 (tailnet-only, query-layer scoping, immutable ledger, no secrets in repo).
 
-**Inbound (machines → Rook), all via local Dropbox paths watched by rook-syncd:**
-- `GODS-EYE/board.json` → upsert items (id-mapped via `legacy_id`), never clobbering fields Rook owns (status past `open`, amendments, dispatches).
-- `GODS-EYE/03-outputs/digests/*.md`, `agendas/*.md` → attach as context to matching matters; feed the Today screen's "what the machine says" strip.
-- `GODS-EYE/session-log/run-log.md` (tail) → `health.sweep.last_seen_at` (P7).
-- `_ROOK/inbox-ack/**` → dispatch `acknowledged`/`done` transitions (see outbound).
-- Workstream registers (`_CONTEXT.md` frontmatter, `*/_llm/outputs/CHANGELOG.md` last rows) → high-water counters on matter cards.
+## 8. Build plan — six phases, runnable gates (~24 days)
 
-**Outbound (Rook → machines and people):**
-- `_ROOK/decisions/2026-09-02_ROK-000123.md` — one file per decision, YAML frontmatter (id, legacy_id, actor, ts, transition, proof, verifier) + body. Sweeps and Nimbalyst sessions ingest these as **rulings**; this is how "FM ruled in Rook" reaches every workstream without any agent integrating anything new.
-- `_ROOK/dispatch/<agent-slug>/ROK-D-0045.md` — instruction files per agent inbox (frontmatter: token, released_by, released_at, due, ack_required, item refs). Agent contract: on pickup write `_ROOK/inbox-ack/ROK-D-0045.ack.md` (start) and `.done.md` (completion, with proof pointer). One page of doctrine added to `Citadel-AI/MODEL-ROUTING.md` makes every existing session check its inbox at wake — no code changes to agents.
-- People: dispatch renders to (a) a scoped Rook view for Brandon/Zach/Nicki, (b) optional `gmail_sa` **draft** in FM's mailbox for one-tap send, (c) optional Telegram ping via the existing bot. Rook never emails anyone directly (P6, P12).
+- **0 · Steel (d1–2)** — monorepo (`apps/mobile` Expo, `apps/server`, `apps/web`, `packages/shared`), schema, tailnet serve, identity, health, APNs hello-world to FM's phone. ✅ Gate: generic push arrives with app closed; tap opens app; `/api/health` over tailnet shows identity.
+- **1 · Mirror (d2–6)** — importer + ingest; native Today/Queue/Item/Matters read-only; SSE; freshness banner; offline read cache. ✅ Gate: sweep-written red flag on the phone < 60s; airplane-mode reopen still shows the queue.
+- **2 · Decide (d6–11)** — **Option Cards** end-to-end (agent-authored file → native render → ticks + text → ledger + `_ROOK/decisions/`), decide/defer/amend, quick voice capture, offline action queue, bulk checkbox mode. ✅ Gate: an agent-authored card is ruled on the phone in a lift; the `.md` ruling appears in Dropbox with exact ticks; a sweep reflects it next cycle.
+- **3 · Dispatch (d11–15)** — staging, tokened release, agent inbox/ack loop, gmail-draft + Telegram channels, aging nags + T-48/24/3 push escalations. ✅ Gate: test agent acks by file; state flips on the phone; a stale staged item nags exactly once daily.
+- **4 · Voice + models (d15–20)** — gateway with two tiers + router + spend ledger; push-to-talk and hands-free; assistant tools (query/summarise/note/draft/stage/tick-with-confirm); Siri Shortcut. ✅ Gate: hands-free — "what's critical, open the second one, note this, draft the dispatch" — completed without touching glass; a privileged canary item provably never reaches OpenRouter (CI test); every call priced in the ledger.
+- **5 · Prove (d20–24)** — verify flow, Pulse, ledger mirror, cross-alarming watchdogs, role scoping, TestFlight to the team. ✅ Gate: 30-day parallel run starts; killed daemon alarmed < 10 min; **definition of done:** FM clears a real week from the phone, ≥80% of decisions exist in Rook before any sweep infers them, zero staged items silently >72h, and the next Pulse quotes Rook's numbers — including the first real AI spend figures.
 
-## 5. Screens (mobile-first; six, no more)
+## 9. Open items (none block Phase 0)
 
-1. **Today (default).** Freshness banner. Then a triage stack, hardest-gated first: criticals with dates ≤ 72h, then staged-unreleased (aging badge, P5), then new-since-last-visit. Card = title, matter chip, severity dot, due, one-line machine summary. **Swipe right = Decide** (opens dictation-ready note → status `decided`, event written, `_ROOK/decisions/` emitted). **Swipe left = Defer** (pick: tomorrow / next gate / date). **Long-press = Delegate** (pick person/agent → becomes staged dispatch). Three actions, one thumb.
-2. **Queue.** The full D-series successor. Filter chips: matter, lane, severity, status, owner, privileged. Sort: due, age, raised. Bulk: select → defer/close/supersede (the "done — drop next sweep" items that haunted the board for a month die here in one gesture).
-3. **Item.** Everything about one item: current statement; **Context** (pinned quotes, linked Dropbox docs — tap to open in Dropbox app; Gmail excerpts via 8787; the calendar entry); **History** (the event ledger, human-readable); **Amendments** (add note/correction/question — P9 voice capture lives here); **Actions**: Decide / Amend / Stage dispatch / Link context / Mark verified (requires proof ref — the verify step the audit found missing).
-4. **Dispatch.** Two tabs. *Staged*: everything awaiting release, grouped by recipient, each with age badge and a **Release** button (FM only; writes token + event; fires the channel). *In flight*: released, awaiting ack/done/verify; overdue acks flagged. This screen is P5's fix and the heart of the app.
-5. **Matters.** One card per front: status line, next hard date, output high-water, last-7-day activity spark, open/staged counts, link to the workstream's `_CONTEXT.md`. Replaces reading the board end-to-end to find out "where is Terra".
-6. **Pulse.** Metrics (P8): decision latency (raised→decided, p50/p90), release latency (decided→released), queue burn-down chart, staged-age histogram, verified-vs-claimed ratio, sweeps/day, freshness history. The numbers the next Lightspeed volume will quote.
+1. Apple Developer account status for `capital.citadel` (needed by d1 for APNs .p8 + TestFlight).
+2. Kimi K3 vs MiniMax M3 as the *default* voice brain — ship Kimi, keep the switch server-side.
+3. Whether Zach/Brandon get voice in v2 or v2.1 (default: FM-only first).
+4. SwiftUI shell rewrite — revisit only after the parallel run passes.
 
-Plus a global **⌘K / pull-down search** (title, body, matter, legacy id) and **Quick capture** (+): dictate a thought → item or amendment, filed by matter picker; ≤ 10 seconds phone-out-to-phone-away (P3/P9).
-
-## 6. Design system
-
-House style, restrained for an operating surface: bone `#F3EFE6` paper (dark mode `#191713`), ink `#211F19`, **Citadel green `#727C60`** as the sole accent, rust `#8A4B38` for criticals/blown, Archivo for UI text and labels (tabular numerals for dates/amounts), Fraunces only for the wordmark "Rook." and empty-state lines. Tokens shipped as `tokens.css` and consumed literally — no reinterpretation (the RE:Arch lesson: "design token files are not 'guidelines' — they are literal input"). Density: list rows 44pt touch targets; one-hand reach for all three triage actions; no hover-dependent UI anywhere.
-
-## 7. Stack & repo (Cursor-ready)
-
-- **Next.js 15 (App Router) + TypeScript strict + Tailwind + shadcn/ui**; PWA via `manifest.json` + service worker (installable, offline shell, background sync for the offline queue: decisions made offline queue locally and emit on reconnect, marked `sync_state=pending` until the daemon confirms the Dropbox write).
-- **Drizzle ORM + better-sqlite3**; zod schemas shared client/server; SSE (`/api/events/stream`) for live updates; no external services, no analytics, no CDN fonts (self-host Archivo/Fraunces woff2 — already in hand).
-- **rook-syncd**: a separate long-running Node process (chokidar watchers + 60s reconciliation sweep + the watchdog). Runs under launchd **with** `KeepAlive`, `ThrottleInterval`, and a cross-check: the app alarms if syncd is silent, syncd alarms (Telegram) if the app is down — neither trusts the other's silence (P7).
-- Repo `FM1983/rook` (private — satisfies the GitHub mandate): 
-
-```
-rook/
-├─ SPEC.md                    # this document — the founding brief Cursor works from
-├─ app/                       # Next.js routes: /(today|queue|item/[id]|dispatch|matters|pulse)
-├─ components/                # shadcn-based; BoardCard, TriageStack, EventLedger, ReleaseButton…
-├─ lib/{db,schema,zod,auth,tokens}.ts
-├─ syncd/{ingest,egest,watchdog}.ts + launchd/com.citadel.rook.syncd.plist
-├─ scripts/import-board.ts    # one-off BOARD.md + board.json + _MASTER-TRACKER migration
-├─ tokens.css  manifest.json  drizzle/  tests/ (Playwright)
-└─ README.md                  # run: npm i && npm run import && npm run dev  (one command each)
-```
-
-## 8. Security & privacy (the restricted-claims annex)
-
-Tailnet-only; loopback bind; TLS via ts.net cert; identity from Tailscale, 6-row device map; privileged matters excluded from non-FM queries **at the query layer**, not the UI; no secrets in the repo — `gmail_sa` key stays where it lives today (never in Dropbox, per standing doctrine); event ledger immutable; `_ROOK/` inherits Dropbox team-folder ACLs (it contains rulings and dispatches — it is already the class of content the folder holds). Explicitly forbidden in v1: Funnel/public exposure, autonomous sending of anything, storing privileged LitSim/Police *documents* in rook.db (store refs, open in Dropbox), and any LLM call from inside Rook (agents do the thinking in their own sessions; Rook is deterministic).
-
-## 9. Build plan — five phases, each with a runnable gate
-
-RE:Arch discipline: phased gates, security before features; acceptance tests runnable, not "looks good"; each phase ends usable.
-
-- **Phase 0 — Steel (day 1–2).** Repo, tokens, schema, migrations, Tailscale serve, identity middleware, health endpoint. ✅ *Gate:* `curl https://rook…/api/health` from the phone over tailnet returns identity + 200; non-tailnet request impossible.
-- **Phase 1 — Mirror (day 2–5).** Importer + syncd ingest; Today/Queue/Item/Matters read-only; SSE; freshness banner; PWA install. ✅ *Gate:* a new red flag written by a live sweep appears on the phone < 60s; all current R/D rows present and filterable; Lighthouse PWA installable; **usable on day 5 even if nothing else ships.**
-- **Phase 2 — Decide (day 5–8).** Decide/Defer/Amend + quick capture + offline queue; `_ROOK/decisions/` egest; doctrine page for sweeps to ingest rulings. ✅ *Gate:* decide an item on the phone in an offline lift, reconnect, see the `.md` in Dropbox and the next sweep's board reflect it — end-to-end < one sweep cycle. Five-field event visible for every transition.
-- **Phase 3 — Dispatch (day 8–12).** Staging, Release with tokens, agent inbox/ack loop, gmail-draft + Telegram channels, Dispatch screen, aging + escalation pushes (web push). ✅ *Gate:* stage an instruction to a test agent, release it, agent acks by file, state flips on the phone; an unreleased staged item older than 48h has nagged exactly once a day; T-48/24/3 escalations fire on a synthetic critical.
-- **Phase 4 — Prove (day 12–16).** Verify flow (proof-ref required), Pulse metrics, ledger mirror to Dropbox, watchdog cross-alarms, role scoping for Brandon/Zach/Nicki. ✅ *Gate:* the 30-day parallel run *starts*: metrics populated, `verified` count > 0, a deliberately-killed syncd is detected and alarmed within 10 minutes. Authority inversion (Stage 2, §2.3) is a decision Rook itself will carry as an item — decided in Rook, on the evidence of its own parallel run.
-
-**Definition of done for v1:** FM clears real board items from the phone for a full week; ≥ 80% of that week's decisions exist in Rook *before* any sweep infers them; zero staged items silently older than 72h; the next Pulse report draws its decision-latency numbers from `/pulse` instead of grepping BOARD.md.
-
-## 10. Open items (small, and none block Phase 0)
-
-1. Telegram vs iOS web-push as the primary escalation channel (web push on iOS PWA is fine ≥ iOS 16.4; Telegram already exists — ship both behind one setting).
-2. Whether Nicki's calendar-heavy view warrants a 7th screen (defer; Matters covers it).
-3. board.json id stability — the importer must fingerprint rows (legacy id + title hash) because ids have collided before (two numbering collisions on 26 Aug are on the record).
-4. Read-only "counsel view" (Claymore et al.) — explicitly out of scope v1; revisit only with a per-matter, time-boxed grant design.
-
-*Rook: because the board should be operated with a thumb, not read like a novel.*
+*Rook v2: tick the box, say the word, and the record keeps itself.*

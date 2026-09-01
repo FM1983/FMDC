@@ -1,0 +1,371 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8" /><title>ROOK — Build Specification v2.0 · Citadel</title><style>
+__CSS__
+</style></head><body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <div class="top">
+    <div class="brand">ROOK</div>
+    <div class="meta">Citadel · Build specification · v2.0</div>
+  </div>
+  <div class="axis">
+    <div class="small">The command app · Native iPhone · 2 September 2026 · Supersedes v1.0</div>
+    <div class="big">One app to rule them all. Rook is the board in a pocket — categorised queues cleared with checkboxes, context on tap, dispatches released with a thumb, a voice you can talk to on the motorway, and notifications that find you before deadlines do. Native on the phone, push over APNs, a model fleet behind a gate — and every tick landing in the canonical record within a minute.</div>
+  </div>
+  <div class="bot">
+    <div class="label">Confidential — internal · SPEC.md is the operative artifact</div>
+    <div class="vol">R</div>
+  </div>
+</section>
+
+<!-- ============================== WHY ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>Why this exists</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 01 · Requirements with provenance</div>
+    <h1 class="disp">Not a dashboard. A gate.</h1>
+    <div class="location">Fifteen requirements, each motivated by a named incident already on the record — the last three new in v2. This table is the contract: anything that serves none of these gets cut.</div>
+  </div>
+  <table class="tbl" style="margin-top: 5mm;">
+    <thead><tr><th style="width:46%">Incident on the record</th><th>Requirement it creates</th></tr></thead>
+    <tbody>
+      <tr><td class="k">P1 · BOARD.md at 688KB — re-ballooned a fortnight after being split</td><td>Items live in a database. Markdown becomes a generated view, never the store.</td></tr>
+      <tr><td class="k">P2 · Audit R013: "no stable decision object"</td><td>A typed, versioned Item with append-only history is the core entity.</td></tr>
+      <tr><td class="k">P3 · "No genuine FM decision recorded since 13 Aug" — state-lag: decisions made, recorded late or never</td><td>Decisions captured on the phone at the moment of decision, signed by identity — not reconstructed by a sweep.</td></tr>
+      <tr><td class="k">P4 · Terra C9: "an alert is not an action"</td><td>Deadline items require a decision transition; undecided criticals push-escalate at T-48h, T-24h, T-3h.</td></tr>
+      <tr><td class="k">P5 · "A completed document waiting on a release decision" — the standing failure mode</td><td>A Dispatch screen: staged items age visibly, nag daily, release in one tap.</td></tr>
+      <tr><td class="k">P6 · "Whether it was actually sent is NOT recorded" · "machine sends nothing; FM sends"</td><td>Release is a first-class event: actor, timestamp, token, proof pointer. Rook stages; a human releases.</td></tr>
+      <tr><td class="k">P7 · The 34-hour launchd outage; silence looked like health</td><td>Freshness banner everywhere; independent cross-alarming watchdogs; staleness pushes once.</td></tr>
+      <tr><td class="k">P8 · "Velocity is visible. Closure is not."</td><td>Metrics on the audited interval: raised → decided → released → verified.</td></tr>
+      <tr><td class="k">P9 · "Phone calls are invisible" · ten of thirteen meeting actions lost</td><td>Ten-second voice capture; a meeting link spawns staged items from the transcript.</td></tr>
+      <tr><td class="k">P10 · Privileged matters + "no cloud host holds the corpus"</td><td>Tailnet-only data plane; role scoping at the query layer; privileged FM-only by default.</td></tr>
+      <tr><td class="k">P11 · The audit's five-field proof pilot</td><td>Every state change stores timestamp / actor / transition / proof / verifier.</td></tr>
+      <tr><td class="k">P12 · One failed payment instrument nearly took Workspace, Anthropic and Notion at once</td><td>Runs with Google down; file transport for machines; channel redundancy for pushes.</td></tr>
+      <tr class="tot"><td class="k">P13 · FM already rules by option paper and checkbox — B005 was "a five-option paper for FM's ruling"; the 13 Aug burn-priorities went out as "FM checkbox, executed"</td><td>Option Cards: categorised, tabular checkbox choices on any item — single- or multi-select, a consequence column, free text always present. Agents author cards as files; the app renders them natively.</td></tr>
+      <tr class="tot"><td class="k">P14 · 8 Sep: a court appearance at 2:15pm and a 16:10 flight in one afternoon — decisions happen in cars, lifts and corridors</td><td>Native app + push + voice. Hands-free review and ruling; notifications that arrive without the app open; offline queue everywhere.</td></tr>
+      <tr class="tot"><td class="k">P15 · A routing doctrine already exists and works: Kimi as "the eyes" with confidentiality gates in standing doctrine; Opus drafts, detached</td><td>Rook's LLM layer reuses the fleet doctrine: an efficient OpenRouter-sourced frontier model converses; Opus 5 does the grunt work; privileged content never leaves the Anthropic/local boundary.</td></tr>
+    </tbody>
+  </table>
+  <div class="folio-bot"><div>Spec 01 · Why</div><div class="n">01</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== PLATFORM & ARCHITECTURE ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>Platform &amp; architecture</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 02 · The platform call</div>
+    <h1 class="disp">Native, and one app.</h1>
+    <div class="location">v2's biggest change: Rook ships as a native iPhone app with direct push, not a PWA — and it is declared the one surface. Nothing else gets built as a separate app for FM once Rook is live.</div>
+  </div>
+  <div class="chart" style="margin-top: 5mm; max-width: 138mm; margin-left: auto; margin-right: auto;"><svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#727C60"/></marker><marker id="ahk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#211F19"/></marker><marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8A4B38"/></marker></defs>
+  <rect x="120" y="6" width="394" height="240" fill="none" stroke="#727C60" stroke-width="0.8" stroke-dasharray="4 4"/><text x="508" y="20" text-anchor="end" style="font-family:Archivo;font-size:6.6px;font-weight:700;letter-spacing:1.6px;fill:#727C60">TAILNET · NO PUBLIC EXPOSURE</text>
+  <rect x="6" y="40" width="96" height="52" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="54" y="56" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">iPHONE</text><text x="54" y="67" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">native Rook · Expo RN</text><text x="54" y="77" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">STT/TTS on-device · offline</text><text x="54" y="87" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">SQLite · Tailscale on-demand</text>
+  <rect x="6" y="118" width="96" height="36" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="54" y="133" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">LAPTOPS</text><text x="54" y="144" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">web companion</text>
+  <rect x="150" y="42" width="150" height="56" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="225" y="58" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">ROOK-SERVER</text><text x="225" y="69" text-anchor="middle" style="font-family:Archivo;font-size:6.6px;fill:#6E6754">argonaut :8791</text><text x="225" y="88" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">SQLite + append-only ledger · SSE</text>
+  <rect x="150" y="122" width="150" height="42" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="225" y="138" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">ROOK-SYNCD</text><text x="225" y="149" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">ingest · egest · watchdog · APNs</text>
+  <rect x="150" y="194" width="150" height="48" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="225" y="210" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">LLM-GATEWAY</text><text x="225" y="221" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">deterministic router · spend ledger</text><text x="225" y="231" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">keys in keychain, never in Dropbox</text>
+  <rect x="352" y="42" width="150" height="56" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="427" y="58" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">THE FLEET</text><text x="427" y="69" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">sweeps · orchestrators · people</text><text x="427" y="88" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">GODS-EYE board · agent sessions</text>
+  <rect x="352" y="116" width="150" height="54" fill="none" stroke="#211F19" stroke-width="1.1"/><text x="427" y="132" text-anchor="middle" style="font-family:Archivo;font-size:8.6px;font-weight:700;letter-spacing:0.6px;fill:#211F19">DROPBOX</text><text x="427" y="143" text-anchor="middle" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">team folder · source of truth</text><text x="427" y="161" text-anchor="middle" style="font-family:Archivo;font-size:6.2px;fill:#6E6754">board.json · digests · cards · _ROOK/</text>
+  <rect x="150" y="256" width="352" height="38" fill="none" stroke="#8A4B38" stroke-width="1" stroke-dasharray="3 3"/><text x="160" y="271" style="font-family:Archivo;font-size:7.4px;font-weight:700;letter-spacing:0.8px;fill:#8A4B38">THE MODELS · EXTERNAL</text><text x="160" y="283" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">OpenRouter — Kimi K3 · MiniMax M3 (conversation)</text><text x="494" y="271" text-anchor="end" style="font-family:Archivo;font-size:6.4px;fill:#6E6754">Anthropic — Opus 5, detached (grunt)</text><text x="494" y="283" text-anchor="end" style="font-family:Archivo;font-size:6.2px;fill:#8A4B38">privileged never to OpenRouter — router-enforced</text>
+  <line x1="102" y1="48" x2="150" y2="48" stroke="#8A4B38" stroke-width="1.2" stroke-dasharray="3 3" marker-start="url(#ahr)"/><text x="126" y="42" text-anchor="middle" style="font-family:Archivo;font-size:6px;fill:#8A4B38">APNs · generic payload</text>
+  <line x1="102" y1="72" x2="150" y2="72" stroke="#727C60" stroke-width="1.4" marker-start="url(#ahg)" marker-end="url(#ahg)"/><text x="126" y="82" text-anchor="middle" style="font-family:Archivo;font-size:6px;fill:#6E6754">tailnet · TLS</text>
+  <line x1="102" y1="132" x2="150" y2="96" stroke="#727C60" stroke-width="1.4" marker-end="url(#ahg)"/>
+  <line x1="225" y1="98" x2="225" y2="122" stroke="#211F19" stroke-width="1.4" marker-start="url(#ahk)" marker-end="url(#ahk)"/>
+  <path d="M 150 70 L 136 70 L 136 218 L 148 218" fill="none" stroke="#211F19" stroke-width="1.2" marker-end="url(#ahk)"/>
+  <line x1="300" y1="143" x2="352" y2="143" stroke="#727C60" stroke-width="1.4" marker-start="url(#ahg)" marker-end="url(#ahg)"/><text x="326" y="156" text-anchor="middle" style="font-family:Archivo;font-size:6px;fill:#6E6754">fs.watch / write .md</text>
+  <line x1="427" y1="98" x2="427" y2="116" stroke="#211F19" stroke-width="1.4" marker-start="url(#ahk)" marker-end="url(#ahk)"/>
+  <line x1="225" y1="242" x2="225" y2="256" stroke="#8A4B38" stroke-width="1.2" marker-end="url(#ahr)"/>
+  </svg></div>
+  <div class="split" style="margin-top: 4mm;">
+    <div class="body">
+      <h3 class="sub">The platform call</h3>
+      <p>
+        <strong>Expo (React Native), custom dev client, TypeScript end-to-end.</strong> Weighed honestly against pure
+        SwiftUI: shared zod schemas and API types with the server — one brain, two runtimes; Cursor productivity is
+        highest in TS; EAS builds ship through <strong>TestFlight internal distribution</strong> (FM + 3, bundle id
+        <span class="money">capital.citadel.rook</span>, no App Store review friction); native modules where it matters —
+        speech, push, keychain. SwiftUI remains a licensed future rewrite of the <em>shell</em>: the server contract is
+        UI-agnostic, so nothing is lost by starting in Expo.
+      </p>
+      <p>
+        <strong>Push is direct APNs from argonaut</strong> (node-apn, token-based .p8) — no Expo gateway, no Firebase,
+        no third-party transit. Payloads are generic — "2 criticals await", never matter names — and the tap opens the
+        app, which pulls detail over the tailnet. Channels: T-48/24/3 escalations, staged-item nags, freshness alarms,
+        ack/verify events, the 07:00 queue summary. Telegram mirrors as redundancy.
+      </p>
+    </div>
+    <div class="body">
+      <h3 class="sub">One app to rule them all</h3>
+      <p>
+        v2 ships the board, dispatch, capture and voice. The same app then absorbs, as read surfaces: the daily
+        briefing and digests (v2.1), matter context packs and the 8787 mailbox excerpts (v2.1), agenda PDFs and
+        Reference-Library lookup (v2.2). The rule: Rook <em>renders</em> other systems; it never re-implements them —
+        and nothing else gets built as a separate surface for FM once Rook is live.
+      </p>
+      <p>
+        Unchanged from v1: Dropbox canonical, SQLite operating; a 30-day parallel run before authority inverts;
+        Tailscale identity with the six-row device map; events append-only with the five proof fields; the
+        <span class="money">_ROOK/</span> file contract for agents — now plus <span class="money">cards/</span>.
+      </p>
+      <div class="callout" style="margin-top: 3mm;">
+        <h4>Explicit non-goals, v2</h4>
+        <p>Not a document editor; not a CRM; no public exposure; no autonomous sending; no privileged documents
+        stored on-device — references and excerpts only, purged on lock; no Android yet; CarPlay deferred — the
+        Siri Shortcut "Ask Rook" covers the car.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 02 · Platform</div><div class="n">02</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== OPTION CARDS ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>The core interaction</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 03 · Decision option cards</div>
+    <h1 class="disp">Tick the box.</h1>
+    <div class="location">The universal ruling pattern. FM already governs by option paper and checkbox — B005 was a five-option paper; the 13 Aug burn-priorities went out as "FM checkbox, executed". Rook makes that pattern native, categorised and tabular.</div>
+  </div>
+  <div class="split" style="margin-top: 6mm;">
+    <div class="body">
+      <h3 class="sub">Structure</h3>
+      <p>
+        An <strong>Option Card</strong> belongs to an item and contains <strong>categories</strong> — named groups such
+        as <em>Funding · Legal · Timing</em> — each holding option rows rendered as a table: checkbox, label,
+        consequence or cost, and a note icon. Card-level config: <span class="money">select: single | multi |
+        per-category</span>, <span class="money">requires_text</span>, <span class="money">allow_custom</span>.
+        A <strong>free-text field is always present</strong> — "or in your own words" — and a per-row note lets any
+        tick be qualified: "yes, but capped at…".
+      </p>
+      <p>
+        Submitting is a <span class="money">decided</span> event whose proof captures the exact ticks and text
+        verbatim, and the ruling lands in <span class="money">_ROOK/decisions/</span> as structured YAML <em>and</em>
+        prose — sweeps and agent sessions ingest it with no new code.
+      </p>
+      <h3 class="sub" style="margin-top: 4mm;">Three authors</h3>
+      <p>
+        <strong>Machine agents</strong> write <span class="money">_ROOK/cards/ROK-xxx.card.md</span> — YAML frontmatter
+        defines categories and rows, the body gives context; exactly the B005 five-option-paper pattern, now
+        machine-renderable. <strong>The assistant</strong> drafts a card from an item's context on request — "give me
+        options on Connal" — marked <em>assistant-drafted</em>, sources shown. <strong>Humans</strong> compose quick
+        cards in-app. The 07:00 push summarises: "6 cards await ticks."
+      </p>
+    </div>
+    <div>
+      <h4 class="tag">An option card, as rendered</h4>
+      <table class="tbl" style="margin-top:3pt;">
+        <thead><tr><th style="width:8%"> </th><th style="width:44%">Option</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr class="tot"><td></td><td class="k">Funding</td><td>single select</td></tr>
+          <tr><td>☑</td><td>Draw on the facility now</td><td>certain, costs the margin</td></tr>
+          <tr><td>☐</td><td>Hold for the settlement</td><td>free, risks the date</td></tr>
+          <tr class="tot"><td></td><td class="k">Timing</td><td>single select</td></tr>
+          <tr><td>☐</td><td>Release this week</td><td>pressure on counsel</td></tr>
+          <tr><td>☑</td><td>Release after the hearing</td><td>note: "only if CI green" ✎</td></tr>
+          <tr class="tot"><td></td><td class="k">In your own words</td><td>always present</td></tr>
+          <tr><td colspan="2">"Proceed, but cap the draw at 400 and copy Zach."</td><td>captured verbatim</td></tr>
+        </tbody>
+      </table>
+      <p class="aside-q" style="margin-top: 4mm;">The Queue itself is tabular and categorised — matter → lane → severity — with bulk checkbox mode: select many, act once. The month-old "done, drop next sweep" rows die in one gesture.</p>
+      <div class="callout" style="margin-top: 4mm;">
+        <h4>Seamlessness bar — acceptance, not aspiration</h4>
+        <p>Push → card rendered under 2 seconds on tailnet · tick + submit in ≤ 3 taps · offline ticks replay
+        losslessly · every tick visible in the Dropbox ledger within 60 seconds of reconnect.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 03 · Option cards</div><div class="n">03</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== VOICE + MODELS ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>Voice &amp; the models</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 04 · Ask Rook</div>
+    <h1 class="disp">Say the word.</h1>
+    <div class="location">A voice you can talk to hands-free, plumbed into the model fleet the group already runs — an efficient OpenRouter-sourced frontier model for conversation, Opus 5 for the grunt work, and a deterministic router between them.</div>
+  </div>
+  <div class="split" style="margin-top: 6mm;">
+    <div class="body">
+      <h3 class="sub">The voice pipeline</h3>
+      <p>
+        Push-to-talk on every screen, a hands-free session mode, and a Siri Shortcut. <strong>On-device STT</strong>
+        → text over the tailnet to the gateway → streamed reply → <strong>on-device TTS</strong>, sentence-chunked
+        with barge-in. <strong>Audio never leaves the phone</strong>; only text transits, and only to the tier the
+        matter allows.
+      </p>
+      <p>
+        Voice can read the queue — "what's critical today?" — open and summarise an item, take an amendment note,
+        draft a dispatch or an option card (staged), and defer or tick with spoken confirmation. Voice
+        <strong>cannot</strong> release dispatches or close criticals — those stay on-glass taps.
+      </p>
+      <h3 class="sub" style="margin-top: 4mm;">The assistant's hands</h3>
+      <p>
+        Function-calling against the Rook API, allow-listed: <span class="money">query_items · get_item ·
+        add_amendment · stage_dispatch · draft_card · defer_item · tick_option(confirm)</span>. Every call is logged
+        as an event with <span class="money">actor: assistant(model)</span>; anything beyond the list is refused by
+        the server, not the prompt. The assistant may stage. It may never release, send, or widen its own tool list.
+      </p>
+    </div>
+    <div>
+      <h4 class="tag">The gateway — two tiers and a router</h4>
+      <table class="tbl" style="margin-top:3pt;">
+        <tbody>
+          <tr><td class="k">Conversation</td><td><strong>Kimi K3 via OpenRouter</strong> — the efficient frontier model the fleet already trusts as "the eyes", confidentiality gates in standing doctrine; fallback <strong>MiniMax M3</strong> (1M context) for very long Q&amp;A. Voice chat, queue Q&amp;A, item summaries, transcript triage. <strong>Non-privileged matters only</strong>; answers cite item ids; load-bearing claims are marked for verification.</td></tr>
+          <tr><td class="k">Grunt</td><td><strong>Opus 5</strong> (Anthropic API), detached jobs — dispatch bodies and option cards drafted from raw context, nightly board synthesis, meeting links → staged items, long adjudications. Full context allowed including privileged; privileged outputs render only to cleared roles.</td></tr>
+          <tr class="tot"><td class="k">Router</td><td>Deterministic rules, not a model: privileged → Opus only · voice/chat → Kimi · &gt;200k context → MiniMax · draft/author → Opus. Every call priced into <span class="money">_ROOK/ledger/llm.jsonl</span> — the AI spend ledger the audit said doesn't exist, started here.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top: 5mm;">
+        <h4>The hard boundary</h4>
+        <p>Privileged matters go to OpenRouter <strong>never</strong> — enforced in the router by matter flag and
+        proven in CI with a canary item on every build. Gateway keys live server-side in the keychain: never in
+        Dropbox, never on the phone, never in the repo.</p>
+      </div>
+      <p class="aside-q" style="margin-top: 4mm;">Default voice brain ships as Kimi K3; the switch to MiniMax stays server-side. Voice is FM-only in v2; the team follows in v2.1.</p>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 04 · Voice &amp; models</div><div class="n">04</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== DATA & CONTRACT ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>The decision object &amp; the machine contract</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 05 · Data model &amp; two-way sync</div>
+    <h1 class="disp">The decision object, at last.</h1>
+    <div class="location">Ten tables. One rule: events are append-only — supersede, never overwrite.</div>
+  </div>
+  <div class="split" style="margin-top: 6mm;">
+    <div>
+      <h4 class="tag">The store (SQLite · Drizzle · zod-mirrored)</h4>
+      <table class="tbl" style="margin-top:3pt;">
+        <tbody>
+          <tr><td class="k">items</td><td>id, legacy id (R-/D-series preserved), kind, matter, lane, title, body, severity, status, owner, due, raised, source ref, privileged flag</td></tr>
+          <tr><td class="k">context_refs</td><td>per-item links — Dropbox paths, Gmail threads, calendar events, pinned quotes</td></tr>
+          <tr><td class="k">amendments</td><td>notes, corrections, questions — authored, timestamped, dictation-friendly</td></tr>
+          <tr><td class="k">dispatches</td><td>to agent or person · body · channel · staged → released → acknowledged → done → verified · release token · proof ref</td></tr>
+          <tr class="tot"><td class="k">events</td><td>timestamp · actor · transition · proof · verifier — the audit's five fields, on every state change</td></tr>
+          <tr><td class="k">option_cards · groups · rows</td><td>card (select mode, requires_text, authored_by, state) → categories → rows: label, consequence, selected, note, custom flag</td></tr>
+          <tr><td class="k">card_responses</td><td>actor, timestamp, selections as structured data, free text verbatim, event ref</td></tr>
+          <tr><td class="k">assistant_log</td><td>tier, model, tool calls, tokens in/out, cost NZD, item refs — feeds the spend ledger</td></tr>
+          <tr><td class="k">devices · health</td><td>person, APNs token, push prefs, last-seen · freshness per source: sweep, syncd, telemetry</td></tr>
+        </tbody>
+      </table>
+      <p class="aside-q" style="margin-top: 4mm;">Item statuses: open → decided → staged → dispatched → acknowledged → done → verified → closed. Nothing is deleted; supersession is a status, and prior text lives in the ledger.</p>
+    </div>
+    <div>
+      <h4 class="tag">Inbound · machines → Rook</h4>
+      <div class="tl" style="margin-top:3pt;">
+        <div class="ev"><div class="d">board.json</div><div class="t">Upsert items by legacy id — never clobbering fields Rook owns.</div></div>
+        <div class="ev"><div class="d">cards</div><div class="t">Agent-authored option cards render natively; superseded cards close themselves.</div></div>
+        <div class="ev"><div class="d">digests · agendas</div><div class="t">Attach as matter context; feed the Today strip.</div></div>
+        <div class="ev"><div class="d">acks · run-log tail</div><div class="t">Agent acknowledgements flip dispatch state; sweep freshness feeds the banner.</div></div>
+      </div>
+      <h4 class="tag" style="margin-top: 5mm;">Outbound · Rook → the fleet</h4>
+      <div class="tl" style="margin-top:3pt;">
+        <div class="ev"><div class="d">_ROOK/decisions/</div><div class="t">One markdown file per ruling — five-field frontmatter, ticks as YAML and prose. Sweeps ingest rulings with no new code.</div></div>
+        <div class="ev"><div class="d">_ROOK/dispatch/&lt;agent&gt;/</div><div class="t">Instruction inboxes; agents ack by writing a file back. One doctrine page makes every session check its inbox at wake.</div></div>
+        <div class="ev"><div class="d">people</div><div class="t">Scoped Rook view + optional gmail_sa draft for one-tap send + Telegram ping. Rook itself never emails anyone.</div></div>
+        <div class="ev"><div class="d">_ROOK/ledger/</div><div class="t">Continuous JSONL mirror of events + the llm spend ledger + nightly DB snapshot — the record survives any machine.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 05 · Data &amp; contract</div><div class="n">05</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== SCREENS ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>Six screens</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 06 · One thumb, or no hands</div>
+    <h1 class="disp">Six screens, no more.</h1>
+    <div class="location">44-point touch targets, dark mode for the 02:54 decisions, a push-to-talk button on every one of them.</div>
+  </div>
+  <div class="split" style="margin-top: 7mm;">
+    <div>
+      <div class="gap"><h5>1 · Today — the triage stack.</h5><p>Freshness banner, then cards hardest-gated first: criticals ≤ 72h, staged-unreleased with age badges, open option cards, new since last visit. <strong>Swipe right = decide</strong>; <strong>swipe left = defer</strong>; <strong>long-press = delegate</strong> to a person or agent. Three actions, one thumb.</p></div>
+      <div class="gap"><h5>2 · Queue — the D-series, operable.</h5><p>Categorised and tabular: filter by matter, lane, severity, status, owner. <strong>Bulk checkbox mode</strong> — select many, defer / close / supersede once.</p></div>
+      <div class="gap"><h5>3 · Item — everything about one thing.</h5><p>Current statement · pinned context (quotes, docs, mailbox excerpts via 8787, the calendar entry) · the human-readable event ledger · amendments with voice capture · its option card, rendered · actions: decide, amend, stage dispatch, <strong>mark verified — which demands a proof reference</strong>.</p></div>
+    </div>
+    <div>
+      <div class="gap"><h5>4 · Dispatch — the heart of it.</h5><p><em>Staged</em>: everything awaiting release, grouped by recipient, age badges, a Release button — FM only, token written, channel fired. <em>In flight</em>: released items awaiting ack, done, verify; overdue acks flagged. The direct fix for "a completed document waiting on a release decision."</p></div>
+      <div class="gap"><h5>5 · Matters — the fronts at a glance.</h5><p>One card per front: status line, next hard date, seven-day activity spark, open cards and staged counts, link to the workstream context file.</p></div>
+      <div class="gap"><h5>6 · Pulse — the numbers the next volume quotes.</h5><p>Decision latency (p50/p90), release latency, queue burn-down, staged-age histogram, verified-versus-claimed, freshness history — and now the AI spend line, straight from the gateway ledger.</p></div>
+      <p class="aside-q" style="margin-top: 4mm;">Plus global search, quick capture — dictate a thought, file it to a matter, ten seconds — and "Ask Rook" from anywhere, including the lock-screen Siri Shortcut.</p>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 06 · Screens</div><div class="n">06</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== BUILD PLAN ============================== -->
+<section class="page">
+  <div class="folio-top"><div>Rook · Build specification v2</div><div>Phases · security</div></div>
+  <div style="margin-top: 6mm;">
+    <div class="opener-num">Spec 07 · Cursor-ready</div>
+    <h1 class="disp">Twenty-four days, six gates.</h1>
+    <div class="location">Monorepo: apps/mobile (Expo), apps/server, apps/web, packages/shared. Repo FM1983/rook, private. Each phase ends usable, each gate is runnable — "looks good" is not a test.</div>
+  </div>
+  <div class="split" style="margin-top: 7mm;">
+    <div>
+      <h4 class="tag">The phases</h4>
+      <div class="tl" style="margin-top:3pt;">
+        <div class="ev"><div class="d">0 · Steel<br/>d1–2</div><div class="t">Monorepo, schema, tailnet serve, identity, health, APNs hello-world. <strong>Gate:</strong> a generic push arrives with the app closed; the tap opens the app; /api/health over tailnet shows identity.</div></div>
+        <div class="ev"><div class="d">1 · Mirror<br/>d2–6</div><div class="t">Importer + ingest; native Today/Queue/Item/Matters read-only; SSE; freshness banner; offline read cache. <strong>Gate:</strong> a sweep-written red flag on the phone in under 60s; an airplane-mode reopen still shows the queue.</div></div>
+        <div class="ev"><div class="d">2 · Decide<br/>d6–11</div><div class="t">Option Cards end-to-end; decide/defer/amend; quick voice capture; offline action queue; bulk checkbox mode. <strong>Gate:</strong> an agent-authored card is ruled in a lift; the .md ruling appears in Dropbox with the exact ticks; a sweep reflects it next cycle.</div></div>
+        <div class="ev"><div class="d">3 · Dispatch<br/>d11–15</div><div class="t">Staging, tokened release, agent inbox/ack loop, draft + Telegram channels, aging nags, T-48/24/3 push escalations. <strong>Gate:</strong> a test agent acks by file and state flips on the phone; a stale staged item nags exactly once daily.</div></div>
+        <div class="ev"><div class="d">4 · Voice<br/>d15–20</div><div class="t">Gateway, two tiers, router, spend ledger; push-to-talk and hands-free; assistant tools; Siri Shortcut. <strong>Gate:</strong> "what's critical, open the second one, note this, draft the dispatch" — completed without touching glass; the privileged canary provably never reaches OpenRouter; every call priced.</div></div>
+        <div class="ev"><div class="d">5 · Prove<br/>d20–24</div><div class="t">Verify flow, Pulse, ledger mirror, cross-alarming watchdogs, role scoping, TestFlight to the team. <strong>Gate:</strong> the 30-day parallel run starts; a killed daemon is alarmed within ten minutes.</div></div>
+      </div>
+    </div>
+    <div>
+      <h4 class="tag">Security — the v2 annex</h4>
+      <div class="body" style="margin-top:2mm;">
+        <p>
+          Everything from v1 stands: tailnet-only, ts.net TLS, privileged matters excluded <strong>at the query
+          layer</strong>, the immutable ledger, no secrets in the repo. v2 adds: APNs payloads carry zero content
+          beyond counts and generic labels. The on-device cache excludes privileged bodies — references only, Face ID
+          app lock, purge on role change. Gateway keys server-side only; the OpenRouter key arrives from FM directly
+          and never touches Dropbox. Voice transcripts stored only when explicitly saved. The assistant cannot
+          release, send, or widen its own tool list.
+        </p>
+      </div>
+      <div class="callout" style="margin-top: 5mm;">
+        <h4>Definition of done</h4>
+        <p>FM clears a real week from the phone; ≥ 80% of that week's decisions exist in Rook <em>before</em> any
+        sweep infers them; zero staged items silently older than 72 hours; and the next Pulse quotes Rook's numbers —
+        including the first real AI spend figures the estate has ever had.</p>
+      </div>
+      <p class="aside-q" style="margin-top: 5mm;">Design: bone paper, ink, Citadel green as the only accent, rust for criticals; Archivo with tabular numerals; Fraunces for the wordmark alone. Tokens shipped as a file and consumed literally.</p>
+    </div>
+  </div>
+  <div class="folio-bot"><div>Spec 07 · Build plan</div><div class="n">07</div><div>Rook · Citadel</div></div>
+</section>
+
+<!-- ============================== COLOPHON ============================== -->
+<section class="colophon">
+  <div class="pad">
+    <div style="font-family: var(--sans); font-weight: 500; font-size: 7pt; letter-spacing: 0.32em; text-transform: uppercase; color: var(--dk-ink-3);">Colophon · End of specification</div>
+    <div class="mast">ROOK</div>
+    <div style="font-family: var(--serif); font-style: italic; font-size: 16pt; color: var(--dk-ink-2); margin-top: 18pt; max-width: 152mm;">Build specification v2.0 — the Citadel command app, native on the iPhone. Supersedes v1.0. The operative artifact is SPEC.md in the repository; this document is its typeset twin for review.</div>
+    <div class="text">
+      Written against the live record: the decision-object and material-decision-gate findings, the five-field proof
+      pilot, the release-discipline failures of August, the launchd outage, the checkbox rulings that already govern,
+      and the fleet's own model-routing doctrine. Open items are four and none block Phase 0: the Apple Developer
+      account for capital.citadel (needed by day one for APNs and TestFlight), Kimi versus MiniMax as the default
+      voice brain, whether the team gets voice in v2 or v2.1, and a SwiftUI shell rewrite considered only after the
+      parallel run passes. Tick the box, say the word, and the record keeps itself.
+    </div>
+    <div class="grid-c">
+      <div><div class="k">Issue</div><div class="v">Spec v2.0</div></div>
+      <div><div class="k">Repo</div><div class="v">FM1983 / rook</div></div>
+      <div><div class="k">Build in</div><div class="v">Cursor · 6 phases</div></div>
+      <div><div class="k">Imprint</div><div class="v">Citadel · Lightspeed</div></div>
+    </div>
+  </div>
+  <div class="stamp">
+    <div>Confidential — internal · Trusted distribution only</div>
+    <div>2 September 2026 NZT · Auckland</div>
+  </div>
+</section>
+</body></html>
