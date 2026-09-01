@@ -1,36 +1,3 @@
-# Building Rook in Cursor — the working brief
-
-`SPEC.md` (same folder) is the operative contract — v2.0, sixteen provenance-backed
-requirements P1–P16. This file is what you hand Cursor: a kickoff prompt, and a rules
-file to drop into the build repo so every Cursor session stays inside the contract.
-
-## 0. Repo setup (one-time)
-
-Run `./bootstrap-rook-repo.sh` from this folder on any machine with `gh` authenticated
-(argonaut or the Mac). It creates the private `FM1983/rook` repo and seeds it with
-SPEC.md, this brief, `.cursor/rules/rook.mdc` (Cursor picks up `.cursor/rules/*.mdc`
-automatically), a README and .gitignore. Alternatively create the empty private repo
-on github.com and re-run the script — it skips creation and just seeds. Then open the
-repo in Cursor and paste the kickoff prompt.
-
-## 1. Kickoff prompt (paste into Cursor)
-
-> Read SPEC.md in full before writing anything. Build Phase 0 · Steel exactly as
-> specified in §8: a pnpm monorepo — `apps/mobile` (Expo, custom dev client,
-> TypeScript), `apps/server` (Fastify, argonaut :8791, SQLite + Drizzle),
-> `apps/web` (Next.js companion), `packages/shared` (zod schemas, shared types).
-> Wire tailnet-only serving, Tailscale identity, `/api/health`, and a direct-APNs
-> hello-world push (node-apn, token .p8, generic payload). Stop at the Phase 0
-> gate and show me how to run it: a push arrives with the app closed, the tap
-> opens the app, `/api/health` over tailnet shows my identity. Do not start
-> Phase 1 until the gate passes on a real phone.
-
-Then drive phase by phase: each of the six phases in SPEC.md §8 ends with a runnable
-gate — make Cursor demonstrate the gate before moving on. "Looks good" is not a test.
-
-## 2. Rules — save as `.cursor/rules/rook.mdc` in FM1983/rook
-
-```
 ---
 description: Rook — Citadel command app. Non-negotiable build rules.
 alwaysApply: true
@@ -96,11 +63,3 @@ alwaysApply: true
   44-point touch targets; dark mode is first-class.
 - Phase gates in SPEC.md §8 are the test plan. Do not start phase N+1 until
   gate N passes on a real device.
-```
-
-## 3. What argonaut needs before Phase 0
-
-- Apple Developer account for `capital.citadel` (APNs .p8 + TestFlight) — the
-  one open item that blocks day one.
-- Tailscale up (already true), Node 22, pnpm, and read/write on the local
-  Dropbox team folder (already true for the sweeps).
