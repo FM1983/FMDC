@@ -368,7 +368,7 @@ h4.tag, .tag {
   <div style="margin-top: 6mm;">
     <div class="opener-num">Spec 01 · Requirements with provenance</div>
     <h1 class="disp">Not a dashboard. A gate.</h1>
-    <div class="location">Fifteen requirements, each motivated by a named incident already on the record — the last three new in v2. This table is the contract: anything that serves none of these gets cut.</div>
+    <div class="location">Sixteen requirements, each motivated by a named incident already on the record — the last four new in v2. This table is the contract: anything that serves none of these gets cut.</div>
   </div>
   <table class="tbl" style="margin-top: 5mm;">
     <thead><tr><th style="width:46%">Incident on the record</th><th>Requirement it creates</th></tr></thead>
@@ -388,6 +388,7 @@ h4.tag, .tag {
       <tr class="tot"><td class="k">P13 · FM already rules by option paper and checkbox — B005 was "a five-option paper for FM's ruling"; the 13 Aug burn-priorities went out as "FM checkbox, executed"</td><td>Option Cards: categorised, tabular checkbox choices on any item — single- or multi-select, a consequence column, free text always present. Agents author cards as files; the app renders them natively.</td></tr>
       <tr class="tot"><td class="k">P14 · 8 Sep: a court appearance at 2:15pm and a 16:10 flight in one afternoon — decisions happen in cars, lifts and corridors</td><td>Native app + push + voice. Hands-free review and ruling; notifications that arrive without the app open; offline queue everywhere.</td></tr>
       <tr class="tot"><td class="k">P15 · A routing doctrine already exists and works: Kimi as "the eyes" with confidentiality gates in standing doctrine; Opus drafts, detached</td><td>Rook's LLM layer reuses the fleet doctrine: an efficient OpenRouter-sourced frontier model converses; Opus 5 does the grunt work; privileged content never leaves the Anthropic/local boundary.</td></tr>
+      <tr class="tot"><td class="k">P16 · The board's panels name documents the reader then has to hunt for — paths quoted in prose, with no way to open them</td><td>Click-through everywhere: every folder, file, document, thread or calendar entry a panel names is a live link — one tap opens it in Dropbox or the tailnet preview. No dead references, and an unresolvable path renders flagged, never silent.</td></tr>
     </tbody>
   </table>
   <div class="folio-bot"><div>Spec 01 · Why</div><div class="n">01</div><div>Rook · Citadel</div></div>
@@ -586,7 +587,7 @@ h4.tag, .tag {
       <table class="tbl" style="margin-top:3pt;">
         <tbody>
           <tr><td class="k">items</td><td>id, legacy id (R-/D-series preserved), kind, matter, lane, title, body, severity, status, owner, due, raised, source ref, privileged flag</td></tr>
-          <tr><td class="k">context_refs</td><td>per-item links — Dropbox paths, Gmail threads, calendar events, pinned quotes</td></tr>
+          <tr><td class="k">context_refs</td><td>per-item links — Dropbox paths, Gmail threads, calendar events, pinned quotes — every one a tappable deep link, auto-resolved by the importer (P16)</td></tr>
           <tr><td class="k">amendments</td><td>notes, corrections, questions — authored, timestamped, dictation-friendly</td></tr>
           <tr><td class="k">dispatches</td><td>to agent or person · body · channel · staged → released → acknowledged → done → verified · release token · proof ref</td></tr>
           <tr class="tot"><td class="k">events</td><td>timestamp · actor · transition · proof · verifier — the audit's five fields, on every state change</td></tr>
@@ -630,7 +631,7 @@ h4.tag, .tag {
     <div>
       <div class="gap"><h5>1 · Today — the triage stack.</h5><p>Freshness banner, then cards hardest-gated first: criticals ≤ 72h, staged-unreleased with age badges, open option cards, new since last visit. <strong>Swipe right = decide</strong>; <strong>swipe left = defer</strong>; <strong>long-press = delegate</strong> to a person or agent. Three actions, one thumb.</p></div>
       <div class="gap"><h5>2 · Queue — the D-series, operable.</h5><p>Categorised and tabular: filter by matter, lane, severity, status, owner. <strong>Bulk checkbox mode</strong> — select many, defer / close / supersede once.</p></div>
-      <div class="gap"><h5>3 · Item — everything about one thing.</h5><p>Current statement · pinned context (quotes, docs, mailbox excerpts via 8787, the calendar entry) · the human-readable event ledger · amendments with voice capture · its option card, rendered · actions: decide, amend, stage dispatch, <strong>mark verified — which demands a proof reference</strong>.</p></div>
+      <div class="gap"><h5>3 · Item — everything about one thing.</h5><p>Current statement · pinned context (quotes, docs, mailbox excerpts via 8787, the calendar entry) · the human-readable event ledger · amendments with voice capture · its option card, rendered · every referenced folder, file and thread a live link — tap to open in Dropbox or the tailnet preview · actions: decide, amend, stage dispatch, <strong>mark verified — which demands a proof reference</strong>.</p></div>
     </div>
     <div>
       <div class="gap"><h5>4 · Dispatch — the heart of it.</h5><p><em>Staged</em>: everything awaiting release, grouped by recipient, age badges, a Release button — FM only, token written, channel fired. <em>In flight</em>: released items awaiting ack, done, verify; overdue acks flagged. The direct fix for "a completed document waiting on a release decision."</p></div>

@@ -3,7 +3,7 @@
 
 A **native iPhone app** — one app to rule them all — that turns the GODS-EYE board into an operable queue: review categorised items, call up context, **decide by ticking options in tabular checkbox cards (with free-text always available)**, make amendment notes, stage instructions to machine agents and to people, release with one logged tap, and **talk to the board hands-free** through a voice assistant plumbed into the group's model fleet. Two-way live sync with the machines over the existing Dropbox + tailnet architecture; **push notifications** for criticals and escalations.
 
-v2 changes from v1: native iOS (not PWA-first) · APNs push · decision **option cards** (categorised checkbox tables + text entry) as the universal ruling pattern · a **voice chat** layer · an **LLM gateway** (v1's "no LLM inside Rook" rule is superseded, with hard data boundaries) · consolidation roadmap ("one app").
+v2 changes from v1: native iOS (not PWA-first) · APNs push · decision **option cards** (categorised checkbox tables + text entry) as the universal ruling pattern · a **voice chat** layer · an **LLM gateway** (v1's "no LLM inside Rook" rule is superseded, with hard data boundaries) · consolidation roadmap ("one app") · click-through links to folders, files and documents from every panel.
 
 ---
 
@@ -26,6 +26,7 @@ v2 changes from v1: native iOS (not PWA-first) · APNs push · decision **option
 | **P13** | **FM already rules by option paper and checkbox** — B005 was "a five-option paper for FM's ruling"; the 13 Aug burn-priorities went out as "FM checkbox, executed"; agents write options, FM ticks | **Option Cards**: categorised, tabular checkbox choices on any item, single- or multi-select, consequence column, free-text "in your own words" always present. Agents author cards as files; the app renders them natively. |
 | **P14** | 8 Sep: a court appearance at 2:15pm and a 16:10 flight in one afternoon; decisions happen in cars, lifts and corridors | **Native app + push + voice.** Hands-free review and ruling; notifications that arrive without the app open; offline queue everywhere. |
 | **P15** | A routing doctrine already exists and works: "the scarce resource is Claude context"; Kimi/OpenRouter routes carry confidentiality gates; "force Kimi to do the heavy lift… Don't hold back"; Opus drafts, detached | Rook's LLM layer **reuses the fleet doctrine**: an efficient OpenRouter-sourced Chinese frontier model as the conversational brain; **Opus 5 for the grunt work**, detached; privileged content never leaves the Anthropic/local boundary. |
+| **P16** | The board's panels name documents the reader then has to hunt for — paths quoted in prose, "see file" with no way to open it | **Click-through everywhere.** Every folder, file, document, email thread or calendar entry a panel names is a live link — one tap opens it. No dead references anywhere in the UI. |
 
 ## 1. Product definition
 
@@ -34,6 +35,8 @@ v2 changes from v1: native iOS (not PWA-first) · APNs push · decision **option
 **Roles.** FM (everything, sole releaser of FM-gated items, privileged visibility) · Brandon/Zach/Nicki (scoped lanes, can review/amend/stage/complete, per-matter privileged grants) · machine agents (no UI — files in, files out) · the assistant (a tool-using session inside the gateway; may query and stage; may **never** release, send, or see privileged matter content unless running on the privileged tier).
 
 **One app to rule them all — consolidation roadmap.** v2 ships the board, dispatch, capture and voice. The same app then absorbs, as read surfaces: the daily briefing/digest (v2.1), matter context packs and the 8787 mailbox excerpts (v2.1), Pulse metrics (v2.0 already), agenda PDFs (v2.2), Reference-Library lookup (v2.2, links into the 4317 app). Rule: Rook *renders* other systems; it does not re-implement them. Nothing else gets built as a separate surface for FM once Rook is live.
+
+**Click-through everywhere (P16).** Every panel — item, matter card, option card, dispatch, and voice answers — renders its references as live links, never as quoted paths. Mechanics: `context_refs` rows are tappable; a Dropbox folder or file opens in the Dropbox iOS app via a server-resolved deep link (the server maps team-folder paths to `dropbox.com` links); documents additionally offer an in-app preview streamed over the tailnet from argonaut's local Dropbox mirror — nothing stored on-device, privileged bodies streamed only to cleared roles; Gmail threads open their 8787 mailbox excerpt with an "open in Gmail" jump; calendar entries open iOS Calendar. The importer resolves every path it sees in `board.json`, digests and agent-authored cards into a ref row automatically — links come for free, not by authoring discipline. Acceptance: no panel may name a file, folder or thread without rendering it as a link; a named-but-unresolvable path renders flagged, never silent.
 
 **Non-goals (v2).** Not a document editor; not a CRM; no public exposure; no autonomous sending; no privileged *documents* stored on-device (references + excerpts only, purge on lock); no Android (revisit later); CarPlay deferred (Siri Shortcut "Ask Rook" covers the car).
 
@@ -100,6 +103,7 @@ option_rows  { id, group_id fk, label, consequence, sort, selected bool, note_md
 card_responses{ id, card_id fk, actor, ts, selections_json, free_text_md, event_id fk }
 assistant_log{ id, ts, tier, model, tool_calls_json, tokens_in, tokens_out, cost_nzd, item_refs }
 devices      { id, person, apns_token, platform, last_seen, push_prefs_json }
+context_refs { +deep_link_url, +kind/*folder|file|thread|event*/, +resolver_state/*resolved|flagged*/ }  // P16
 ```
 
 ## 7. Security annex (v2 deltas)
@@ -109,7 +113,7 @@ APNs payloads carry zero content beyond counts and generic labels. On-device cac
 ## 8. Build plan — six phases, runnable gates (~24 days)
 
 - **0 · Steel (d1–2)** — monorepo (`apps/mobile` Expo, `apps/server`, `apps/web`, `packages/shared`), schema, tailnet serve, identity, health, APNs hello-world to FM's phone. ✅ Gate: generic push arrives with app closed; tap opens app; `/api/health` over tailnet shows identity.
-- **1 · Mirror (d2–6)** — importer + ingest; native Today/Queue/Item/Matters read-only; SSE; freshness banner; offline read cache. ✅ Gate: sweep-written red flag on the phone < 60s; airplane-mode reopen still shows the queue.
+- **1 · Mirror (d2–6)** — importer + ingest; native Today/Queue/Item/Matters read-only; SSE; freshness banner; offline read cache. ✅ Gate: sweep-written red flag on the phone < 60s; airplane-mode reopen still shows the queue; every path in an imported item is tappable and opens Dropbox or the tailnet preview (P16).
 - **2 · Decide (d6–11)** — **Option Cards** end-to-end (agent-authored file → native render → ticks + text → ledger + `_ROOK/decisions/`), decide/defer/amend, quick voice capture, offline action queue, bulk checkbox mode. ✅ Gate: an agent-authored card is ruled on the phone in a lift; the `.md` ruling appears in Dropbox with exact ticks; a sweep reflects it next cycle.
 - **3 · Dispatch (d11–15)** — staging, tokened release, agent inbox/ack loop, gmail-draft + Telegram channels, aging nags + T-48/24/3 push escalations. ✅ Gate: test agent acks by file; state flips on the phone; a stale staged item nags exactly once daily.
 - **4 · Voice + models (d15–20)** — gateway with two tiers + router + spend ledger; push-to-talk and hands-free; assistant tools (query/summarise/note/draft/stage/tick-with-confirm); Siri Shortcut. ✅ Gate: hands-free — "what's critical, open the second one, note this, draft the dispatch" — completed without touching glass; a privileged canary item provably never reaches OpenRouter (CI test); every call priced in the ledger.
