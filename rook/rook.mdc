@@ -61,5 +61,11 @@ alwaysApply: true
   Citadel green #727C60 (the only accent), rust #8A4B38 (criticals only).
   Archivo with tabular numerals for UI; Fraunces for the wordmark alone.
   44-point touch targets; dark mode is first-class.
+- The enrolment check is Phase 0's first commit: scripts/check-enrolment.ts
+  verifies via the App Store Connect API that Apple Developer membership for
+  capital.citadel is active, an APNs .p8 is minted or mintable, and TestFlight
+  internal testing is available. PASS is part of the Phase 0 gate; CI re-runs
+  it on every build; a FAIL is reported with what is missing, never worked
+  around or stubbed silently.
 - Phase gates in SPEC.md §8 are the test plan. Do not start phase N+1 until
   gate N passes on a real device.

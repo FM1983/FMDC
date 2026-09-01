@@ -15,7 +15,11 @@ repo in Cursor and paste the kickoff prompt.
 
 ## 1. Kickoff prompt (paste into Cursor)
 
-> Read SPEC.md in full before writing anything. Build Phase 0 · Steel exactly as
+> Read SPEC.md in full before writing anything. Step one, before any other code,
+> is the enrolment check: write and run scripts/check-enrolment.ts per §8 Phase 0 —
+> PASS/FAIL on Apple Developer membership for capital.citadel, a mintable APNs .p8,
+> and TestFlight availability. If any item FAILs, stop and report exactly what is
+> missing; do not stub around it silently. Then build Phase 0 · Steel exactly as
 > specified in §8: a pnpm monorepo — `apps/mobile` (Expo, custom dev client,
 > TypeScript), `apps/server` (Fastify, argonaut :8791, SQLite + Drizzle),
 > `apps/web` (Next.js companion), `packages/shared` (zod schemas, shared types).

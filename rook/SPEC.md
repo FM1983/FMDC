@@ -134,7 +134,7 @@ APNs payloads carry zero content beyond counts and generic labels. On-device cac
 
 ## 8. Build plan — six phases, runnable gates (~24 days)
 
-- **0 · Steel (d1–2)** — monorepo (`apps/mobile` Expo, `apps/server`, `apps/web`, `packages/shared`), schema, tailnet serve, identity, health, APNs hello-world to FM's phone. ✅ Gate: generic push arrives with app closed; tap opens app; `/api/health` over tailnet shows identity.
+- **0 · Steel (d1–2)** — **enrolment check first, before any code**: `scripts/check-enrolment.ts` queries the App Store Connect API and prints PASS/FAIL on three items — Apple Developer Program membership for `capital.citadel` active; an APNs Auth Key (.p8) minted or mintable; TestFlight internal testing available. A FAIL stops with a report naming exactly what is missing and who can fix it — it is never worked around, and CI re-runs the check on every build. Then: monorepo (`apps/mobile` Expo, `apps/server`, `apps/web`, `packages/shared`), schema, tailnet serve, identity, health, APNs hello-world to FM's phone. ✅ Gate: enrolment check passes; generic push arrives with app closed; tap opens app; `/api/health` over tailnet shows identity.
 - **1 · Mirror (d2–6)** — importer + ingest; native Today/Queue/Item/Matters read-only; SSE; freshness banner; offline read cache. ✅ Gate: sweep-written red flag on the phone < 60s; airplane-mode reopen still shows the queue; every path in an imported item is tappable and opens Dropbox or the tailnet preview (P16). Every imported item shows a brief and a rule-derived light; a title-only item is impossible to render (P17, P18).
 - **2 · Decide (d6–11)** — **Option Cards** end-to-end (agent-authored file → native render → ticks + text → ledger + `_ROOK/decisions/`), decide/defer/amend, quick voice capture, offline action queue, bulk checkbox mode. ✅ Gate: an agent-authored card is ruled on the phone in a lift; the `.md` ruling appears in Dropbox with exact ticks; a sweep reflects it next cycle.
 - **3 · Dispatch (d11–15)** — staging, tokened release, agent inbox/ack loop, gmail-draft + Telegram channels, aging nags + T-48/24/3 push escalations. ✅ Gate: test agent acks by file; state flips on the phone; a stale staged item nags exactly once daily. A gmail_sa draft cannot exist before the release tap; a planted orphan draft in the Gmail folder is flagged on the phone within one sweep (P20).
@@ -143,7 +143,7 @@ APNs payloads carry zero content beyond counts and generic labels. On-device cac
 
 ## 9. Open items (none block Phase 0)
 
-1. Apple Developer account status for `capital.citadel` (needed by d1 for APNs .p8 + TestFlight).
+1. Apple Developer account for `capital.citadel` — status unknown; the Phase 0 enrolment check answers it on day one, and enrolment (if needed) starts the same day. Everything server-side proceeds regardless; only push and TestFlight wait on it.
 2. Kimi K3 vs MiniMax M3 as the *default* voice brain — ship Kimi, keep the switch server-side.
 3. Whether Zach/Brandon get voice in v2 or v2.1 (default: FM-only first).
 4. SwiftUI shell rewrite — revisit only after the parallel run passes.
